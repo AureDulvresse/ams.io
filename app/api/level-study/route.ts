@@ -12,7 +12,7 @@ export async function GET() {
   return NextResponse.json(levelStudys);
 }
 
-export async function POST(request: { json: () => any }) {
+export async function POST(request: Request) {
   const levelStudyData = await request.json();
 
   // Vérifier si un niveau d'étude avec le même nom existe déjà

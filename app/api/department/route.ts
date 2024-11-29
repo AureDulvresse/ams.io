@@ -12,7 +12,7 @@ export async function GET() {
   return NextResponse.json(departments);
 }
 
-export async function POST(request: { json: () => any }) {
+export async function POST(request: Request) {
   const departmentData = await request.json();
 
   // Vérifier si un département avec le même nom existe déjà

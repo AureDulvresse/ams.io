@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const getParentRelationship = async (studentId) => {
+const getParentRelationship = async (studentId: number) => {
 
   const resultat = await prisma.parentStudentRelationship.findFirst({
       where: {
@@ -14,10 +14,12 @@ const getParentRelationship = async (studentId) => {
     return await resultat
 }
 
-export async function GET(request: Request, { params }: any) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const studentId = parseInt(params.id);
 
-   const {parent_id } = await getParentRelationship(studentId)
+   const result = await getParentRelationship(studentId);
+
+   const parent_id = result?.parent_id;
 
   const parent = await prisma.parent.findUnique({
     where: { id: Number(parent_id) },
@@ -35,7 +37,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const studentId = parseInt(params.id);
     const parentData = await request.json();
 
-    const {parent_id } = await getParentRelationship(studentId)
+    const result = await getParentRelationship(studentId);
+
+   const parent_id = result?.parent_id;
 
     const updatedparent = await prisma.parent.update({
       where: { id: parent_id },

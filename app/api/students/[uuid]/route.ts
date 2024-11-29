@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: any, { params }: any) {
+export async function GET(request: Request, { params }: any) {
   const { uuid } = params;
 
   try {
@@ -37,7 +37,7 @@ export async function GET(request: any, { params }: any) {
 import fs from 'fs';
 import path from 'path';
 
-export async function PUT(request: { json: () => any }, { params }: any) {
+export async function PUT(request: Request, { params }: any) {
   const { uuid } = params;
 
   try {
@@ -120,7 +120,7 @@ export async function PUT(request: { json: () => any }, { params }: any) {
 }
 
 
-export async function DELETE(request: any, { params }: any) {
+export async function DELETE(request: Request, { params }: any) {
   const { uuid } = params;
 
   if (!uuid || isNaN(Number(uuid))) {

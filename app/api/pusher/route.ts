@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import Pusher from "pusher";
 
 const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID,
-  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
-  secret: process.env.PUSHER_APP_SECRET,
-  cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
+  appId: process.env.PUSHER_APP_ID || "1876257",
+  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY || "ac642ac6ff9835589dde",
+  secret: process.env.PUSHER_APP_SECRET || "ec0da12815a37bef1218",
+  cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER || "mt1",
   useTLS: true,
 });
 

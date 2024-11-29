@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: any, { params }: any) {
+export async function GET(request: Request, { params }: any) {
   const { id } = params;
   const role = await prisma.role.findUnique({
     where: { id: Number(id) },

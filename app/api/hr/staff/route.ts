@@ -8,7 +8,7 @@ export async function GET() {
   return NextResponse.json(students);
 }
 
-export async function POST(request: { json: () => any; }) {
+export async function POST(request: Request) {
   const studentData = await request.json();
   const student = await prisma.staff.create({
     data: studentData,

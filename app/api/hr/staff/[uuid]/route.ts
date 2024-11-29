@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: any, { params }: any) {
+export async function GET(request: Request, { params }: any) {
   const { uuid } = params;
   const student = await prisma.staff.findUnique({ where: { id: Number(uuid) } });
   
@@ -14,7 +14,7 @@ export async function GET(request: any, { params }: any) {
   return NextResponse.json(student);
 }
 
-export async function PUT(request: { json: () => any; }, { params }: any) {
+export async function PUT(request: Request, { params }: any) {
   const { uuid } = params;
   const updatedData = await request.json();
   const staff = await prisma.staff.update({
@@ -25,7 +25,7 @@ export async function PUT(request: { json: () => any; }, { params }: any) {
   return NextResponse.json(staff);
 }
 
-export async function DELETE(request: any, { params }: any) {
+export async function DELETE(request: Request, { params }: any) {
   const { uuid } = params;
   await prisma.staff.delete({ where: { id: Number(uuid) } });
   return NextResponse.json({ message: 'Personal deleted' }, { status: 204 });

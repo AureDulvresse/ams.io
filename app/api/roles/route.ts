@@ -12,7 +12,7 @@ export async function GET() {
   return NextResponse.json(roles);
 }
 
-export async function POST(request: { json: () => any }) {
+export async function POST(request: Request) {
   const roleData = await request.json();
 
   // Vérifier si un département avec le même nom existe déjà
