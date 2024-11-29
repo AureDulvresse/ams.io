@@ -12,7 +12,7 @@ export async function GET() {
   return NextResponse.json(users);
 }
 
-export async function POST(request: { json: () => any }) {
+export async function POST(request: Request) {
   const userData = await request.json();
 
   // Vérifier si un département avec le même nom existe déjà
