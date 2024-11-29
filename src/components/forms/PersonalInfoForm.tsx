@@ -10,7 +10,7 @@ interface PersonalInfoFormProps {
   formData: {
     firstName: string;
     lastName: string;
-    dob: string;
+    dob: string | Date;
     pob: string;
     address: string;
     phone: string;
@@ -117,7 +117,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
           <Input
             type="date"
             name="dob"
-            value={formData.dob}
+            value={new Date(formData.dob).toLocaleDateString()}
             onChange={handleInputChange}
             placeholder="Entrer la date de naissance"
             required
