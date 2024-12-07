@@ -8,53 +8,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// 1. Modèle pour les écoles (lié à SubscriptionPlan)
-model School {
-  id                Int              @id @default(autoincrement())
-  name              String
-  address           String
-  contact_phone     String
-  contact_email     String
-  domain            String           @unique // Sous-domaine pour le tenant
-  subscription_plan Int
-  subscriptionPlan  SubscriptionPlan @relation(fields: [subscription_plan], references: [id])
-}
-
-// 2. Modèle pour les plans d'abonnement (indépendant)
-model SubscriptionPlan {
-  id          Int      @id @default(autoincrement())
-  name        String
-  price       Decimal  @db.Decimal(10, 2)
+// 1. Modèle pour les permissions (indépendant)
+model Permission {
+  id          Int              @id @default(autoincrement())
+  code        Int              @unique
+  name        String           @unique // Nom de la permission (ex. : 'create_student', 'view_grades')
   description String?
-  schools     School[] // Relation vers les établissements scolaires
+  role        RolePermission[]
 }
 
-// 3. Modèle pour les utilisateurs (lié à Role)
-model User {
-  id               Int       @id @default(autoincrement())
-  email            String    @unique
-  first_name       String
-  last_name        String
-  password         String
-  role_id          Int // Ajout de la référence au rôle
-  related_id       Int // Référence à l'école
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
-  logins           Login[]   @relation("UserLogins")
-  messagesReceived Message[] @relation("ReceivedMessages")
-  role             Role      @relation(fields: [role_id], references: [id]) // Relation avec Role
-}
-
-// 4. Modèle pour les connexions (lié à User)
-model Login {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation("UserLogins", fields: [user_id], references: [id])
-  user_id    Int
-  login_time DateTime
-  ip_address String
-}
-
-// 5. Modèle pour les rôles (indépendant)
+// 2. Modèle pour les rôles (indépendant, lié à Permission)
 model Role {
   id              Int               @id @default(autoincrement())
   name            String            @unique // Nom du rôle
@@ -67,16 +30,7 @@ model Role {
   Staff           Staff[]
 }
 
-// 6. Modèle pour les permissions (indépendant)
-model Permission {
-  id          Int              @id @default(autoincrement())
-  code        Int              @unique
-  name        String           @unique // Nom de la permission (ex. : 'create_student', 'view_grades')
-  description String?
-  role        RolePermission[]
-}
-
-// 7. Modèle pour la relation entre Rôle et Permission (table de liaison)
+// 3. Modèle pour la relation entre Rôle et Permission (table de liaison)
 model RolePermission {
   role_id       Int
   permission_id Int
@@ -84,6 +38,52 @@ model RolePermission {
   permissions   Permission @relation(fields: [permission_id], references: [id])
 
   @@id([role_id, permission_id]) // Composite primary key
+}
+
+// 4. Modèle pour les plans d'abonnement (indépendant)
+model SubscriptionPlan {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Decimal  @db.Decimal(10, 2)
+  description String?
+  schools     School[]
+}
+
+// 5. Modèle pour les écoles (lié à SubscriptionPlan)
+model School {
+  id                Int              @id @default(autoincrement())
+  name              String
+  address           String
+  contact_phone     String
+  contact_email     String
+  domain            String           @unique // Sous-domaine pour le tenant
+  subscription_plan Int
+  subscriptionPlan  SubscriptionPlan @relation(fields: [subscription_plan], references: [id])
+}
+
+// 6. Modèle pour les utilisateurs (lié à Role et School)
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  first_name       String
+  last_name        String
+  password         String
+  role_id          Int
+  related_id       Int       // Référence à l'école
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  logins           Login[]   @relation("UserLogins")
+  messagesReceived Message[] @relation("ReceivedMessages")
+  role             Role      @relation(fields: [role_id], references: [id])
+}
+
+// 7. Modèle pour les connexions (lié à User)
+model Login {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  login_time DateTime
+  ip_address String
+  user       User     @relation("UserLogins", fields: [user_id], references: [id])
 }
 
 // 8. Modèle pour les départements (indépendant)
@@ -109,7 +109,22 @@ model LevelStudy {
   students    Student[]
 }
 
-// 10. Modèle pour les types de contrat (indépendant)
+// 10 Model pour les cours (lié à Department)
+model Course {
+  id            Int        @id @default(autoincrement())
+  name          String
+  description   String?
+  credits       Int
+  department_id Int
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  department    Department @relation(fields: [department_id], references: [id])
+  classes       Class[]
+  grades        Grade[]
+  schedules     Schedule[]
+}
+
+// 11. Modèle pour les types de contrat (indépendant)
 model ContractType {
   id          Int      @id @default(autoincrement())
   libelle     String   @unique
@@ -120,7 +135,7 @@ model ContractType {
   Staff       Staff[]
 }
 
-// 11. Modèle pour le personnel (lié à Department, ContractType)
+// 12. Modèle pour le personnel (lié à Department, ContractType, Role)
 model Staff {
   id              Int               @id @default(autoincrement())
   matricule       String            @unique
@@ -138,16 +153,17 @@ model Staff {
   updated_at      DateTime          @updatedAt
   role            Role              @relation(fields: [role_id], references: [id])
   contract        ContractType      @relation(fields: [contract_id], references: [id])
+  Department      Department?       @relation(fields: [departmentId], references: [id])
+  departmentId    Int?
   messagesSent    Message[]         @relation("SentMessages")
   staffAttendance StaffAttendance[]
   salaries        Salary[]
   schedules       Schedule[]
   Teacher         Teacher[]
-  Department      Department?       @relation(fields: [departmentId], references: [id])
-  departmentId    Int?
   Class           Class[]
 }
 
+// 13. Modèle Teacher pour le personnel enseignant (lié à Staff, Department, Class)
 model Teacher {
   id            Int        @id @default(autoincrement())
   department_id Int
@@ -157,22 +173,7 @@ model Teacher {
   classes       Class[]
 }
 
-// 12. Modèle pour les cours (lié à Department)
-model Course {
-  id            Int        @id @default(autoincrement())
-  name          String
-  description   String?
-  credits       Int
-  department_id Int
-  created_at    DateTime   @default(now())
-  updated_at    DateTime   @updatedAt
-  department    Department @relation(fields: [department_id], references: [id])
-  classes       Class[]
-  grades        Grade[]
-  schedules     Schedule[]
-}
-
-// 13. Modèle pour les classes (lié à LevelStudy, Course, Staff)
+// 14. Modèle pour les classes (lié à LevelStudy, Course, Staff)
 model Class {
   id            Int        @id @default(autoincrement())
   name          String
@@ -189,7 +190,7 @@ model Class {
   teacherId     Int?
 }
 
-// 14. Modèle pour les étudiants (lié à LevelStudy)
+// 15. Modèle pour les étudiants (lié à LevelStudy)
 model Student {
   id             Int                         @id @default(autoincrement())
   matricule      String                      @unique
@@ -211,7 +212,7 @@ model Student {
   parentStudents ParentStudentRelationship[]
 }
 
-// 15. Modèle pour les notes (lié à Student, Course)
+// 16. Modèle pour les notes (lié à Student, Course)
 model Grade {
   id            Int      @id @default(autoincrement())
   student_id    Int
@@ -226,7 +227,7 @@ model Grade {
   course        Course   @relation(fields: [course_id], references: [id])
 }
 
-// 16. Modèle pour les messages (lié à Staff, User)
+// 17. Modèle pour les messages (lié à Staff, User)
 model Message {
   id          Int      @id @default(autoincrement())
   sender_id   Int
@@ -238,7 +239,7 @@ model Message {
   receiver    User     @relation("ReceivedMessages", fields: [receiver_id], references: [id])
 }
 
-// 17. Modèle pour les parents (indépendant)
+// 18. Modèle pour les parents (indépendant)
 model Parent {
   id             Int                         @id @default(autoincrement())
   name           String
@@ -249,7 +250,7 @@ model Parent {
   parentStudents ParentStudentRelationship[]
 }
 
-// 18. Modèle pour la relation parent-élève (lié à Student, Parent)
+// 19. Modèle pour la relation parent-élève (lié à Student, Parent)
 model ParentStudentRelationship {
   id         Int     @id @default(autoincrement())
   student_id Int
@@ -258,7 +259,7 @@ model ParentStudentRelationship {
   parent     Parent  @relation(fields: [parent_id], references: [id])
 }
 
-// 19. Modèle pour les événements (indépendant)
+// 20. Modèle pour les événements (indépendant)
 model Event {
   id          Int      @id @default(autoincrement())
   title       String
@@ -270,7 +271,7 @@ model Event {
   updated_at  DateTime @updatedAt
 }
 
-// 20. Modèle pour les fournitures (indépendant)
+// 21. Modèle pour les fournitures (indépendant)
 model Supply {
   id            Int      @id @default(autoincrement())
   name          String
@@ -282,7 +283,7 @@ model Supply {
   updated_at    DateTime @updatedAt
 }
 
-// 21. Modèle pour les emplois du temps (lié à Class, Course, Staff)
+// 22. Modèle pour les emplois du temps (lié à Class, Course, Staff)
 model Schedule {
   id         Int      @id @default(autoincrement())
   class_id   Int
@@ -298,7 +299,7 @@ model Schedule {
   teacher    Staff    @relation(fields: [teacher_id], references: [id])
 }
 
-// 22. Modèle pour l'assiduité du personnel (lié à Staff)
+// 23. Modèle pour l'assiduité du personnel (lié à Staff)
 model StaffAttendance {
   id         Int      @id @default(autoincrement())
   staff_id   Int
@@ -308,7 +309,7 @@ model StaffAttendance {
   staff      Staff    @relation(fields: [staff_id], references: [id])
 }
 
-// 23. Modèle pour les salaires du personnel (lié à Staff)
+// 24. Modèle pour les salaires du personnel (lié à Staff)
 model Salary {
   id         Int      @id @default(autoincrement())
   staff_id   Int
@@ -320,7 +321,7 @@ model Salary {
   staff      Staff    @relation(fields: [staff_id], references: [id])
 }
 
-// 24. Modèle pour les salaires journalier du personnel en fonction du rôle (lié à Role)
+// 25. Modèle pour les salaires journalier du personnel en fonction du rôle (lié à Role)
 model RoleDailySalary {
   id           Int      @id @default(autoincrement())
   role_id      Int
@@ -330,7 +331,7 @@ model RoleDailySalary {
   role         Role     @relation(fields: [role_id], references: [id])
 }
 
-// 25. Modèle pour les frais de scolarité (lié à Student)
+// 26. Modèle pour les frais de scolarité (lié à Student)
 model TuitionFee {
   id           Int      @id @default(autoincrement())
   student_id   Int
@@ -341,7 +342,7 @@ model TuitionFee {
   student      Student  @relation(fields: [student_id], references: [id])
 }
 
-// 26. Modèle pour les tâches (lié à User)
+// 27. Modèle pour les tâches (lié à User)
 model Task {
   id          Int      @id @default(autoincrement())
   title       String
