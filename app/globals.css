@@ -92,3 +92,37 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(66, 62, 132, 0.756);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px); /* Montée */
+  }
+}
+
+.animate-bounce {
+  animation: bounce 0.6s infinite; /* Durée de l'animation et répétition */
+}
+
+.delay-200 {
+  animation-delay: 0.2s; /* Délai pour le deuxième point */
+}
+
+.delay-400 {
+  animation-delay: 0.4s; /* Délai pour le troisième point */
+}

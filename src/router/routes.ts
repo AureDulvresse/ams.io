@@ -1,23 +1,16 @@
 import {
   GraduationCap,
   LayoutDashboard,
-  LucideIcon,
-  Send,
+  UsersRound,
   Settings,
   Settings2,
-  UsersRound,
+  Send,
+  DollarSign,
+  CreditCard,
+  TrendingUp,
+  FileText,
+  BarChart2,
 } from "lucide-react";
-
-export interface SidebarRoute {
-  title: string;
-  url: string;
-  icon?: LucideIcon;
-  isActive?: boolean;
-  items?: {
-    title: string;
-    url: string;
-  }[];
-}
 
 const app_routes = {
   navDashboard: [
@@ -88,6 +81,54 @@ const app_routes = {
             },
             {
               title: "Quantum",
+              url: "#",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  navFinance: [
+    {
+      title: "Finances",
+      url: "#",
+      icon: DollarSign,
+      isActive: false,
+      items: [
+        {
+          title: "Facturation et Paiements",
+          url: "#",
+          icon: CreditCard,
+        },
+        {
+          title: "Gestion des Dépenses",
+          url: "#",
+          icon: FileText,
+        },
+        {
+          title: "Suivi des Recettes",
+          url: "#",
+          icon: TrendingUp,
+        },
+        {
+          title: "Rapports Financiers",
+          url: "#",
+          icon: BarChart2,
+        },
+        {
+          title: "Paramétrage",
+          url: "#",
+          items: [
+            {
+              title: "Modes de Paiement",
+              url: "#",
+            },
+            {
+              title: "Tarification",
+              url: "#",
+            },
+            {
+              title: "Pénalités",
               url: "#",
             },
           ],

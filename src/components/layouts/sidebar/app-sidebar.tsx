@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import {
-   Command,
+   GraduationCap,
 } from "lucide-react"
 
 
@@ -15,9 +15,8 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/src/components/ui/sidebar"
-import NavAcademic from "./nav-academic"
-import NavDashboard from "./nav-dashboard"
 import app_routes from "@/src/router/routes"
+import NavGroup from "./nav-group"
 
 export const data = {
    user: {
@@ -36,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuButton size="lg" asChild>
                      <a href="#">
                         <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                           <Command className="size-4" />
+                           <GraduationCap className="size-4" />
                         </div>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                            <span className="truncate font-semibold">Acme Inc</span>
@@ -48,17 +47,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
          </SidebarHeader>
          <SidebarContent>
-            <NavDashboard items={app_routes.navDashboard} />
-            <NavAcademic items={app_routes.navAcademic} />
-            {/* <NavProjects projects={data.projects} />
-            <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+            <NavGroup groupTitle="Accueil" items={app_routes.navDashboard} />
+            <NavGroup groupTitle="Academie" items={app_routes.navAcademic} />
+            <NavGroup groupTitle="Ressources humaine" items={app_routes.navHR} />
+            <NavGroup groupTitle="Finance" items={app_routes.navFinance} />
+            <NavGroup groupTitle="Settings" items={app_routes.navSettings} />
          </SidebarContent>
-         <SidebarFooter>
-            <SidebarMenuButton className="text-muted-foreground uppercase text-xs text-center">
-               Developed by FenixAD
-            </SidebarMenuButton>
-
-         </SidebarFooter>
       </Sidebar>
    )
 }
