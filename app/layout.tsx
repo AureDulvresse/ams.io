@@ -3,8 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/src/providers/theme-provider";
 import { Toaster } from "@/src/components/ui/sonner";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/src/components/ui/sidebar";
-import { AppSidebar } from "@/src/components/layouts/sidebar/app-sidebar";
 
 const fredoka = localFont({
   src: "./fonts/Fredoka-VariableFont_wdth,wght.ttf",
@@ -36,13 +34,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              {children}
-              <Toaster />
-            </SidebarInset>
-          </SidebarProvider>
+          {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
