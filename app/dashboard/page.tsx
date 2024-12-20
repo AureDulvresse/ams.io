@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import useFetchData from "@/src/hooks/useFetchData";
 import TopBar from "@/src/components/layouts/topbar/top-bar";
 
 const breadcrumbItems = [
@@ -8,11 +7,6 @@ const breadcrumbItems = [
 ];
 
 const DashboardPage = async () => {
-   const {
-      data: events,
-      isLoading: isLoadingEvent,
-      error,
-   } = useFetchData<Event[]>("/api/events");
 
    return (
       <div>
