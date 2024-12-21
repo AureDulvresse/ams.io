@@ -1,13 +1,18 @@
 import { SidebarInset, SidebarProvider } from "@/src/components/ui/sidebar";
 import { AppSidebar } from "@/src/components/layouts/sidebar/app-sidebar";
 import TopBar from "@/src/components/layouts/topbar/top-bar";
+import { auth } from "@/src/lib/auth";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
    children,
 }: {
    children: React.ReactNode
 }) {
-   return <section>
+
+   const session = await auth();
+   const user = session?.user;
+
+   return <>
       <SidebarProvider>
          <AppSidebar />
          <SidebarInset>
@@ -15,5 +20,5 @@ export default function DashboardLayout({
             {children}
          </SidebarInset>
       </SidebarProvider>
-   </section>
+   </>
 }
