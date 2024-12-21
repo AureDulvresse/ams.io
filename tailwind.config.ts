@@ -62,6 +62,10 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      fontFamily: {
+        fredoka: "--font-fredoka",
+        inter: "--font-inter",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
