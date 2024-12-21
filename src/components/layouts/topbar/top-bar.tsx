@@ -69,6 +69,7 @@ const TopBar = () => {
          setTheme("dark");
       } else if (theme === "dark") {
          setTheme("light");
+         console.log('theme change to dark');
       } else {
          setTheme("system");
       }
