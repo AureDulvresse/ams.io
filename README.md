@@ -1,79 +1,36 @@
-# **Feuille de route : Développement de Academia Management Sync (AMS)**  
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## 📌 **Objectif principal**  
-Créer un système SaaS performant et intuitif pour gérer les institutions éducatives, en se concentrant sur les besoins des administrateurs, enseignants et étudiants.  
+## Getting Started
 
-## 🗺️ **Étapes clés du développement**  
+First, run the development server:
 
-### 1️⃣ **Mise en place initiale**  
-- **Technologies** : Configuration de Next.js avec l’App Router, Tailwind CSS, Prisma et PostgreSQL.  
-- **Infrastructure** : Hébergement sur [Vercel](https://vercel.com/) pour des déploiements continus.  
-- **Environnement de développement** : Création du fichier `.env.local` pour gérer les clés API et les URL critiques.  
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### 2️⃣ **Création du Dashboard**  
-- **But** : Fournir une vue d’ensemble intuitive des statistiques et des éléments clés (étudiants, cours, performances).  
-- **Modules prévus** :  
-  - Tableau de bord principal (statistiques en temps réel).  
-  - Navigation vers les modules de gestion.  
-- **Technologies front-end** :  
-  - Utilisation de composants Tailwind CSS et ShadCN.  
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
----
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### 3️⃣ **Gestion des étudiants**  
-- **Fonctionnalités** :  
-  - Ajout, modification, suppression et recherche d’étudiants.  
-  - Import/Export des données (CSV, Excel).  
-- **Backend** :  
-  - API REST pour interagir avec la base de données.  
-  - Prisma pour la gestion des modèles.  
+## Learn More
 
----
+To learn more about Next.js, take a look at the following resources:
 
-### 4️⃣ **Gestion des cours et plannings**  
-- **Fonctionnalités prévues** :  
-  - Création et gestion des cours.  
-  - Planification des examens et des événements.  
-  - Attribution des enseignants et étudiants aux cours.  
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-<!-- ---
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### 5️⃣ **Suivi des performances**  
-- **But** : Générer des rapports sur les notes et la participation des étudiants.  
-- **Détails** :  
-  - Intégration d’un système de notation.  
-  - Analyse graphique des résultats.   -->
+## Deploy on Vercel
 
-<!-- ---
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### 6️⃣ **Module de notifications**  
-- **Type de notifications** :  
-  - Emails pour les mises à jour importantes.  
-  - Notifications push via Firebase (optionnel).  
-
---- -->
-
-<!-- ### 7️⃣ **Intégration mobile**  
-- **Technologies** : Développement d’une application mobile avec React Native.  
-- **Objectif** : Donner accès aux étudiants à leurs notes, cours, et notifications depuis leur smartphone.  
-
---- -->
-<!-- 
-### 8️⃣ **Système d’authentification**  
-- **Clerk** : Implémentation du système d’authentification pour gérer les rôles (administrateurs, enseignants, étudiants).  
-
---- -->
-<!-- 
-### 9️⃣ **Intégration de Stripe**  
-- Paiements pour les écoles souhaitant des fonctionnalités premium.  
-
---- -->
-
-## 🎯 **Plan de travail continu**  
-- Développer étape par étape en commençant par le Dashboard.  
-- Pousser les modifications régulièrement sur Vercel pour un aperçu en temps réel.  
-- Ajouter des fonctionnalités selon les besoins identifiés.  
-
----
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
