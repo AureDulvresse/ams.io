@@ -1,5 +1,3 @@
-// Prisma schema for School ERP System
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,27 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/* ===== Access Management ====== */
+//==================== GESTION DES ACCÈS (Application uniquement) ====================//
 model Permission {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique
-  code String @unique
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
+  code        String          @unique 
   description String?
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
   roles       RolePermission[]
 }
 
 model Role {
-  id          Int               @id @default(autoincrement())
-  name        String            @unique
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
   description String?
-  created_at  DateTime          @default(now())
-  updated_at  DateTime          @updatedAt
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
   users       User[]
-  staff       Staff[] // Added staff relation
   permissions RolePermission[]
-  dailySalary RoleDailySalary[]
 }
 
 model RolePermission {
@@ -37,68 +33,106 @@ model RolePermission {
   permission_id Int
   role          Role       @relation(fields: [role_id], references: [id])
   permission    Permission @relation(fields: [permission_id], references: [id])
-
   @@id([role_id, permission_id])
 }
 
-// User Management
+//==================== UTILISATEURS DE L'APPLICATION ====================//
 model User {
-  id               Int            @id @default(autoincrement())
-  email            String         @unique
+  id               Int           @id @default(autoincrement())
+  email            String        @unique
+  username         String        @unique
+  password         String
   first_name       String
   last_name        String
-  password         String
-  avatar           String?
   role_id          Int
-  is_active        Boolean        @default(true)
+  is_active        Boolean       @default(true)
   last_login       DateTime?
-  created_at       DateTime       @default(now())
-  updated_at       DateTime       @updatedAt
-  role             Role           @relation(fields: [role_id], references: [id])
+  profile_picture  String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  role             Role          @relation(fields: [role_id], references: [id])
   logins           Login[]
   notifications    Notification[]
-  messagesReceived Message[]      @relation("ReceivedMessages")
-  messagesSent     Message[]      @relation("SentMessages")
+  messagesReceived Message[]     @relation("ReceivedMessages")
+  messagesSent     Message[]     @relation("SentMessages")
   tasks            Task[]
 }
 
 model Login {
   id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [user_id], references: [id])
   user_id    Int
-  login_time DateTime
+  login_time DateTime @default(now())
   ip_address String
   device     String?
   location   String?
+  user       User     @relation(fields: [user_id], references: [id])
 }
 
-// Academic Structure
+model Notification {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  title       String
+  content     String
+  read        Boolean  @default(false)
+  created_at  DateTime @default(now())
+  user        User     @relation(fields: [user_id], references: [id])
+}
+
+model Message {
+  id           Int      @id @default(autoincrement())
+  sender_id    Int
+  receiver_id  Int
+  content      String
+  read         Boolean  @default(false)
+  created_at   DateTime @default(now())
+  sender       User     @relation("SentMessages", fields: [sender_id], references: [id])
+  receiver     User     @relation("ReceivedMessages", fields: [receiver_id], references: [id])
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  title       String
+  description String?
+  status      String   // pending, in_progress, completed
+  due_date    DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [user_id], references: [id])
+}
+
+//==================== STRUCTURE ACADÉMIQUE ====================//
 model AcademicYear {
-  id         Int                   @id @default(autoincrement())
-  year       String                @unique
-  start_date DateTime
-  end_date   DateTime
-  is_current Boolean               @default(false)
-  created_at DateTime              @default(now())
-  updated_at DateTime              @updatedAt
-  semesters  Semester[]
-  fees       TuitionFeeStructure[]
+  id           Int       @id @default(autoincrement())
+  year         String    @unique // ex: "2023-2024"
+  start_date   DateTime
+  end_date     DateTime
+  is_current   Boolean   @default(false)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  semesters    Semester[]
+  fees         TuitionFeeStructure[]
+  enrollments  Enrollment[]
 }
 
 model Semester {
-  id               Int          @id @default(autoincrement())
-  name             String
+  id              Int          @id @default(autoincrement())
   academic_year_id Int
-  start_date       DateTime
-  end_date         DateTime
-  academicYear     AcademicYear @relation(fields: [academic_year_id], references: [id])
-  grades           Grade[]
+  name            String
+  start_date      DateTime
+  end_date        DateTime
+  is_current      Boolean      @default(false)
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  academicYear    AcademicYear @relation(fields: [academic_year_id], references: [id])
+  grades          Grade[]
 }
 
 model Department {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   code        String    @unique
+  type        String    // academic, administrative, service
   description String?
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
@@ -108,23 +142,23 @@ model Department {
 }
 
 model Program {
-  id            Int          @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
-  code          String       @unique
+  code          String      @unique
   department_id Int
-  duration      Int // Duration in years
+  duration      Int         // Durée en années
   description   String?
-  created_at    DateTime     @default(now())
-  updated_at    DateTime     @updatedAt
-  department    Department   @relation(fields: [department_id], references: [id])
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  department    Department  @relation(fields: [department_id], references: [id])
   levels        LevelStudy[]
 }
 
 model LevelStudy {
   id          Int       @id @default(autoincrement())
   program_id  Int
-  level       Int // e.g., 1 for first year
-  designation String
+  level       Int       // ex: 1 pour première année
+  designation String    // ex: "Licence 1"
   description String?
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
@@ -133,68 +167,135 @@ model LevelStudy {
   students    Student[]
 }
 
-// HR Management
+//==================== GESTION DU PERSONNEL ====================//
 model Staff {
-  id             Int               @id @default(autoincrement())
-  matricule      String            @unique
-  first_name     String
-  last_name      String
-  dob            DateTime
-  gender         String
-  address        String
-  phone          String
-  email          String            @unique
-  role_id        Int
-  department_id  Int
-  contract_id    Int
-  hire_date      DateTime
-  end_date       DateTime?
-  is_active      Boolean           @default(true)
-  created_at     DateTime          @default(now())
-  updated_at     DateTime          @updatedAt
-  role           Role              @relation(fields: [role_id], references: [id])
-  department     Department        @relation(fields: [department_id], references: [id])
-  contract       ContractType      @relation(fields: [contract_id], references: [id])
-  attendances    StaffAttendance[]
-  salaries       Salary[]
-  leaves         Leave[]
-  qualifications Qualification[]
-  teaching       TeacherCourse[]
-  schedules      Schedule[]
+  id              Int               @id @default(autoincrement())
+  matricule       String            @unique
+  first_name      String
+  last_name       String
+  dob             DateTime
+  gender          String
+  address         String
+  phone           String
+  email           String            @unique
+  staff_type_id   Int
+  department_id   Int?
+  position_id     Int
+  contract_id     Int
+  hire_date       DateTime
+  end_date        DateTime?
+  is_active       Boolean           @default(true)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  staffType       StaffType         @relation(fields: [staff_type_id], references: [id])
+  department      Department?       @relation(fields: [department_id], references: [id])
+  position        Position          @relation(fields: [position_id], references: [id])
+  contract        ContractType      @relation(fields: [contract_id], references: [id])
+  
+  teachingCourses TeacherCourse[]
+  schedules       Schedule[]
+  salary          StaffSalary?
+  attendances     StaffAttendance[]
+  salaryPayments  SalaryPayment[]
+  leaves          Leave[]
+  qualifications  Qualification[]
+}
+
+model Position {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  staff       Staff[]
+}
+
+model StaffType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // teaching, administrative, support, etc.
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  staff       Staff[]
+}
+
+model SalaryScale {
+  id            Int           @id @default(autoincrement())
+  grade         String        // Niveau/Grade (ex: A1, A2, B1)
+  base_salary   Decimal       @db.Decimal(10, 2)
+  hourly_rate   Decimal       @db.Decimal(10, 2)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  staffSalaries StaffSalary[]
+}
+
+model StaffSalary {
+  id              Int         @id @default(autoincrement())
+  staff_id        Int         @unique
+  salary_scale_id Int
+  base_salary     Decimal     @db.Decimal(10, 2)
+  allowances      Json?       // Primes et indemnités
+  start_date      DateTime
+  end_date        DateTime?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  staff           Staff       @relation(fields: [staff_id], references: [id])
+  salaryScale     SalaryScale @relation(fields: [salary_scale_id], references: [id])
+}
+
+model SalaryPayment {
+  id             Int      @id @default(autoincrement())
+  staff_id       Int
+  month          Int
+  year           Int
+  base_amount    Decimal  @db.Decimal(10, 2)
+  bonuses        Json?    // Bonus du mois
+  deductions     Json?    // Retenues
+  total_amount   Decimal  @db.Decimal(10, 2)
+  payment_date   DateTime?
+  payment_method String?
+  status         String   // pending, paid, cancelled
+  reference      String?  // Référence du paiement
+  created_at     DateTime @default(now())
+  staff          Staff    @relation(fields: [staff_id], references: [id])
 }
 
 model ContractType {
   id          Int      @id @default(autoincrement())
-  name        String   @unique
+  name        String   @unique // CDI, CDD, Vacation
   description String?
-  duration    Int? // in months
+  duration    Int?     // Durée en mois (null pour CDI)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   staff       Staff[]
 }
 
 model Qualification {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   staff_id    Int
   title       String
   institution String
   year        Int
-  document    String? // URL to stored document
-  staff       Staff   @relation(fields: [staff_id], references: [id])
+  document    String?  // URL du document
+  created_at  DateTime @default(now())
+  staff       Staff    @relation(fields: [staff_id], references: [id])
 }
 
 model Leave {
-  id         Int      @id @default(autoincrement())
-  staff_id   Int
-  type       String // sick, vacation, etc.
-  start_date DateTime
-  end_date   DateTime
-  status     String // pending, approved, rejected
-  reason     String?
-  staff      Staff    @relation(fields: [staff_id], references: [id])
+  id          Int      @id @default(autoincrement())
+  staff_id    Int
+  type        String   // Type de congé
+  start_date  DateTime
+  end_date    DateTime
+  status      String   // pending, approved, rejected
+  reason      String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  staff       Staff    @relation(fields: [staff_id], references: [id])
 }
 
-// Academic Management
+//==================== COURS ET CLASSES ====================//
 model Course {
   id            Int                  @id @default(autoincrement())
   code          String               @unique
@@ -215,114 +316,135 @@ model Course {
 model CoursePrerequisite {
   course_id       Int
   prerequisite_id Int
-  course          Course @relation("PrerequisiteToCourse", fields: [course_id], references: [id])
-  prerequisite    Course @relation("CourseToPrerequisite", fields: [prerequisite_id], references: [id])
-
+  course          Course    @relation("PrerequisiteToCourse", fields: [course_id], references: [id])
+  prerequisite    Course    @relation("CourseToPrerequisite", fields: [prerequisite_id], references: [id])
   @@id([course_id, prerequisite_id])
 }
 
 model TeacherCourse {
-  staff_id  Int
-  course_id Int
-  staff     Staff  @relation(fields: [staff_id], references: [id])
-  course    Course @relation(fields: [course_id], references: [id])
-
+  staff_id   Int
+  course_id  Int
+  staff      Staff     @relation(fields: [staff_id], references: [id])
+  course     Course    @relation(fields: [course_id], references: [id])
   @@id([staff_id, course_id])
 }
 
 model CourseMaterial {
-  id         Int      @id @default(autoincrement())
-  course_id  Int
-  title      String
-  type       String // document, video, etc.
-  url        String
-  created_at DateTime @default(now())
-  course     Course   @relation(fields: [course_id], references: [id])
+  id          Int      @id @default(autoincrement())
+  course_id   Int
+  title       String
+  type        String   // document, video, etc.
+  url         String
+  created_at  DateTime @default(now())
+  course      Course   @relation(fields: [course_id], references: [id])
 }
 
 model Class {
-  id            Int          @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   course_id     Int
   level_id      Int
   academic_year String
   capacity      Int
-  created_at    DateTime     @default(now())
-  updated_at    DateTime     @updatedAt
-  course        Course       @relation(fields: [course_id], references: [id])
-  level         LevelStudy   @relation(fields: [level_id], references: [id])
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  course        Course     @relation(fields: [course_id], references: [id])
+  level         LevelStudy @relation(fields: [level_id], references: [id])
   schedules     Schedule[]
   enrollments   Enrollment[]
 }
 
-// Student Management
+//==================== ÉTUDIANTS ====================//
 model Student {
-  id          Int                 @id @default(autoincrement())
-  matricule   String              @unique
+  id             Int                @id @default(autoincrement())
+  matricule      String             @unique
+  first_name     String
+  last_name      String
+  dob            DateTime
+  pob            String            // Place of birth
+  gender         String
+  address        String
+  phone          String
+  email          String             @unique
+  level_id       Int
+  status         String             // active, graduated, suspended
+  picture        String?
+  created_at     DateTime           @default(now())
+  updated_at     DateTime           @updatedAt
+  level          LevelStudy         @relation(fields: [level_id], references: [id])
+  parents        ParentStudent[]
+  enrollments    Enrollment[]
+  fees           TuitionPayment[]
+  attendances    StudentAttendance[]
+}
+
+model ParentStudent {
+  id          Int      @id @default(autoincrement())
+  student_id  Int
   first_name  String
   last_name   String
-  dob         DateTime
-  pob         String
-  gender      String
-  address     String
+  relationship String  // father, mother, guardian
   phone       String
-  email       String              @unique
-  level_id    Int
-  status      String // active, graduated, suspended
-  picture     String?
-  created_at  DateTime            @default(now())
-  updated_at  DateTime            @updatedAt
-  level       LevelStudy          @relation(fields: [level_id], references: [id])
-  parents     ParentStudent[]
-  enrollments Enrollment[]
-  fees        TuitionPayment[]
-  attendances StudentAttendance[]
+  email       String?
+  address     String
+  occupation  String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  student     Student  @relation(fields: [student_id], references: [id])
 }
 
 model Enrollment {
-  id         Int     @id @default(autoincrement())
-  student_id Int
-  class_id   Int
-  status     String // enrolled, dropped, completed
-  grade      Grade?
-  student    Student @relation(fields: [student_id], references: [id])
-  class      Class   @relation(fields: [class_id], references: [id])
+  id               Int          @id @default(autoincrement())
+  student_id       Int
+  class_id         Int
+  academic_year_id Int
+  status           String       // enrolled, dropped, completed
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  student          Student      @relation(fields: [student_id], references: [id])
+  class            Class        @relation(fields: [class_id], references: [id])
+  academicYear     AcademicYear @relation(fields: [academic_year_id], references: [id])
+  grade            Grade?
 }
 
 model Grade {
   id            Int        @id @default(autoincrement())
   enrollment_id Int        @unique
   semester_id   Int
-  marks         Json // Store different assessment components
+  marks         Json       // Différentes composantes de la note
   final_grade   Float
-  status        String // passed, failed
+  status        String     // passed, failed
   remarks       String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
   enrollment    Enrollment @relation(fields: [enrollment_id], references: [id])
   semester      Semester   @relation(fields: [semester_id], references: [id])
 }
 
-// Schedule Management
+//==================== GESTION DU TEMPS ====================//
 model Schedule {
   id         Int      @id @default(autoincrement())
   class_id   Int
   staff_id   Int
-  day        String
+  day        String   // Jour de la semaine
   start_time DateTime
   end_time   DateTime
   room       String
+  recurring  Boolean  @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   class      Class    @relation(fields: [class_id], references: [id])
   staff      Staff    @relation(fields: [staff_id], references: [id])
 }
 
-// Attendance Management
+//==================== PRÉSENCES ====================//
 model StaffAttendance {
   id         Int       @id @default(autoincrement())
   staff_id   Int
   date       DateTime
-  status     String // present, absent, late
+  status     String    // present, absent, late
   check_in   DateTime?
   check_out  DateTime?
+  reason     String?
   created_at DateTime  @default(now())
   staff      Staff     @relation(fields: [staff_id], references: [id])
 }
@@ -331,127 +453,140 @@ model StudentAttendance {
   id         Int      @id @default(autoincrement())
   student_id Int
   date       DateTime
-  status     String
+  status     String   // present, absent, late
   reason     String?
+  created_at DateTime @default(now())
   student    Student  @relation(fields: [student_id], references: [id])
 }
 
-// Financial Management
+//==================== FINANCES ====================//
 model TuitionFeeStructure {
   id               Int          @id @default(autoincrement())
   academic_year_id Int
-  level_id         Int
+  program_level    Int         // Niveau d'études
   amount           Decimal      @db.Decimal(10, 2)
-  description      String?
-  due_date         DateTime
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
-  academicYear     AcademicYear @relation(fields: [academic_year_id], references: [id])
+  due_date        DateTime
+  description     String?
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  academicYear    AcademicYear @relation(fields: [academic_year_id], references: [id])
+  payments        TuitionPayment[]
 }
 
 model TuitionPayment {
-  id             Int      @id @default(autoincrement())
-  student_id     Int
-  amount         Decimal  @db.Decimal(10, 2)
-  payment_date   DateTime
-  payment_method String
-  reference      String?
-  status         String // pending, completed, failed
-  created_at     DateTime @default(now())
-  student        Student  @relation(fields: [student_id], references: [id])
+  id                    Int                 @id @default(autoincrement())
+  student_id            Int
+  fee_structure_id      Int
+  amount_paid           Decimal             @db.Decimal(10, 2)
+  payment_date          DateTime
+  payment_method        String              // cash, bank_transfer, mobile_money
+  transaction_reference String?
+  receipt_number        String              @unique
+  status               String              // pending, completed, failed
+  notes                String?
+  created_at           DateTime            @default(now())
+  updated_at           DateTime            @updatedAt
+  student              Student             @relation(fields: [student_id], references: [id])
+  feeStructure         TuitionFeeStructure @relation(fields: [fee_structure_id], references: [id])
 }
 
-model Salary {
-  id         Int       @id @default(autoincrement())
-  staff_id   Int
-  amount     Decimal   @db.Decimal(10, 2)
-  month      Int
-  year       Int
-  status     String // pending, paid
-  paid_date  DateTime?
-  created_at DateTime  @default(now())
-  staff      Staff     @relation(fields: [staff_id], references: [id])
-}
-
-model RoleDailySalary {
-  id         Int      @id @default(autoincrement())
-  role_id    Int
-  amount     Decimal  @db.Decimal(10, 2)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  role       Role     @relation(fields: [role_id], references: [id])
-}
-
-// Communication
-model Message {
+//==================== PARAMÈTRES SYSTÈME ====================//
+model SystemSettings {
   id          Int      @id @default(autoincrement())
-  sender_id   Int
-  receiver_id Int
-  subject     String
-  content     String
-  is_read     Boolean  @default(false)
-  created_at  DateTime @default(now())
-  sender      User     @relation("SentMessages", fields: [sender_id], references: [id])
-  receiver    User     @relation("ReceivedMessages", fields: [receiver_id], references: [id])
-}
-
-model Notification {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  title      String
-  content    String
-  type       String // info, warning, error
-  is_read    Boolean  @default(false)
-  created_at DateTime @default(now())
-  user       User     @relation(fields: [user_id], references: [id])
-}
-
-// Task and Event Management
-model Task {
-  id          Int      @id @default(autoincrement())
-  user_id     Int
-  title       String
+  key         String   @unique
+  value       String
+  type        String   // string, number, boolean, json
+  category    String   // academic, financial, general
   description String?
-  due_date    DateTime
-  priority    String // low, medium, high
-  status      String // pending, in_progress, completed
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  user        User     @relation(fields: [user_id], references: [id])
 }
 
-model Event {
+model AuditLog {
   id          Int      @id @default(autoincrement())
+  user_id     Int?     // Peut être null pour les actions système
+  action      String   // create, update, delete
+  entity_type String   // nom de la table affectée
+  entity_id   Int      // ID de l'enregistrement affecté
+  old_values  Json?    // Anciennes valeurs en cas de modification
+  new_values  Json?    // Nouvelles valeurs
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+}
+
+//==================== COMMUNICATION ====================//
+model Announcement {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  type        String   // general, academic, administrative
+  start_date  DateTime
+  end_date    DateTime?
+  is_active   Boolean  @default(true)
+  created_by  Int      // User ID
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Document {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  file_url    String
+  file_type   String   // pdf, doc, xls, etc.
+  category    String   // academic, administrative, financial
+  is_public   Boolean  @default(false)
+  uploaded_by Int      // User ID
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+//==================== ÉVÉNEMENTS ====================//
+model Event {
+  id          Int       @id @default(autoincrement())
   title       String
   description String?
   start_date  DateTime
   end_date    DateTime
   location    String?
-  type        String // academic, social, holiday
+  type        String    // academic, social, administrative
+  status      String    // planned, ongoing, completed, cancelled
+  organizer   String?
+  max_capacity Int?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+}
+
+//==================== BIBLIOTHÈQUE ====================//
+model Book {
+  id            Int       @id @default(autoincrement())
+  title         String
+  author        String
+  isbn          String?   @unique
+  publisher     String?
+  publication_year Int?
+  category      String
+  location      String    // Emplacement physique dans la bibliothèque
+  status        String    // available, borrowed, maintenance
+  total_copies  Int
+  available_copies Int
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  borrowings    BookBorrowing[]
+}
+
+model BookBorrowing {
+  id          Int      @id @default(autoincrement())
+  book_id     Int
+  student_id  Int?     // Pour les emprunts par les étudiants
+  staff_id    Int?     // Pour les emprunts par le personnel
+  borrow_date DateTime
+  due_date    DateTime
+  return_date DateTime?
+  status      String   // active, returned, overdue
+  notes       String?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-}
-
-// Parent Management
-model Parent {
-  id         Int             @id @default(autoincrement())
-  first_name String
-  last_name  String
-  phone      String
-  email      String          @unique
-  address    String?
-  occupation String?
-  created_at DateTime        @default(now())
-  updated_at DateTime        @updatedAt
-  students   ParentStudent[]
-}
-
-model ParentStudent {
-  parent_id  Int
-  student_id Int
-  relation   String // father, mother, guardian
-  parent     Parent  @relation(fields: [parent_id], references: [id])
-  student    Student @relation(fields: [student_id], references: [id])
-
-  @@id([parent_id, student_id])
+  book        Book     @relation(fields: [book_id], references: [id])
 }
