@@ -10,7 +10,7 @@ import { Button } from '../components/ui/button'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { login } from '../actions/auth.actions'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 type LoginFormValues = z.infer<typeof signInSchema>
 
@@ -30,18 +30,15 @@ const LoginForm = () => {
       setLoading(true)
 
       try {
-         const result = await login(data)
+         const result = await login(data);
 
-         if (result.success) {
-            toast.success(result.success)
-            const old_url = useSearchParams().get('from')
-            navigate.push(old_url || '/dashboard')
+         if (result?.error) {
+            toast.error(result.error)
+            return
          }
-         else {
-            toast.error("Echec de connexion", {
-               description: result.error
-            })
-         }
+
+         toast.success("Connexion réussie !")
+         navigate.push('/dashboard')
 
       } catch (err: any) {
          toast.error(err.message)

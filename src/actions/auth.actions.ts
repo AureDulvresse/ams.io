@@ -1,7 +1,7 @@
 "use server";
 
 import * as z from "zod";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { db } from "@/src/lib/prisma";
 import { getUserByEmail } from "@/src/data/user";
@@ -50,25 +50,33 @@ export const login = async (credentials: z.infer<typeof signInSchema>) => {
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
-    return { success: "Connexion réussie ! Bienvenue !" };
 
+    // return { message: "Connexion réusie !" };
   } catch (error) {
     // Propagate authentication errors
     if (error instanceof AuthError) {
-      console.log(error.type);
+      console.log("Error type: ", error.type);
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "Identifiant ou mot de passe incorrect" };
+          return {
+            error: "Identifiant ou mot de passe incorrect",
+          };
 
         default:
-          return { error: "Une erreur inconnue s'est produite" };
+          return {
+            error: "Une erreur inconnue s'est produite",
+          };
       }
     }
-    // Handle other types of errors (e.g., database connection issues)
-    throw new Error(
-      "An error occurred while verifying the user's credentials."
-    );
+    // // Handle other types of errors (e.g., database connection issues)
+    // throw new Error(
+    //   "An error occurred while verifying the user's credentials."
+    // );
   }
+};
+
+export const logout = async () => {
+  await signOut();
 };
 
 export const register = async (data: z.infer<typeof signUpSchema>) => {
