@@ -50,9 +50,12 @@ export const login = async (credentials: z.infer<typeof signInSchema>) => {
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
+    return { success: "Connexion réussie ! Bienvenue !" };
+
   } catch (error) {
     // Propagate authentication errors
     if (error instanceof AuthError) {
+      console.log(error.type);
       switch (error.type) {
         case "CredentialsSignin":
           return { error: "Identifiant ou mot de passe incorrect" };

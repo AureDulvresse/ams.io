@@ -10,11 +10,13 @@ import { Button } from '../components/ui/button'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { login } from '../actions/auth.actions'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type LoginFormValues = z.infer<typeof signInSchema>
 
 const LoginForm = () => {
    const [loading, setLoading] = useState(false)
+   const navigate = useRouter()
 
    const {
       register,
@@ -28,10 +30,21 @@ const LoginForm = () => {
       setLoading(true)
 
       try {
-         await login(data)
-         toast.success('Connexion réussie !')
+         const result = await login(data)
+
+         if (result.success) {
+            toast.success(result.success)
+            const old_url = useSearchParams().get('from')
+            navigate.push(old_url || '/dashboard')
+         }
+         else {
+            toast.error("Echec de connexion", {
+               description: result.error
+            })
+         }
+
       } catch (err: any) {
-         toast.error('Connexion échouée : Vérifiez vos identifiants.')
+         toast.error(err.message)
       } finally {
          setLoading(false)
       }
