@@ -1,37 +1,15 @@
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import {
   apiAuthPrefix,
   authRoutes,
+  createRedirectUrl,
   DEFAULT_LOGIN_REDIRECT,
+  matchesRoute,
   privateRoutes,
   publicRoutes,
 } from "@/routes";
-
-/**
- * Vérifie si un chemin correspond à une route ou ses sous-routes
- */
-const matchesRoute = (pathname: string, routes: string[]): boolean =>
-  routes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
-
-/**
- * Crée une URL de redirection avec un paramètre optionnel
- */
-const createRedirectUrl = (
-  path: string,
-  baseUrl: string,
-  fromPath?: string
-): URL => {
-  const url = new URL(path, baseUrl);
-  if (fromPath && !fromPath.startsWith(path)) {
-    url.searchParams.set("from", fromPath);
-  }
-  return url;
-};
 
 const { auth } = NextAuth(authConfig);
 
