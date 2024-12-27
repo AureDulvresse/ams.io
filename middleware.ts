@@ -1,12 +1,13 @@
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
+import { NextResponse } from "next/server";
 import {
   apiAuthPrefix,
   authRoutes,
   DEFAULT_LOGIN_REDIRECT,
+  privateRoutes,
   publicRoutes,
-} from "./routes";
-import { NextResponse } from "next/server";
+} from "@/routes";
 
 const { auth } = NextAuth(authConfig);
 
@@ -14,21 +15,47 @@ export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
+  // Vérification des types de routes
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isPublicRoute = publicRoutes.some(
+    (route) =>
+      nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`)
+  );
+  const isAuthRoute = authRoutes.some(
+    (route) =>
+      nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`)
+  );
+  const isPrivateRoute = privateRoutes.some(
+    (route) =>
+      nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`)
+  );
 
+  // 1. Permettre les routes d'API d'authentification
   if (isApiAuthRoute) {
     return NextResponse.next();
   }
 
+  // 2. Rediriger les utilisateurs connectés essayant d'accéder aux pages d'auth
   if (isAuthRoute && isLoggedIn) {
     return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
-    let loginUrl = new URL("/login", nextUrl);
-    // Optionally preserve the current URL as a redirect parameter
+  // 3. Protéger les routes privées
+  if (isPrivateRoute && !isLoggedIn) {
+    // Sauvegarder l'URL de destination pour la redirection après connexion
+    const loginUrl = new URL("/login", nextUrl);
+    loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // 4. Permettre l'accès aux routes publiques
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  // 5. Par défaut, autoriser si connecté, sinon rediriger vers login
+  if (!isLoggedIn) {
+    const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -36,7 +63,16 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
-// Optimize the matcher configuration
+// Configuration du matcher pour le middleware
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: [
+    // Matcher pour les routes protégées
+    "/dashboard/:path*",
+    // Matcher pour les routes d'authentification
+    "/login",
+    // Matcher pour les routes d'API
+    "/api/:path*",
+    // Matcher pour la page d'accueil
+    "/",
+  ],
 };
