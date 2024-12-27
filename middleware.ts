@@ -38,7 +38,7 @@ export default auth((req) => {
   // 3. Protéger les routes privées et rediriger vers la connexion si nécessaire
   if (!isLoggedIn && routeType.isPrivate) {
     return NextResponse.redirect(
-      createRedirectUrl("/auth/login", nextUrl.toString(), nextUrl.pathname)
+      createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)
     );
   }
 
@@ -47,12 +47,12 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // 5. Rediriger vers la connexion si non authentifié
-  if (!isLoggedIn) {
-    return NextResponse.redirect(
-      createRedirectUrl("/auth/login", nextUrl.toString(), nextUrl.pathname)
-    );
-  }
+  // // 5. Rediriger vers la connexion si non authentifié
+  // if (!isLoggedIn) {
+  //   return NextResponse.redirect(
+  //     createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)
+  //   );
+  // }
 
   return NextResponse.next();
 });
