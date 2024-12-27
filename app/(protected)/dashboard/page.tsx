@@ -1,28 +1,24 @@
 "use client"
 import { logout } from '@/src/actions/auth.actions';
 import { Button } from '@/src/components/ui/button';
-import { useSession } from 'next-auth/react';
+import { useCurrentUser } from '@/src/hooks/use-current-user';
 import React from 'react'
 import { toast } from 'sonner';
 
 const Dashboard = () => {
 
-   const session = useSession();
+   const user = useCurrentUser();
 
    const handleLogout = async () => {
       await logout();
       toast.success("Déconnexion réussie !")
    }
 
-   if (!session.status) {
-      return <p>Access denied. Please log in.</p>;
-   }
-
    return (
       <div>
-         {session.data?.user.role.name == "superuser" && <h1 className='uppercase'>{session.data.user.role.name}</h1>}
+         {user?.role.name == "superuser" && <h1 className='uppercase'>{user.role.name}</h1>}
          <h1>Dashboard</h1>
-         <span>{JSON.stringify(session)}</span>
+         <span>{JSON.stringify(user)}</span>
          <Button onClick={handleLogout}>logout</Button>
       </div>
    )
