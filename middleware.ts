@@ -6,6 +6,7 @@ import {
   DEFAULT_LOGIN_REDIRECT,
   publicRoutes,
 } from "./routes";
+import { NextResponse } from "next/server";
 
 const { auth: middleware } = NextAuth(authConfig);
 
@@ -18,7 +19,7 @@ export default middleware((req) => {
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
   if (isApiAuthRoute) {
-    return null;
+    return NextResponse.next();
   }
 
   if (isAuthRoute && isLoggedIn) {
@@ -29,7 +30,7 @@ export default middleware((req) => {
     return Response.redirect(new URL("/login", nextUrl));
   }
 
-  return null;
+  return NextResponse.next();
 });
 
 export const config = {
