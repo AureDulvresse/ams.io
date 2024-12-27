@@ -14,17 +14,19 @@ const LoginPage = () => {
          <div className="absolute -bottom-1/3 -left-60 w-[500px] h-[500px] bg-gradient-to-br from-indigo-700 via-indigo-900 to-indigo-800 bg-[length:400%_400%] animate-gradient bg-[position:100%_100%] rounded-full z-10"></div>
 
          {/* Formes décoratives dispersées */}
-         <div className="absolute bottom-10 right-32 w-[120px] h-[120px] bg-yellow-400 rounded-full opacity-50 animate-bounce z-10"></div>
-         <div className="absolute top-24 right-24 w-[120px] h-[120px] bg-orange-400 opacity-50 animate-bounce z-10"></div>
-         <div className="absolute bottom-16 left-16 w-[150px] h-[150px] bg-purple-600 opacity-40 animate-bounce z-10"></div>
+         <div className="absolute bottom-10 right-32 w-[120px] h-[120px] bg-yellow-400 rounded-full opacity-50 animate-pulse z-10"></div>
+         <div className="absolute top-40 right-20 w-[120px] h-[120px] bg-orange-400 opacity-50 animate-pulse z-10"></div>
+         <div className="absolute bottom-16 left-16 w-[150px] h-[150px] bg-purple-600 rounded-full opacity-40 animate-pulse z-10"></div>
+         <div className="absolute top-48 right-1/4 w-[80px] h-[80px] bg-purple-600 rounded-full opacity-40 animate-pulse z-10"></div>
 
          {/* Formes carrées dispersées */}
-         <div className="absolute top-4 left-1/4 w-[120px] h-[120px] bg-red-500 opacity-60 animate-bounce z-10"></div>
+         <div className="absolute top-4 left-1/4 w-[120px] h-[120px] bg-red-500 opacity-60 animate-pulse z-10"></div>
 
          {/* Triangles dispersés */}
-         <div className="absolute top-32 left-28 w-0 h-0 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[120px] border-b-yellow-500 opacity-70 animate-bounce z-10"></div>
-         <div className="absolute bottom-5 left-1/4 w-0 h-0 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[120px] border-b-red-500 opacity-60 animate-bounce z-10"></div>
-         
+         <div className="absolute top-32 left-28 w-0 h-0 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[120px] border-b-yellow-500 opacity-70 animate-pulse z-10"></div>
+         <div className="absolute bottom-5 left-1/4 w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[60px] border-b-red-500 opacity-60 animate-pulse z-10"></div>
+         <div className="absolute top-5 right-72 w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[60px] border-b-red-500 opacity-60 animate-pulse z-10"></div>
+
          {/* Section principale (formulaire) */}
          <div className="z-20 flex flex-col items-center justify-center px-6 sm:px-16 lg:px-24">
             <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
