@@ -1,40 +1,102 @@
-"use client"
-import React from "react";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
+'use client'
+
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useState } from 'react'
+import { signInSchema } from '../schemas/auth.schema'
+import { Input } from '../components/ui/input'
+import { Button } from '../components/ui/button'
+import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
+import { login } from '../actions/auth.actions'
+
+type LoginFormValues = z.infer<typeof signInSchema>
 
 const LoginForm = () => {
+   const [loading, setLoading] = useState(false)
+
+   const {
+      register,
+      handleSubmit,
+      formState: { errors },
+   } = useForm<LoginFormValues>({
+      resolver: zodResolver(signInSchema),
+   })
+
+   const onSubmit = async (data: LoginFormValues) => {
+      setLoading(true)
+
+      try {
+         await login(data)
+         toast.success('Connexion réussie !')
+      } catch (err: any) {
+         toast.error('Connexion échouée : Vérifiez vos identifiants.')
+      } finally {
+         setLoading(false)
+      }
+   }
+
    return (
-      <div>
-         {" "}
-         <form className="space-y-3">
-            <h1>Connexion</h1>
-            <div className="mb-3">
-               <Input
-                  type="email"
-                  name="email"
-                  className="p-2 rounded-lg w-full"
-                  placeholder="Entrer votre adresse mail"
-               />
-            </div>
-            <div className="mb-3">
-               <Input
-                  type="password"
-                  name="password"
-                  className="p-2 rounded-lg w-full"
-                  placeholder="Entrer votre mot de passe"
-               />
-            </div>
-            <LoginButton />
-         </form>
-      </div>
-   );
-};
+      <form
+         onSubmit={handleSubmit(onSubmit)}
+         className="max-w-md mx-auto space-y-8"
+      >
+         {/* Email */}
+         <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+               Adresse email
+            </label>
+            <Input
+               id="email"
+               type="email"
+               placeholder="exemple@domaine.com"
+               {...register('email')}
+               className="mt-1 w-full border rounded-lg px-4 py-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400"
+               disabled={loading}
+            />
+            {errors.email && (
+               <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+            )}
+         </div>
 
+         {/* Mot de passe */}
+         <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+               Mot de passe
+            </label>
+            <Input
+               id="password"
+               type="password"
+               placeholder="********"
+               {...register('password')}
+               className="mt-1 w-full border rounded-lg px-4 py-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400"
+               disabled={loading}
+            />
+            {errors.password && (
+               <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+            )}
+         </div>
 
-const LoginButton = () => {
-   const handleSubmit = () => console.log('connexion');
-   return <Button onClick={() => handleSubmit}>Connexion</Button>
+         {/* Bouton de soumission */}
+         <div>
+            <Button
+               type="submit"
+               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg shadow-lg transition disabled:opacity-50"
+               disabled={loading}
+            >
+               {loading ? (
+                  <div className="flex items-center gap-2">
+                     <Loader2 className="animate-spin" size={18} />
+                     <span>Connexion en cours...</span>
+                  </div>
+               ) : (
+                  'Connexion'
+               )}
+            </Button>
+         </div>
+      </form>
+   )
 }
 
-export default LoginForm;
+export default LoginForm
