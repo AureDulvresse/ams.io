@@ -1,5 +1,4 @@
 import Credentials from "next-auth/providers/credentials";
-import { ZodError } from "zod";
 import { signInSchema } from "./src/schemas/auth.schema";
 import type { NextAuthConfig } from "next-auth";
 import { getUserByEmail } from "./src/data/user";
