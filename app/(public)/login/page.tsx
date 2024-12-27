@@ -10,8 +10,8 @@ const LoginPage = () => {
          {/* <div className="absolute inset-0 bg-black opacity-40 z-0"></div> */}
 
          {/* Grands cercles indigo avec animation */}
-         <div className="absolute -top-1/3 -right-64 w-[500px] h-[500px] bg-gradient-to-tl from-indigo-700 via-indigo-900 to-indigo-800 bg-[length:400%_400%] animate-gradient bg-[position:0%_0%] rounded-full z-10"></div>
-         <div className="absolute -bottom-1/3 -left-60 w-[500px] h-[500px] bg-gradient-to-br from-indigo-700 via-indigo-900 to-indigo-800 bg-[length:400%_400%] animate-gradient bg-[position:100%_100%] rounded-full z-10"></div>
+         <div className="absolute -top-1/3 -right-64 w-[500px] h-[500px] bg-gradient-to-tl from-indigo-700 via-indigo-900 to-indigo-800 bg-[length:400%_400%] gradient rounded-full z-10"></div>
+         <div className="absolute -bottom-1/3 -left-60 w-[500px] h-[500px] bg-gradient-to-br from-indigo-700 via-indigo-900 to-indigo-800 bg-[length:400%_400%] gradient rounded-full z-10"></div>
 
          {/* Formes décoratives dispersées */}
          <div className="absolute bottom-10 right-32 w-[120px] h-[120px] bg-yellow-400 rounded-full opacity-50 animate-pulse z-10"></div>
