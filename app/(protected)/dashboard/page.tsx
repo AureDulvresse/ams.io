@@ -1,8 +1,9 @@
 "use client"
 import { logout } from '@/src/actions/auth.actions';
 import { Button } from '@/src/components/ui/button';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import React from 'react'
+import { toast } from 'sonner';
 
 const Dashboard = () => {
 
@@ -10,6 +11,7 @@ const Dashboard = () => {
 
    const handleLogout = async () => {
       await logout();
+      toast.success("Déconnexion réussie !")
    }
 
    if (!session.status) {
