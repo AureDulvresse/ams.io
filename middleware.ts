@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   apiAuthPrefix,
   authRoutes,
@@ -42,9 +42,10 @@ export default auth((req) => {
 
   // 3. Protéger les routes privées
   if (isPrivateRoute && !isLoggedIn) {
-    // Sauvegarder l'URL de destination pour la redirection après connexion
     const loginUrl = new URL("/login", nextUrl);
-    loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+    if (nextUrl.pathname !== "/login") {
+      loginUrl.searchParams.set("from", nextUrl.pathname);
+    }
     return NextResponse.redirect(loginUrl);
   }
 
@@ -56,7 +57,9 @@ export default auth((req) => {
   // 5. Par défaut, autoriser si connecté, sinon rediriger vers login
   if (!isLoggedIn) {
     const loginUrl = new URL("/login", nextUrl);
-    loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+    if (nextUrl.pathname !== "/login") {
+      loginUrl.searchParams.set("from", nextUrl.pathname);
+    }
     return NextResponse.redirect(loginUrl);
   }
 
