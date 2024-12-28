@@ -27,36 +27,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const sessionPromise = auth();
-
-  // Attendre que la session soit résolue avant de continuer
-  const session = await sessionPromise;
-
-  if (!session) {
-    return (
-      <html lang="fr">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <main>
-            <div className="flex items-center justify-center flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce"></div>
-                <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce delay-200"></div>
-                <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce delay-400"></div>
-              </div>
-              <p className="mt-4 text-base text-gray-500 dark:text-gray-400">Chargement...</p>
-            </div>
-          </main>
-        </body>
-      </html>
-    );
-  }
+  // Fonction pour récupérer la session
+  const session = await auth();
 
   return (
     <html lang="fr">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SessionProvider session={session}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Fournisseur de session, utilise la session par défaut si elle est vide */}
+        <SessionProvider session={session || undefined}>
           {children}
         </SessionProvider>
         <Toaster />
