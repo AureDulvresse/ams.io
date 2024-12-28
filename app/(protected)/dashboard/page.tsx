@@ -5,6 +5,8 @@ import useFetchData from "@/src/hooks/use-fetch-data";
 import Dashboard from "./_components/dashboard";
 import { Permission } from "@/src/types/permission";
 import { toast } from "sonner";
+import { Suspense } from "react";
+import DashboardSkeleton from "./_components/dashboard-skeleton";
 
 const DashboardPage = () => {
    const user = useCurrentUser();
@@ -14,20 +16,22 @@ const DashboardPage = () => {
       error,
    } = useFetchData<Permission[]>(`/api/permissions?userId=${user?.id}`);
 
-   console.log(permissions);
    const handleLogout = async () => {
       await logout();
       toast.success("Déconnexion effectuée !");
    };
 
    return (
-      <Dashboard
-         user={user}
-         permissions={permissions}
-         isLoading={isLoading}
-         error={error}
-         onLogout={handleLogout}
-      />
+      <Suspense fallback={<DashboardSkeleton />}>
+         <Dashboard
+            user={user}
+            permissions={permissions}
+            isLoading={isLoading}
+            error={error}
+            onLogout={handleLogout}
+         />
+      </Suspense>
+      
    );
 };
 

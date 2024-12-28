@@ -10,6 +10,7 @@ import { User } from 'next-auth';
 import ErrorState from '@/src/components/common/error-state';
 import { Role } from '@/src/types/role';
 import { Permission } from '@/src/types/permission';
+import DashboardSkeleton from './dashboard-skeleton';
 
 // Fonction pour obtenir la salutation selon l'heure
 const getGreeting = () => {
@@ -59,17 +60,6 @@ const Card = ({ title, icon, children }: {
       </div>
       <div className="p-4">
          {children}
-      </div>
-   </div>
-);
-
-const DashboardSkeleton = () => (
-   <div className="p-6 space-y-4 animate-pulse">
-      <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-         {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded"></div>
-         ))}
       </div>
    </div>
 );
