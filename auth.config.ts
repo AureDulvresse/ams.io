@@ -2,7 +2,7 @@ import Credentials from "next-auth/providers/credentials";
 import { signInSchema } from "./src/schemas/auth.schema";
 import type { NextAuthConfig } from "next-auth";
 import { getUserByEmail } from "./src/data/user";
-import { validatePassword, validatePasswordStrength } from "./src/lib/hasher";
+import { validatePassword } from "./src/lib/hasher";
 
 export default {
   providers: [
@@ -22,9 +22,6 @@ export default {
         user = await getUserByEmail(email);
 
         if (!user || !user.password) return null;
-
-        if (user.password && !validatePasswordStrength(user.password))
-          return null;
 
         const isPasswordValid = await validatePassword(password, user.password);
 

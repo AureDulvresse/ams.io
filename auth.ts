@@ -18,17 +18,16 @@ export const {
   pages: {
     signIn: "/login",
     error: "/error",
-    signOut: "/"
   },
   events: {
-    async linkAccount({user}) {
+    async linkAccount({ user }) {
       await db.user.update({
-        where: {id: user.id},
+        where: { id: user.id },
         data: {
-          emailVerified: new Date()
-        }
-      })
-    }
+          emailVerified: new Date(),
+        },
+      });
+    },
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -51,6 +50,10 @@ export const {
         session.user.role = token.role as Role;
       }
 
+      if (token.identity && session.user) {
+        session.user.first_name = token.identity.first_name as string;
+      }
+
       return session;
     },
     async jwt({ token }) {
@@ -61,6 +64,10 @@ export const {
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.identity = {
+        first_name: existingUser.first_name,
+        last_name: existingUser.last_name,
+      };
 
       return token;
     },

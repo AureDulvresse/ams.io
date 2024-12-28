@@ -94,6 +94,7 @@ model VerificationToken {
   expires DateTime
 
   @@unique([email, token])
+  @@map("verification_tokens")
 }
 
 model Login {

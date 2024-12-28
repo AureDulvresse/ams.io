@@ -1,21 +1,34 @@
-import { auth } from '@/auth'
-import React from 'react'
+"use client";
+import { logout } from "@/src/actions/auth.actions";
+import { useCurrentUser } from "@/src/hooks/use-current-user";
+import useFetchData from "@/src/hooks/use-fetch-data";
+import Dashboard from "./_components/dashboard";
+import { Permission } from "@/src/types/permission";
+import { toast } from "sonner";
 
-const Dashboard = async () => {
+const DashboardPage = () => {
+   const user = useCurrentUser();
+   const {
+      data: permissions,
+      isLoading,
+      error,
+   } = useFetchData<Permission[]>(`/api/permissions?userId=${user?.id}`);
 
-   const session = await auth();
-
-   if (!session) {
-      return <p>Access denied. Please log in.</p>;
-   }
+   console.log(permissions);
+   const handleLogout = async () => {
+      await logout();
+      toast.success("Déconnexion effectuée !");
+   };
 
    return (
-      <div>
-         {session.user.role.name == "ADMIN" && <span>ADMIN</span>}
-         Dashboard
-         <span>{JSON.stringify(session)}</span>
-      </div>
-   )
-}
+      <Dashboard
+         user={user}
+         permissions={permissions}
+         isLoading={isLoading}
+         error={error}
+         onLogout={handleLogout}
+      />
+   );
+};
 
-export default Dashboard
+export default DashboardPage;
