@@ -1,5 +1,4 @@
-// Interface pour le modèle User complet
-export interface User {
+export type User = {
   id: string;
   email: string;
   first_name: string;
@@ -12,4 +11,4 @@ export interface User {
   created_at: Date;
   updated_at: Date;
   role: Role;
-}
+};
