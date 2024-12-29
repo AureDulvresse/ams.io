@@ -1,3 +1,5 @@
+import AppSidebar from "@/src/components/partials/app-sidebar";
+import { SidebarContent, SidebarProvider } from "@/src/components/ui/sidebar";
 import React from "react";
 
 interface ProtectedLayoutProps {
@@ -6,9 +8,12 @@ interface ProtectedLayoutProps {
 
 const _ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
    return (
-      <div className="w-full h-full ">
-         {children}
-      </div>
+      <SidebarProvider className="w-full h-full">
+         <AppSidebar />
+         <SidebarContent>
+            {children}
+         </SidebarContent>
+      </SidebarProvider>
    );
 }
 
