@@ -52,6 +52,7 @@ export const {
 
       if (token.identity && session.user) {
         session.user.first_name = token.identity.first_name as string;
+        session.user.last_name = token.identity.last_name as string;
       }
 
       return session;

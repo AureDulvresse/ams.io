@@ -1,39 +1,71 @@
-import React from 'react'
-import { Sidebar, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuItem } from '../ui/sidebar'
-import { Separator } from '../ui/separator'
+import * as React from "react"
+import { GalleryVerticalEnd } from "lucide-react"
+import {
+   Sidebar,
+   SidebarContent,
+   SidebarGroup,
+   SidebarHeader,
+   SidebarMenu,
+   SidebarMenuButton,
+   SidebarMenuItem,
+   SidebarMenuSub,
+   SidebarMenuSubButton,
+   SidebarMenuSubItem,
+   SidebarRail,
+} from "@/src/components/ui/sidebar"
 import Image from 'next/image'
 import logo from "@/storage/uploads/logo_light.png";
-import Link from 'next/link';
+import { appRoute } from "@/routes";
 
-const AppSidebar = () => {
+const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
    return (
-      <div>
-         <Sidebar>
-            <SidebarHeader className='px-2 flex items-center justify-between'>
-               <div className="flex items-center gap-4 relative">
-                  <Image src={logo} className="w-14 h-auto" alt="logo AMS" />
-                  <h1 className="text-base font-semibold text-indigo-500 font-fredoka">Academia Management Sync</h1>
-               </div>
-               <Separator dir="horizontal" />
-            </SidebarHeader>
-
+      <Sidebar {...props}>
+         <SidebarHeader>
+            <SidebarMenu>
+               <SidebarMenuItem>
+                  <SidebarMenuButton size="lg" asChild>
+                     <a href="#">
+                        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                           <Image src={logo} className="size-4" alt="logo AMS" />
+                        </div>
+                        <div className="flex flex-col gap-0.5 leading-none">
+                           <span className="font-semibold text-indigo-700">Université Newton</span>
+                           <span className="text-muted-foreground truncate text-xs">Powered by AMS</span>
+                        </div>
+                     </a>
+                  </SidebarMenuButton>
+               </SidebarMenuItem>
+            </SidebarMenu>
+         </SidebarHeader>
+         <SidebarContent>
             <SidebarGroup>
-               <SidebarGroupLabel>
-                  Dashboard
-               </SidebarGroupLabel>
-               <SidebarGroupContent>
-                  <SidebarMenu>
-                     <SidebarMenuItem>
-                        <Link href={"/dashboard"}>Overview</Link>
+               <SidebarMenu>
+                  {appRoute.navMain.map((item) => (
+                     <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                           <a href={item.url} className="font-medium">
+                              {item.title}
+                           </a>
+                        </SidebarMenuButton>
+                        {item.items?.length ? (
+                           <SidebarMenuSub>
+                              {item.items.map((item) => (
+                                 <SidebarMenuSubItem key={item.title}>
+                                    <SidebarMenuSubButton asChild isActive={item.isActive}>
+                                       <a href={item.url}>{item.title}</a>
+                                    </SidebarMenuSubButton>
+                                 </SidebarMenuSubItem>
+                              ))}
+                           </SidebarMenuSub>
+                        ) : null}
                      </SidebarMenuItem>
-                  </SidebarMenu>
-                  
-               </SidebarGroupContent>
+                  ))}
+               </SidebarMenu>
             </SidebarGroup>
-
-         </Sidebar>
-      </ div>
+         </SidebarContent>
+         <SidebarRail />
+      </Sidebar>
    )
 }
 
-export default AppSidebar
+export default AppSidebar;
