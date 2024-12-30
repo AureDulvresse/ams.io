@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import {
    Breadcrumb,
@@ -13,11 +13,42 @@ import { Separator } from "@radix-ui/react-separator";
 import BreadcrumbSkeleton from "../skeletons/breadcrumb-skeleton";
 import { Skeleton } from "../ui/skeleton";
 import { NavUser } from "./nav-user";
-import { Dialog, DialogContent, DialogOverlay } from "../ui/dialog"; // Assuming you have a modal UI component
-import { Bell, MessageCircle, Search } from "lucide-react";
+import { Bell, Loader2, MessageCircle, Search } from "lucide-react";
+import { Input } from "../ui/input";
+import appFeatures, { FeaturesProps } from '@/constants/features';
+import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "../ui/dialog";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+   const navigate = useRouter();
+   const [searchQuery, setSearchQuery] = useState("");
+   const [searchResults, setSearchResults] = useState<FeaturesProps[]>([]);
+   const [isSearching, setIsSearching] = useState(false);
    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+   useEffect(() => {
+      if (searchQuery.length > 0) {
+         setIsSearching(true);
+         setTimeout(() => {
+            setSearchResults(
+               appFeatures.filter(({ name }) =>
+                  name.toLowerCase().includes(searchQuery.toLowerCase())
+               )
+            );
+            setIsSearching(false);
+         }, 1000);
+      } else {
+         setSearchResults([]);
+      }
+      if (searchQuery == "") { setSearchResults([]) }
+   }, [searchQuery]);
+
+
+
+   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+
+   };
 
    const toggleSearchModal = () => {
       setIsSearchOpen(!isSearchOpen);
@@ -81,26 +112,50 @@ const Navbar = () => {
 
          {/* Search Modal */}
          {isSearchOpen && (
-            <Dialog>
+            <Dialog open={isSearchOpen} onOpenChange={() => setIsSearchOpen(!isSearchOpen)}>
                <DialogOverlay
-                  className="fixed inset-0 bg-black/30"
+                  className="fixed inset-0 bg-muted/30 z-50"
                   onClick={toggleSearchModal}
                />
-               <DialogContent className="fixed left-1/2 top-1/2 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg">
-                  <h3 className="mb-4 text-lg font-semibold">Recherche</h3>
-                  <input
-                     type="text"
-                     placeholder="Rechercher..."
-                     className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <div className="mt-4 flex justify-end">
-                     <button
-                        className="rounded-md bg-gray-200 px-4 py-2 hover:bg-gray-300"
-                        onClick={toggleSearchModal}
-                     >
-                        Fermer
-                     </button>
+               <DialogContent className="w-[90%] min-h-48 max-w-lg rounded-lg bg-white p-6 shadow-lg">
+                  <DialogTitle className="pb-2">Recherche rapide</DialogTitle>
+                  <div className="relative">
+                     <Search
+                        className="absolute top-2.5 left-3 text-gray-400 dark:text-gray-500"
+                        size={20}
+                     />
+                     <Input
+                        className="h-10 w-full pl-10 pr-10 rounded-lg bg-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        placeholder="Recherche rapide..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                     />
+                     {/* Spinner pendant la recherche */}
+                     {isSearching && (
+                        <Loader2
+                           className="absolute top-2 right-3 animate-spin text-gray-400 dark:text-gray-500"
+                           size={24}
+                        />
+                     )}
+
                   </div>
+                  {/* Résultats de recherche */}
+                  {searchResults.length > 0 && (
+                     <div>
+                        <ul className="max-h-20 overflow-auto scrollbar-custom">
+                           {searchResults.map((result, index) => (
+                              <li
+                                 key={index}
+                                 className="p-2 rounded-lg text-muted-foreground hover:bg-muted cursor-pointer"
+                                 onClick={() => navigate.push(`${result.shorcut}`)}
+                              >
+                                 {result.name}
+                              </li>
+                           ))}
+                        </ul>
+                     </div>
+
+                  )}
                </DialogContent>
             </Dialog>
          )}
