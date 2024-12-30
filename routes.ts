@@ -23,7 +23,186 @@ export const createRedirectUrl = (
 
 // Configuration des routes
 export const publicRoutes = ["/"];
-export const authRoutes = ["/login", ];
+export const authRoutes = ["/login"];
 export const privateRoutes = ["/dashboard"];
 export const apiAuthPrefix = "/api/auth";
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard";
+
+// App Routes for AMS
+export const appRoute = {
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      items: [
+        {
+          title: "Vue d'ensemble",
+          url: "/dashboard/overview",
+        },
+        {
+          title: "Notifications",
+          url: "/dashboard/notifications",
+        },
+      ],
+    },
+    {
+      title: "Gestion Académique",
+      url: "/academic",
+      items: [
+        {
+          title: "Cours et Matières",
+          url: "/academic/courses",
+        },
+        {
+          title: "Planning",
+          url: "/academic/schedule",
+        },
+        {
+          title: "Résultats et Notes",
+          url: "/academic/results",
+        },
+        {
+          title: "Groupes et Classes",
+          url: "/academic/classes",
+        },
+      ],
+    },
+    {
+      title: "Gestion du Personnel",
+      url: "/staff",
+      items: [
+        {
+          title: "Employés",
+          url: "/staff/employees",
+        },
+        {
+          title: "Tâches à Exécuter",
+          url: "/staff/tasks",
+        },
+        {
+          title: "Évaluations",
+          url: "/staff/reviews",
+        },
+        {
+          title: "Présences et Absences",
+          url: "/staff/attendance",
+        },
+        {
+          title: "Congés",
+          url: "/staff/leaves",
+        },
+        {
+          title: "Recrutement",
+          url: "/staff/recruitment",
+        },
+      ],
+    },
+    {
+      title: "Utilisateurs",
+      url: "/users",
+      items: [
+        {
+          title: "Étudiants",
+          url: "/users/students",
+        },
+        {
+          title: "Enseignants",
+          url: "/users/teachers",
+        },
+        {
+          title: "Personnel Administratif",
+          url: "/users/staff",
+        },
+        {
+          title: "Bibliothécaires",
+          url: "/users/librarians",
+        },
+        {
+          title: "Rôles et Permissions",
+          url: "/users/roles",
+        },
+      ],
+    },
+    {
+      title: "Finances",
+      url: "/finance",
+      items: [
+        {
+          title: "Paiements",
+          url: "/finance/payments",
+        },
+        {
+          title: "Revenus",
+          url: "/finance/revenues",
+        },
+        {
+          title: "Dépenses",
+          url: "/finance/expenses",
+        },
+        {
+          title: "Facturation",
+          url: "/finance/billing",
+        },
+      ],
+    },
+    {
+      title: "Bibliothèque",
+      url: "/library",
+      items: [
+        {
+          title: "Livres Disponibles",
+          url: "/library/books",
+        },
+        {
+          title: "Livres Empruntés",
+          url: "/library/borrowed",
+        },
+        {
+          title: "Demandes de Livres",
+          url: "/library/requests",
+        },
+        {
+          title: "Gestion des Livres",
+          url: "/library/manage",
+        },
+      ],
+    },
+    {
+      title: "Paramètres",
+      url: "/settings",
+      items: [
+        {
+          title: "Configuration Générale",
+          url: "/settings/general",
+        },
+        {
+          title: "Compte Utilisateur",
+          url: "/settings/account",
+        },
+        {
+          title: "Sécurité",
+          url: "/settings/security",
+        },
+      ],
+    },
+    {
+      title: "Support",
+      url: "/support",
+      items: [
+        {
+          title: "Documentation",
+          url: "/support/docs",
+        },
+        {
+          title: "Contactez-nous",
+          url: "/support/contact",
+        },
+        {
+          title: "FAQs",
+          url: "/support/faqs",
+        },
+      ],
+    },
+  ],
+};
+
