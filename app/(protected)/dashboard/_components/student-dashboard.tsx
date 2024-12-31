@@ -5,8 +5,6 @@ import StatCard from '@/src/components/common/stat-card'
 const StudentDashboard = () => {
    return (
       <div className="space-y-6">
-         <h1 className="text-2xl font-semibold">Bienvenue sur votre tableau de bord</h1>
-
          {/* Vue d'ensemble des statistiques */}
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
