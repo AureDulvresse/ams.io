@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/src/components/ui/sonner";
 import { auth } from "@/auth";
@@ -34,6 +35,7 @@ export default async function RootLayout({
     <html lang="fr">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Fournisseur de session, utilise la session par défaut si elle est vide */}
+        <SpeedInsights />
         <SessionProvider session={session || undefined}>
           {children}
         </SessionProvider>
