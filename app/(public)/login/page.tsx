@@ -1,7 +1,8 @@
 'use client'
 
-import LoginForm from '@/src/forms/login-form'
 import React from 'react'
+import LoginForm from './_components/login-form'
+import { Card } from '@/src/components/ui/card'
 
 const LoginPage = () => {
    return (
@@ -28,8 +29,8 @@ const LoginPage = () => {
          <div className="absolute top-5 right-72 w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[60px] border-b-red-500 opacity-60 animate-pulse z-10"></div>
 
          {/* Section principale (formulaire) */}
-         <div className="z-20 flex flex-col items-center justify-center px-6 sm:px-16 lg:px-24">
-            <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+         <Card className="z-20 flex flex-col items-center justify-center px-6 sm:px-16 lg:px-24">
+            <div className="w-full max-w-md space-y-8">
                {/* Titre */}
                <div className="text-center animate__animated animate__fadeIn animate__delay-2s mb-6">
                   <h2 className="text-2xl font-extrabold text-gray-800">
@@ -41,7 +42,11 @@ const LoginPage = () => {
                </div>
                <LoginForm />
             </div>
-         </div>
+            <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+               By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+               and <a href="#">Privacy Policy</a>.
+            </div>
+         </Card>
       </div>
    )
 }

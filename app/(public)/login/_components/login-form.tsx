@@ -3,14 +3,15 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { signInSchema } from '../schemas/auth.schema'
-import { Input } from '../components/ui/input'
-import { Button } from '../components/ui/button'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
-import { login } from '../actions/auth.actions'
-import { useRouter } from 'next/navigation'
+import { signInSchema } from '@/src/schemas/auth.schema'
+import { login } from '@/src/actions/auth.actions'
+import { Input } from '@/src/components/ui/input'
+import { Button } from '@/src/components/ui/button'
+
 
 type LoginFormValues = z.infer<typeof signInSchema>
 
