@@ -1,11 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BookOpenIcon, CheckCircleIcon, UsersIcon, FileTextIcon } from "lucide-react";
 import StatCard from "@/src/components/common/stat-card";
+import { Card } from "@/src/components/ui/card";
+import { DataTable } from "@/src/components/common/data-table";
+import { Notification, notificationColumns } from "@/constants/notification-columns";
+import ErrorState from "@/src/components/common/error-state";
+import { getNotifications } from "@/src/data/hr";
 
 const TeacherDashboard = () => {
+   const [notifications, setNotifications] = useState<Notification[]>([]);
+   const [isLoading, setIsLoading] = useState(true);
+   const [error, setError] = useState(null);
+
+   useEffect(() => {
+      const fetchNotifications = async () => {
+         try {
+            setIsLoading(true);
+            const data = await getNotifications();
+            setNotifications(data);
+         } catch (err: any) {
+            setError(err.message);
+         } finally {
+            setIsLoading(false);
+         }
+      };
+
+      fetchNotifications();
+
+   }, []);
+
+   const handleView = (row: any) => {
+      console.log("Viewing:", row);
+   };
+
+   const handleEdit = (row: any) => {
+      console.log("Editing:", row);
+   };
+
+   const handleDelete = (row: any) => {
+      console.log("Deleting:", row);
+   };
+
+   const handleAdd = () => {
+      console.log("Adding new record");
+   };
+
+   if (error) return <ErrorState message={error} />
+
+   if (isLoading) {
+      return <div>Loading...</div>;
+   }
+
    return (
       <div className="space-y-4">
-         <h1 className="text-2xl font-bold">Dashboard Enseignant</h1>
 
          {/* Statistiques principales */}
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -40,16 +87,15 @@ const TeacherDashboard = () => {
          </div>
 
          {/* Section des tâches et examens */}
-         <div className="mt-6">
-            <h2 className="text-lg font-semibold">Tâches et examens à préparer</h2>
-            <div className="bg-white p-4 shadow-md rounded-md">
-               <ul className="list-disc pl-5 space-y-2">
-                  <li>Noter les devoirs de la semaine dernière.</li>
-                  <li>Préparer l'examen de fin de semestre pour la classe de mathématiques.</li>
-                  <li>Mettre à jour les supports de cours pour le prochain semestre.</li>
-               </ul>
-            </div>
-         </div>
+         <Card className="container mx-auto px-4 py-6 bg-white shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Tâches et examens à préparer</h2>
+            <DataTable
+               columns={notificationColumns}
+               data={notifications}
+               onView={handleView}
+               onDelete={handleDelete}
+            />
+         </Card>
       </div>
    );
 };

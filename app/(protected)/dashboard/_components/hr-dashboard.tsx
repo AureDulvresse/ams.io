@@ -1,12 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { UsersIcon, CalendarIcon, DollarSignIcon, FileTextIcon } from "lucide-react";
 import StatCard from "@/src/components/common/stat-card";
+import { Card } from "@/src/components/ui/card";
+import { DataTable } from "@/src/components/common/data-table";
+import { Notification, notificationColumns } from "@/constants/notification-columns";
+import ErrorState from "@/src/components/common/error-state";
+import { getNotifications } from "@/src/data/hr";
+import { getTasks } from "@/src/data/task";
+import { Task, taskColumns } from "@/constants/task-columns";
 
 const HRDashboard = () => {
+   const [notifications, setNotifications] = useState<Notification[]>([]);
+   const [tasks, setTasks] = useState<Task[]>([]);
+   const [isLoading, setIsLoading] = useState(true);
+   const [error, setError] = useState(null);
+
+   useEffect(() => {
+      const fetchNotifications = async () => {
+         try {
+            setIsLoading(true);
+            const data = await getNotifications();
+            setNotifications(data);
+         } catch (err: any) {
+            setError(err.message);
+         } finally {
+            setIsLoading(false);
+         }
+      };
+
+      const fetchTasks = async () => {
+         try {
+            setIsLoading(true);
+            const data = await getTasks();
+            setTasks(data);
+         } catch (err: any) {
+            setError(err.message);
+         } finally {
+            setIsLoading(false);
+         }
+      };
+
+      fetchNotifications();
+      fetchTasks()
+   }, []);
+
+   const handleView = (row: any) => {
+      console.log("Viewing:", row);
+   };
+
+   const handleEdit = (row: any) => {
+      console.log("Editing:", row);
+   };
+
+   const handleDelete = (row: any) => {
+      console.log("Deleting:", row);
+   };
+
+   const handleAdd = () => {
+      console.log("Adding new record");
+   };
+
+   if (error) return <ErrorState message={error} />
+
+   if (isLoading) {
+      return <div>Loading...</div>;
+   }
+
    return (
       <div className="space-y-4">
-         <h1 className="text-2xl font-bold">Dashboard Ressources Humaines</h1>
-
          {/* Statistiques principales */}
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
@@ -40,28 +101,28 @@ const HRDashboard = () => {
          </div>
 
          {/* Section des notifications */}
-         <div className="mt-6">
-            <h2 className="text-lg font-semibold">Dernières notifications</h2>
-            <div className="bg-white p-4 shadow-md rounded-md">
-               <ul className="list-disc pl-5 space-y-2">
-                  <li>Demande de congé de John Doe approuvée.</li>
-                  <li>Les paiements des salaires sont en cours pour ce mois.</li>
-                  <li>Une nouvelle demande de recrutement pour un professeur est arrivée.</li>
-               </ul>
-            </div>
-         </div>
+         <Card className="container mx-auto px-4 py-6 bg-white shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Dernières notifications</h2>
+            <DataTable
+               columns={notificationColumns}
+               data={notifications}
+               onView={handleView}
+               onDelete={handleDelete}
+            />
+         </Card>
 
          {/* Section des tâches RH */}
-         <div className="mt-6">
-            <h2 className="text-lg font-semibold">Tâches à accomplir</h2>
-            <div className="bg-white p-4 shadow-md rounded-md">
-               <ul className="list-disc pl-5 space-y-2">
-                  <li>Vérifier les demandes de congés en attente.</li>
-                  <li>Mettre à jour les informations des employés dans le système.</li>
-                  <li>Finaliser les paiements des primes de fin d'année.</li>
-               </ul>
-            </div>
-         </div>
+         <Card className="container mx-auto px-4 py-6 bg-white shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Tâches à accomplir</h2>
+            <DataTable
+               columns={taskColumns}
+               data={tasks}
+               onAdd={handleAdd}
+               onView={handleView}
+               onDelete={handleDelete}
+               onEdit={handleEdit}
+            />
+         </Card>
       </div>
    );
 };

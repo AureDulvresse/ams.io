@@ -1,12 +1,58 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { CalendarIcon, FileTextIcon, ClipboardListIcon, UserIcon } from 'lucide-react'
 import StatCard from '@/src/components/common/stat-card'
+import ErrorState from '@/src/components/common/error-state';
+import { getNotifications } from '@/src/data/hr';
+import { Notification, notificationColumns } from '@/constants/notification-columns';
+import { Card } from '@/src/components/ui/card';
+import { DataTable } from '@/src/components/common/data-table';
 
 const StudentDashboard = () => {
+   const [notifications, setNotifications] = useState<Notification[]>([]);
+   const [isLoading, setIsLoading] = useState(true);
+   const [error, setError] = useState(null);
+
+   useEffect(() => {
+      const fetchNotifications = async () => {
+         try {
+            setIsLoading(true);
+            const data = await getNotifications();
+            setNotifications(data);
+         } catch (err: any) {
+            setError(err.message);
+         } finally {
+            setIsLoading(false);
+         }
+      };
+
+      fetchNotifications();
+ 
+   }, []);
+
+   const handleView = (row: any) => {
+      console.log("Viewing:", row);
+   };
+
+   const handleEdit = (row: any) => {
+      console.log("Editing:", row);
+   };
+
+   const handleDelete = (row: any) => {
+      console.log("Deleting:", row);
+   };
+
+   const handleAdd = () => {
+      console.log("Adding new record");
+   };
+
+   if (error) return <ErrorState message={error} />
+
+   if (isLoading) {
+      return <div>Loading...</div>;
+   }
+   
    return (
       <div className="space-y-6">
-         <h1 className="text-2xl font-semibold">Bienvenue sur votre tableau de bord</h1>
-
          {/* Vue d'ensemble des statistiques */}
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
@@ -66,17 +112,16 @@ const StudentDashboard = () => {
             </div>
          </div>
 
-         {/* Notifications */}
-         <div className="mt-6">
-            <h2 className="text-lg font-semibold">Notifications</h2>
-            <div className="bg-white p-4 shadow-md rounded-md">
-               <ul className="list-disc pl-5 space-y-2">
-                  <li>Votre devoir de Mathématiques a été noté : 14/20.</li>
-                  <li>Rappel : Examen d'Histoire dans 2 jours.</li>
-                  <li>Le cours de Physique sera en présentiel la semaine prochaine.</li>
-               </ul>
-            </div>
-         </div>
+         {/* Section des notifications */}
+         <Card className="container mx-auto px-4 py-6 bg-white shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Dernières notifications</h2>
+            <DataTable
+               columns={notificationColumns}
+               data={notifications}
+               onView={handleView}
+               onDelete={handleDelete}
+            />
+         </Card>
       </div>
    )
 }

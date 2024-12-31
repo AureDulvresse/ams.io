@@ -1,4 +1,5 @@
 import { db } from "../lib/prisma";
+import { Permission } from "../types/permission";
 import { getUserById } from "./user";
 
 /**
@@ -66,3 +67,6 @@ export const createPermission = async (data: any) => {
 
   return { data: permission };
 };
+
+export const hasPermission = (code: string, permissionCodes: string[]) =>
+  permissionCodes.includes(code);

@@ -10,7 +10,7 @@ import { Card } from "@/src/components/ui/card";
 import IncomeChart from "@/src/components/finance/income-chart";
 import ExpenseChart from "@/src/components/finance/expense-chart";
 import { getTransaction } from "@/src/data/finance";
-import { columns, Payment } from "@/src/components/finance/colums";
+import { Payment, transactionColumns } from "@/constants/transaction-columns";
 import { DataTable } from "@/src/components/common/data-table";
 import ErrorState from "@/src/components/common/error-state";
 
@@ -94,7 +94,7 @@ const FinanceDashboard = () => {
 
          {/* Graphiques - Revenus et Dépenses */}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <IncomeChart  />
+            <IncomeChart />
             <ExpenseChart />
          </div>
 
@@ -102,7 +102,7 @@ const FinanceDashboard = () => {
          <Card className="container mx-auto px-4 py-6 bg-white shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Transactions récentes</h2>
             <DataTable
-               columns={columns}
+               columns={transactionColumns}
                data={transactions}
                onView={handleView}
                onEdit={handleEdit}
