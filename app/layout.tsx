@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/src/components/ui/sonner";
@@ -28,13 +29,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  setTimeout(() => console.log("Loading..."), 50000);
   // Fonction pour récupérer la session
   const session = await auth();
 
   return (
     <html lang="fr">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* Fournisseur de session, utilise la session par défaut si elle est vide */}
+        <Analytics />
         <SpeedInsights />
         <SessionProvider session={session || undefined}>
           {children}
