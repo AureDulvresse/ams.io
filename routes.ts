@@ -34,16 +34,6 @@ export const appRoute = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      items: [
-        {
-          title: "Vue d'ensemble",
-          url: "/dashboard/overview",
-        },
-        {
-          title: "Notifications",
-          url: "/dashboard/notifications",
-        },
-      ],
     },
     {
       title: "Gestion Académique",
