@@ -1,33 +1,25 @@
-import { Payment } from "../../constants/transaction-columns";
+import { Task } from "@/constants/task-columns";
 
-export const getTransaction = async (): Promise<Payment[]> => {
+export const getTasks = async (): Promise<Task[]> => {
   // Fetch data from your API here.
   return [
     {
       id: "728ed52f",
-      amount: 15000,
+      title: "Vérifier les demandes de congés en attente.",
       status: "pending",
       description: "Paiement des frais de scolarité",
     },
     {
       id: "749ed52f",
-      amount: 130000,
+      title: "Mettre à jour les informations des employés dans le système.",
       status: "success",
       description: "Salaires du personnel mois décembre",
     },
     {
       id: "828ed52f",
-      amount: 600,
+      title: "Finaliser les paiements des primes de fin d'année.",
       status: "success",
       description: "Achat de matériel pédagogique",
     },
-    {
-      id: "828as52f",
-      amount: 700,
-      status: "processing",
-      description: "Achat livre pour la biblothèque",
-    },
-
-    // ...
   ];
 };

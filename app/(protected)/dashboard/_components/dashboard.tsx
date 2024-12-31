@@ -12,6 +12,11 @@ import DashboardSkeleton from './dashboard-skeleton';
 import AdminDashboard from './admin-dashboard';
 import FinanceDashboard from './finance-dashboard';
 import DirectorDashboard from './director-dashboard';
+import { hasPermission } from '@/src/data/permission';
+import StudentDashboard from './student-dashboard';
+import HRDashboard from './hr-dashboard';
+import TeacherDashboard from './teacher-dashboard';
+import LibraryDashboard from './library-dashboard';
 
 // Fonction pour obtenir la salutation selon l'heure
 const getGreeting = () => {
@@ -79,7 +84,6 @@ const Dashboard = ({
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
 
    const permissionCodes = permissions.map(p => p.code);
-   const hasPermission = (code: string) => permissionCodes.includes(code);
    const greeting = getGreeting();
 
    return (
@@ -92,19 +96,55 @@ const Dashboard = ({
                <p>Bienvenue sur votre tableau de bord</p>
             </div>
             <div className="flex items-center justify-center gap-1 text-sm text-gray-900 px-2 py-1.5">
-               <CalendarClock size={14}/>
+               <CalendarClock size={14} />
                {currentTime}
             </div>
          </div>
 
 
-         
+
          {user.role.name === "superuser" && (
+            <div className='flex flex-col gap-2'>
+               <AdminDashboard />
+               <DirectorDashboard />
+               <HRDashboard />
+               <FinanceDashboard />
+               <StudentDashboard />
+               <TeacherDashboard />
+               <LibraryDashboard />
+            </div>
+         )}
+
+         {user.role.name === "admin" || hasPermission("access_admin_dashbord", permissionCodes) && (
+            <AdminDashboard />
+         )}
+
+         {user.role.name === "directeur" || hasPermission("access_director_dashbord", permissionCodes) && (
+            <DirectorDashboard />
+         )}
+
+         {user.role.name === "comptable" || hasPermission("access_finance_dashbord", permissionCodes) && (
             <FinanceDashboard />
          )}
 
+         {user.role.name === "student" || hasPermission("access_student_dashbord", permissionCodes) && (
+            <StudentDashboard />
+         )}
+
+         {user.role.name === "hr" || hasPermission("access_hr_dashbord", permissionCodes) && (
+            <HRDashboard />
+         )}
+
+         {user.role.name === "teacher" || hasPermission("access_teacher_dashbord", permissionCodes) && (
+            <TeacherDashboard />
+         )}
+
+         {user.role.name === "library" || hasPermission("access_library_dashbord", permissionCodes) && (
+            <LibraryDashboard />
+         )}
+
          {/* Sécurité */}
-         {hasPermission("manage_security") && (
+         {hasPermission("manage_security", permissionCodes) && (
             <Card
                title="Sécurité"
                icon={<Shield className="w-4 h-4" />}
