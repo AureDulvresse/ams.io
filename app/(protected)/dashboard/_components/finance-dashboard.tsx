@@ -2,7 +2,8 @@ import React from "react";
 import { DollarSignIcon, FileTextIcon, UsersIcon, CalendarIcon } from "lucide-react";
 import StatCard from "@/src/components/common/stat-card";
 import { Card } from "@/src/components/ui/card";
-import { ExpenseChart, IncomeChart } from "@/src/components/common/financial-charts";
+import IncomeChart from "@/src/components/finance/income-chart";
+import ExpenseChart from "@/src/components/finance/expense-chart";
 
 const FinanceDashboard = () => {
    return (

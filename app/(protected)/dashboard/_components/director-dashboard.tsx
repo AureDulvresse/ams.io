@@ -6,8 +6,9 @@ import {
    GraduationCapIcon,
    FileTextIcon,
 } from "lucide-react";
-import { ExpenseChart, IncomeChart } from "../../../../src/components/common/financial-charts";
 import { Card } from "@/src/components/ui/card";
+import IncomeChart from "@/src/components/finance/income-chart";
+import ExpenseChart from "@/src/components/finance/expense-chart";
 
 const DirectorDashboard = () => {
    return (
