@@ -36,14 +36,14 @@ const AdminDashboard = () => {
             />
          </div>
 
-<div className="grid grid-cols-3 gap-2">
+         <div className="grid grid-cols-3 gap-2">
+            {/* Section supplémentaire */}
+            <Card className="p-2 col-span-3">
+               <h2 className="text-lg font-semibold">Activités récentes</h2>
+               <NoDataState message="Aucune activité récente pour le moment." />
+            </Card>
+         </div>
 
-</div>
-         {/* Section supplémentaire */}
-         <Card className="p-2">
-            <h2 className="text-lg font-semibold">Activités récentes</h2>
-            <NoDataState message="Aucune activité récente pour le moment." />
-         </Card>
       </div>
    );
 };

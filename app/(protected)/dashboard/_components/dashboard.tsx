@@ -10,6 +10,8 @@ import { Role } from '@/src/types/role';
 import { Permission } from '@/src/types/permission';
 import DashboardSkeleton from './dashboard-skeleton';
 import AdminDashboard from './admin-dashboard';
+import FinanceDashboard from './finance-dashboard';
+import DirectorDashboard from './director-dashboard';
 
 // Fonction pour obtenir la salutation selon l'heure
 const getGreeting = () => {
@@ -96,9 +98,9 @@ const Dashboard = ({
          </div>
 
 
-         {/* Paramètres Système */}
+         
          {user.role.name === "superuser" && (
-            <AdminDashboard />
+            <FinanceDashboard />
          )}
 
          {/* Sécurité */}
