@@ -115,31 +115,31 @@ const Dashboard = ({
             </div>
          )}
 
-         {user.role.name === "admin" || hasPermission("access_admin_dashbord", permissionCodes) && (
+         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", permissionCodes) && (
             <AdminDashboard />
          )}
 
-         {user.role.name === "directeur" || hasPermission("access_director_dashbord", permissionCodes) && (
+         {user.role.name === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", permissionCodes) && (
             <DirectorDashboard />
          )}
 
-         {user.role.name === "comptable" || hasPermission("access_finance_dashbord", permissionCodes) && (
+         {user.role.name === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", permissionCodes) && (
             <FinanceDashboard />
          )}
 
-         {user.role.name === "student" || hasPermission("access_student_dashbord", permissionCodes) && (
+         {user.role.name === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", permissionCodes) && (
             <StudentDashboard />
          )}
 
-         {user.role.name === "hr" || hasPermission("access_hr_dashbord", permissionCodes) && (
+         {user.role.name === "hr" || hasPermission("HR_DASHBOARD_SHOW", permissionCodes) && (
             <HRDashboard />
          )}
 
-         {user.role.name === "teacher" || hasPermission("access_teacher_dashbord", permissionCodes) && (
+         {user.role.name === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", permissionCodes) && (
             <TeacherDashboard />
          )}
 
-         {user.role.name === "library" || hasPermission("access_library_dashbord", permissionCodes) && (
+         {user.role.name === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", permissionCodes) && (
             <LibraryDashboard />
          )}
 
