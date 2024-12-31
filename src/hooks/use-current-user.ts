@@ -9,7 +9,7 @@ import { User } from "next-auth";
 // Types pour les états de la requête
 type FetchStatus = "idle" | "loading" | "success" | "error";
 interface FetchState {
-  permissions: Permission[] | null; // Liste des permisions du user
+  permissions: string[] | null; // Liste des permisions du user
   isLoading: boolean; // Indique si la requête est en cours
   error: Error | null; // Erreur rencontrée (s'il y en a)
   status: FetchStatus; // État actuel de la requête
@@ -41,7 +41,7 @@ export const useCurrentUser = (): FetchResponse => {
 
   const user = session.data?.user;
 
-  const fetchData = useCallback(async (): Promise<void> => {
+  const fetchData = useCallback(async (user: any): Promise<void> => {
     setState((prevState) => ({
       ...prevState,
       isLoading: true,
@@ -57,7 +57,9 @@ export const useCurrentUser = (): FetchResponse => {
         );
       }
 
-      const permissions: Permission[] = await response.json();
+      const permissions: string[] = await response.json();
+
+      console.log(permissions)
 
       setState({
         permissions,
@@ -77,8 +79,8 @@ export const useCurrentUser = (): FetchResponse => {
 
   useEffect(() => {
     // Lance une première requête à l'initialisation
-    fetchData();
-  }, [fetchData]);
+    fetchData(user);
+  }, [fetchData, user]);
 
   return { ...state, user };
 };

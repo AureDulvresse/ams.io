@@ -92,6 +92,22 @@ export const appRoute = {
       ],
     },
   ],
+  navDrafting: [
+    {
+      title: "Planification",
+      url: "/drafting",
+      items: [
+        {
+          title: "Évènement",
+          url: "/drafting/events",
+        },
+        {
+          title: "Emploi du temps",
+          url: "/schedule",
+        },
+      ],
+    },
+  ],
   navUser: [
     {
       title: "Utilisateurs",
@@ -164,6 +180,22 @@ export const appRoute = {
         {
           title: "Gestion des Livres",
           url: "/library/manage",
+        },
+      ],
+    },
+  ],
+  navPatrimony: [
+    {
+      title: "Patrimoine",
+      url: "/patrimony",
+      items: [
+        {
+          title: "Salle de classe",
+          url: "/patrimony/classroom",
+        },
+        {
+          title: "Inventaire de matériel",
+          url: "/patrimony/inventory",
         },
       ],
     },

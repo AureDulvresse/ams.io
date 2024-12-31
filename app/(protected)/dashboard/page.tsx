@@ -6,21 +6,19 @@ import Navbar from "@/src/components/partials/navbar";
 import ErrorState from "@/src/components/common/error-state";
 
 const DashboardPage = () => {
-   
+
    const { user, permissions, isLoading, error } = useCurrentUser();
 
    if (isLoading) return <DashboardSkeleton />
 
    if (error) return <ErrorState message={error.message} />
 
-   console.log(user, permissions, error)
-
    return (
       <div>
          <Navbar />
          <Dashboard
             user={user}
-            permissions={permissions}
+            userPermissions={permissions}
             isLoading={isLoading}
             error={error}
          />

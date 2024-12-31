@@ -47,7 +47,7 @@ const Card = ({ title, icon, children }: {
 // Composant principal
 const Dashboard = ({
    user,
-   permissions,
+   userPermissions,
    isLoading,
    error,
 }: {
@@ -60,7 +60,7 @@ const Dashboard = ({
       emailVerified?: Date;
       last_login?: Date;
    }) | undefined;
-   permissions: Permission[] | null;
+   userPermissions: string[] | null;
    isLoading: boolean;
    error: Error | null;
 }) => {
@@ -80,10 +80,9 @@ const Dashboard = ({
 
    if (isLoading) return <DashboardSkeleton />;
    if (error) return <ErrorState message={error.message} />;
-   if (!permissions) return <ErrorState message="Aucune permission trouvée" />;
+   if (userPermissions?.length == 0 || !userPermissions) return <ErrorState message="Aucune permission trouvée" />;
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
 
-   const permissionCodes = permissions.map(p => p.code);
    const greeting = getGreeting();
 
    return (
@@ -119,31 +118,31 @@ const Dashboard = ({
             </div>
          )}
 
-         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", permissionCodes)  && (
+         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", userPermissions) && (
             <AdminDashboard />
          )}
 
-         {user.role.name === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", userPermissions) && (
             <DirectorDashboard />
          )}
 
-         {user.role.name === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", userPermissions) && (
             <FinanceDashboard />
          )}
 
-         {user.role.name === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", userPermissions) && (
             <StudentDashboard />
          )}
 
-         {user.role.name === "hr" || hasPermission("HR_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "hr" || hasPermission("HR_DASHBOARD_SHOW", userPermissions) && (
             <HRDashboard />
          )}
 
-         {user.role.name === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", userPermissions) && (
             <TeacherDashboard />
          )}
 
-         {user.role.name === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", userPermissions) && (
             <LibraryDashboard />
          )}
 
