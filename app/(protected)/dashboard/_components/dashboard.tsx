@@ -59,7 +59,7 @@ const Dashboard = ({
       is_active: boolean;
       emailVerified?: Date;
       last_login?: Date;
-   }) | undefined | null;
+   }) | undefined;
    permissions: Permission[] | null;
    isLoading: boolean;
    error: Error | null;
@@ -101,8 +101,6 @@ const Dashboard = ({
             </div>
          </div>
 
-
-
          {user.role.name === "superuser" && (
             <div className='flex flex-col gap-2'>
                <AdminDashboard />
@@ -112,10 +110,16 @@ const Dashboard = ({
                <StudentDashboard />
                <TeacherDashboard />
                <LibraryDashboard />
+               <Card
+                  title="Sécurité"
+                  icon={<Shield className="w-4 h-4" />}
+               >
+                  <p>Gérez les paramètres de sécurité</p>
+               </Card>
             </div>
          )}
 
-         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", permissionCodes) && (
+         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", permissionCodes)  && (
             <AdminDashboard />
          )}
 
@@ -141,16 +145,6 @@ const Dashboard = ({
 
          {user.role.name === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", permissionCodes) && (
             <LibraryDashboard />
-         )}
-
-         {/* Sécurité */}
-         {hasPermission("manage_security", permissionCodes) && (
-            <Card
-               title="Sécurité"
-               icon={<Shield className="w-4 h-4" />}
-            >
-               <p>Gérez les paramètres de sécurité</p>
-            </Card>
          )}
 
       </div>

@@ -24,21 +24,28 @@ import {
    DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu"
 import {
-   SidebarMenu,
    SidebarMenuButton,
-   SidebarMenuItem,
    useSidebar,
 } from "@/src/components/ui/sidebar"
-import { User } from "next-auth"
-import { Role } from "@prisma/client"
 import { Button } from "../ui/button"
 import { logout } from "@/src/actions/auth.actions"
 import { toast } from "sonner"
-import { useCurrentUser } from "@/src/hooks/use-current-user"
+import { User } from "next-auth"
+import { Role } from "@/src/types/role"
 
-export const NavUser = () => {
+export const NavUser = ({ user }: {
+   user: (User & {
+      id: string;
+      first_name: string;
+      last_name: string;
+      role: Role;
+      is_active: boolean;
+      emailVerified?: Date;
+      last_login?: Date;
+   }) | undefined;
+}) => {
+
    const { isMobile } = useSidebar()
-   const user = useCurrentUser();
 
    const handleLogout = async () => {
       await logout();
@@ -65,7 +72,7 @@ export const NavUser = () => {
                            Connecté <span className="font-medium">{`(${user?.role.name})`}</span>
                         </span>
                      </div>
-                     
+
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                </SidebarMenuButton>

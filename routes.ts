@@ -35,6 +35,8 @@ export const appRoute = {
       title: "Dashboard",
       url: "/dashboard",
     },
+  ],
+  navAcademy: [
     {
       title: "Gestion Académique",
       url: "/academic",
@@ -57,6 +59,8 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navHR: [
     {
       title: "Gestion du Personnel",
       url: "/staff",
@@ -87,6 +91,8 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navUser: [
     {
       title: "Utilisateurs",
       url: "/users",
@@ -113,6 +119,8 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navFinance: [
     {
       title: "Finances",
       url: "/finance",
@@ -135,6 +143,8 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navLibrary: [
     {
       title: "Bibliothèque",
       url: "/library",
@@ -157,6 +167,8 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navSettings: [
     {
       title: "Paramètres",
       url: "/settings",
@@ -195,4 +207,3 @@ export const appRoute = {
     },
   ],
 };
-

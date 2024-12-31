@@ -18,6 +18,7 @@ import { Input } from "../ui/input";
 import appFeatures, { FeaturesProps } from '@/constants/features';
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "../ui/dialog";
 import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/src/hooks/use-current-user";
 
 const Navbar = () => {
    const navigate = useRouter();
@@ -25,6 +26,8 @@ const Navbar = () => {
    const [searchResults, setSearchResults] = useState<FeaturesProps[]>([]);
    const [isSearching, setIsSearching] = useState(false);
    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+   const { user } = useCurrentUser();
 
    useEffect(() => {
       if (searchQuery.length > 0) {
@@ -106,7 +109,7 @@ const Navbar = () => {
 
             {/* User Avatar */}
             <Suspense fallback={<Skeleton className="h-8 w-8 rounded-full" />}>
-               <NavUser />
+               <NavUser user={user} />
             </Suspense>
          </div>
 

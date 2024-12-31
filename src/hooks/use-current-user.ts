@@ -1,7 +1,84 @@
+"use client";
 import { useSession } from "next-auth/react";
+import { Permission } from "../types/permission";
+import useFetchData from "./use-fetch-data";
+import { useCallback, useEffect, useState } from "react";
+import { Role } from "../types/role";
+import { User } from "next-auth";
 
-export const useCurrentUser = () => {
+// Types pour les états de la requête
+type FetchStatus = "idle" | "loading" | "success" | "error";
+interface FetchState {
+  permissions: Permission[] | null; // Liste des permisions du user
+  isLoading: boolean; // Indique si la requête est en cours
+  error: Error | null; // Erreur rencontrée (s'il y en a)
+  status: FetchStatus; // État actuel de la requête
+}
+
+interface FetchResponse extends FetchState {
+  user:
+    | (User & {
+        id: string;
+        first_name: string;
+        last_name: string;
+        role: Role;
+        is_active: boolean;
+        emailVerified?: Date;
+        last_login?: Date;
+      })
+    | undefined; // Données user connecté
+}
+
+export const useCurrentUser = (): FetchResponse => {
+  // Initialisation de l'état de la requête
+  const [state, setState] = useState<FetchState>({
+    permissions: null,
+    isLoading: false,
+    error: null,
+    status: "idle",
+  });
   const session = useSession();
 
-  return session.data?.user;
+  const user = session.data?.user;
+
+  const fetchData = useCallback(async (): Promise<void> => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoading: true,
+      status: "loading",
+    }));
+
+    try {
+      const response = await fetch(`/api/permissions?userId=${user?.id}`);
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP Error: ${response.statusText} (${response.status})`
+        );
+      }
+
+      const permissions: Permission[] = await response.json();
+
+      setState({
+        permissions,
+        isLoading: false,
+        error: null,
+        status: "success",
+      });
+    } catch (error) {
+      setState({
+        permissions: [],
+        isLoading: false,
+        error: error instanceof Error ? error : new Error("Unknown error"),
+        status: "error",
+      });
+    }
+  }, [useFetchData]);
+
+  useEffect(() => {
+    // Lance une première requête à l'initialisation
+    fetchData();
+  }, [fetchData]);
+
+  return { ...state, user };
 };
