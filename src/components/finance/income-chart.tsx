@@ -28,17 +28,25 @@ const incomeConfig: Record<string, ChartSeriesConfig> = {
    },
 };
 
-const IncomeChart = () => {
+// Définition du composant ExpenseChart
+interface IncomeChartProps {
+   className?: string;
+}
+
+const IncomeChart: React.FC<IncomeChartProps> = ({ className }) => {
    return (
-      <FinancialChart
-         title="Revenus Financiers - Derniers 6 Mois"
-         description="Suivi des revenus par source (scolarité, dons, subventions)."
-         data={incomeData}
-         config={incomeConfig}
-         footerText="Janvier - Juin 2024"
-         growthRate={5.8}
-         timePeriod="Janvier - Juin 2024"
-      />
+      <div className={className}>
+         <FinancialChart
+            title="Revenus Financiers - Derniers 6 Mois"
+            description="Suivi des revenus par source (scolarité, dons, subventions)."
+            data={incomeData}
+            config={incomeConfig}
+            footerText="Janvier - Juin 2024"
+            growthRate={5.8}
+            timePeriod="Janvier - Juin 2024"
+         />
+      </div>
+
    );
 };
 

@@ -28,17 +28,24 @@ const expenseConfig: Record<string, ChartSeriesConfig> = {
    },
 };
 
-const ExpenseChart = () => {
+// Définition du composant ExpenseChart
+interface ExpenseChartProps {
+   className?: string;
+}
+
+const ExpenseChart: React.FC<ExpenseChartProps> = ({ className }) => {
    return (
-      <FinancialChart
-         title="Dépenses Financières - Derniers 6 Mois"
-         description="Suivi des dépenses par source (salaire, achat matériel, travaux)."
-         data={expenseData}
-         config={expenseConfig}
-         footerText="Janvier - Juin 2024"
-         growthRate={4.2}
-         timePeriod="Janvier - Juin 2024"
-      />
+      <div className={className}>
+         <FinancialChart
+            title="Dépenses Financières - Derniers 6 Mois"
+            description="Suivi des dépenses par source (salaire, achat matériel, travaux)."
+            data={expenseData}
+            config={expenseConfig}
+            footerText="Janvier - Juin 2024"
+            growthRate={4.2}
+            timePeriod="Janvier - Juin 2024"
+         />
+      </div>
    );
 };
 
