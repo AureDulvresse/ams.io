@@ -1,31 +1,53 @@
-import { Sidebar } from 'lucide-react'
-import React from 'react'
-import { SidebarContent, SidebarGroup, SidebarHeader, SidebarMenuSkeleton } from '../ui/sidebar'
+import React from "react";
+import {
+   Sidebar,
+   SidebarContent,
+   SidebarGroup,
+   SidebarHeader,
+   SidebarMenuSkeleton,
+} from "../ui/sidebar";
+
+// Composant utilitaire pour les skeletons
+const SkeletonBox = ({ className }: { className?: string }) => (
+   <SidebarMenuSkeleton
+      className={`aspect-video rounded-xl bg-muted/50 ${className}`}
+      aria-hidden="true"
+      role="presentation"
+   />
+);
 
 const AppSidebarSkeleton = () => {
    return (
       <Sidebar>
+         {/* Header Skeleton */}
          <SidebarHeader>
-            <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
+            <SkeletonBox />
          </SidebarHeader>
+
+         {/* Content Skeleton */}
          <SidebarContent>
-            <SidebarGroup>
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
+            {/* Groupe 1 */}
+            <SidebarGroup className="flex flex-col gap-1">
+               <SkeletonBox />
+               <SkeletonBox />
+               <SkeletonBox />
             </SidebarGroup>
-            <SidebarGroup>
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
+
+            {/* Groupe 2 */}
+            <SidebarGroup className="flex flex-col gap-1">
+               <SkeletonBox />
+               <SkeletonBox />
+               <SkeletonBox />
             </SidebarGroup>
-            <SidebarGroup>
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
-               <SidebarMenuSkeleton className='aspect-video rounded-xl bg-muted/50' />
+
+            {/* Groupe 3 */}
+            <SidebarGroup className="flex flex-col gap-1">
+               <SkeletonBox />
+               <SkeletonBox />
             </SidebarGroup>
          </SidebarContent>
       </Sidebar>
-   )
-}
+   );
+};
 
-export default AppSidebarSkeleton
+export default AppSidebarSkeleton;

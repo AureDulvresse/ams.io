@@ -1,55 +1,112 @@
-"use client";
-import React, { useRef, useState } from "react";
-import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem } from "@/src/components/ui/sidebar";
-import { Loader2 } from "lucide-react";
+"use client"
+import React, { useEffect } from 'react';
+import {
+   User,
+   Shield,
+   Bell,
+   CreditCard,
+   Key,
+   Globe,
+   HelpCircle
+} from 'lucide-react';
 
-const SECTIONS = [
-   { id: "personalInfo", label: "Informations Personnelles" },
-   { id: "security", label: "Paramètres de Sécurité" },
-   { id: "preferences", label: "Préférences" },
-   { id: "activity", label: "Historique des Activités" },
-   { id: "notifications", label: "Notifications" },
+import { Button } from "@/src/components/ui/button"
+
+const sections = [
+   {
+      id: 'personal-info',
+      label: 'Personal Information',
+      icon: User,
+      description: 'Manage your personal details and contact information'
+   },
+   {
+      id: 'security',
+      label: 'Security',
+      icon: Shield,
+      description: 'Password, 2FA, and security settings'
+   },
+   {
+      id: 'notifications',
+      label: 'Notifications',
+      icon: Bell,
+      description: 'Configure your notification preferences'
+   },
+   {
+      id: 'language',
+      label: 'Language & Region',
+      icon: Globe,
+      description: 'Set your preferred language and regional settings'
+   },
+   {
+      id: 'help',
+      label: 'Help & Support',
+      icon: HelpCircle,
+      description: 'Get help and contact support'
+   }
 ];
 
-const UserProfileSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
-   const [isSaving, setIsSaving] = useState(false);
-   const sectionsRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-   const handleSaveChanges = () => {
-      setIsSaving(true);
-      // Simule une sauvegarde de 2 secondes
-      setTimeout(() => setIsSaving(false), 2000);
-   };
-
+const UserProfileSidebar = () => {
    const scrollToSection = (sectionId: string) => {
-      sectionsRefs.current[sectionId]?.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById(sectionId);
+      if (element) {
+         element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+         });
+      }
    };
+
+   const isElementVisible = (el: HTMLElement) => {
+      const rect = el.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      return rect.top >= 0 && rect.top <= windowHeight;
+   };
+
+   useEffect(() => {
+      const handleScroll = () => {
+         sections.forEach(section => {
+            const element = document.getElementById(section.id);
+            if (element && isElementVisible(element)) {
+               const sidebarItem = document.querySelector(`[data-section="${section.id}"]`);
+               if (sidebarItem) {
+                  document.querySelectorAll('.sidebar-item').forEach(item => {
+                     item.classList.remove('bg-accent');
+                  });
+                  sidebarItem.classList.add('bg-accent');
+               }
+            }
+         });
+      };
+
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+   }, []);
 
    return (
-      <Sidebar {...props} side="right" variant="inset">
-         <SidebarMenu>
-            {SECTIONS.map((section) => (
-               <SidebarMenuItem
-                  key={section.id}
-                  className="w-full text-left py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors duration-200 rounded-lg"
-                  onClick={() => scrollToSection(section.id)}
-                  aria-label={`Aller à la section ${section.label}`}
-               >
-                  {section.label}
-               </SidebarMenuItem>
-            ))}
-
-            {/* Bouton de sauvegarde toujours visible */}
-            <SidebarMenuItem
-               className={`w-full bg-indigo-600 text-white text-sm px-4 py-3 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center`}
-               onClick={handleSaveChanges}
-               aria-label="Enregistrer toutes les modifications"
-            >
-               {isSaving && <Loader2 className="animate-spin mr-2" size={18} />}
-               {isSaving ? "Enregistrement..." : "Enregistrer toutes les modifications"}
-            </SidebarMenuItem>
-         </SidebarMenu>
-      </Sidebar>
+      <nav className="w-64 px-3 py-4 border-r">
+         <div className="space-y-2">
+            {sections.map((section) => {
+               const Icon = section.icon;
+               return (
+                  <Button
+                     key={section.id}
+                     variant="ghost"
+                     className="w-full justify-start sidebar-item"
+                     data-section={section.id}
+                     onClick={() => scrollToSection(section.id)}
+                  >
+                     <Icon className="mr-2 h-4 w-4" />
+                     <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium">{section.label}</span>
+                        <span className="text-xs text-muted-foreground hidden group-hover:block">
+                           {section.description}
+                        </span>
+                     </div>
+                  </Button>
+               );
+            })}
+         </div>
+      </nav>
    );
 };
 
