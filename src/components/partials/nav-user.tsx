@@ -52,8 +52,8 @@ export const NavUser = ({ user }: {
 
    const handleLogout = async () => {
       await logout();
-      toast.success("Vous êtes déconnecté !");
       navigate.push("/login");
+      toast.success("Vous êtes déconnecté !");
    };
 
    return (
@@ -132,7 +132,7 @@ export const NavUser = ({ user }: {
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate.push("/forum")}>
                      <MessageCircleIcon />
-                    Forum
+                     Forum
                   </DropdownMenuItem>
                </DropdownMenuGroup>
                <DropdownMenuSeparator />
