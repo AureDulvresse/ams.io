@@ -216,7 +216,7 @@ export function DataTable<TData, TValue>({
                   </DropdownMenu>
 
                   {onAdd && (
-                     <Button onClick={onAdd}>
+                     <Button onClick={onAdd} className="bg-indigo-700 hover:bg-indigo-800">
                         <Plus className="md:mr-2 h-4 w-4" />
                         Add New
                      </Button>
