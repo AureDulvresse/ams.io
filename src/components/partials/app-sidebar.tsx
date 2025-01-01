@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
 import ErrorState from "../common/error-state";
 import { Sidebar } from "../ui/sidebar";
@@ -14,11 +14,9 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
 
   return (
     <Sidebar {...props} collapsible="icon">
-      {isLoading ? (
-        <AppSidebarSkeleton />
-      ) : (
+      <Suspense fallback={<AppSidebarSkeleton />}>
         <AppSidebarUser user={user} permissions={permissions || []} />
-      )}
+      </Suspense>
     </Sidebar >
   );
 };
