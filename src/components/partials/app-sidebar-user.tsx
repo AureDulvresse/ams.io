@@ -75,9 +75,6 @@ const AppSidebarUser = ({
                   >
                     {item.title}
                   </a>
-                  {isActive(item.url) && (
-                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                  )}
                 </div>
               </SidebarMenuButton>
             ))}
