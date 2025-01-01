@@ -119,7 +119,7 @@ export const NavUser = ({ user }: {
                      <LucideLayoutDashboard />
                      Vue d'ensemble
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate.push("/profile")}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate.push("/settings/account")}>
                      <User2 />
                      Mon profil
                   </DropdownMenuItem>
@@ -130,7 +130,7 @@ export const NavUser = ({ user }: {
                      <Bell />
                      Notifications
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate.push("/notifications")}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate.push("/forum")}>
                      <MessageCircleIcon />
                     Forum
                   </DropdownMenuItem>
