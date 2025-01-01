@@ -29,15 +29,32 @@ export const apiAuthPrefix = "/api/auth";
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard";
 
 // App Routes for AMS
+import {
+  LayoutDashboard,
+  GraduationCap,
+  Users,
+  Calendar,
+  UserCog,
+  Wallet,
+  Library,
+  Building2,
+  Settings,
+  HelpCircle
+} from "lucide-react";
+
 export const appRoute = {
   navMain: [
     {
       title: "Dashboard",
       url: "/dashboard",
+      icon: LayoutDashboard
     },
+  ],
+  navAcademy: [
     {
       title: "Gestion Académique",
       url: "/academic",
+      icon: GraduationCap,
       items: [
         {
           title: "Cours et Matières",
@@ -57,9 +74,12 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navHR: [
     {
       title: "Gestion du Personnel",
       url: "/staff",
+      icon: Users,
       items: [
         {
           title: "Employés",
@@ -87,9 +107,29 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navDrafting: [
+    {
+      title: "Planification",
+      url: "/drafting",
+      icon: Calendar,
+      items: [
+        {
+          title: "Évènement",
+          url: "/drafting/events",
+        },
+        {
+          title: "Emploi du temps",
+          url: "/schedule",
+        },
+      ],
+    },
+  ],
+  navUser: [
     {
       title: "Utilisateurs",
       url: "/users",
+      icon: UserCog,
       items: [
         {
           title: "Étudiants",
@@ -113,9 +153,12 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navFinance: [
     {
       title: "Finances",
       url: "/finance",
+      icon: Wallet,
       items: [
         {
           title: "Paiements",
@@ -135,9 +178,12 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navLibrary: [
     {
       title: "Bibliothèque",
       url: "/library",
+      icon: Library,
       items: [
         {
           title: "Livres Disponibles",
@@ -157,9 +203,29 @@ export const appRoute = {
         },
       ],
     },
+  ],
+  navPatrimony: [
+    {
+      title: "Patrimoine",
+      url: "/patrimony",
+      icon: Building2,
+      items: [
+        {
+          title: "Salle de classe",
+          url: "/patrimony/classroom",
+        },
+        {
+          title: "Inventaire de matériel",
+          url: "/patrimony/inventory",
+        },
+      ],
+    },
+  ],
+  navSettings: [
     {
       title: "Paramètres",
       url: "/settings",
+      icon: Settings,
       items: [
         {
           title: "Configuration Générale",
@@ -178,6 +244,7 @@ export const appRoute = {
     {
       title: "Support",
       url: "/support",
+      icon: HelpCircle,
       items: [
         {
           title: "Documentation",
@@ -195,4 +262,3 @@ export const appRoute = {
     },
   ],
 };
-

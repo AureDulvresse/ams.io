@@ -29,8 +29,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  setTimeout(() => console.log("Loading..."), 50000);
   // Fonction pour récupérer la session
   const session = await auth();
 

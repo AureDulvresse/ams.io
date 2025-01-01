@@ -1,31 +1,27 @@
 "use client";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
-import useFetchData from "@/src/hooks/use-fetch-data";
 import Dashboard from "./_components/dashboard";
-import { Permission } from "@/src/types/permission";
-import { Suspense } from "react";
 import DashboardSkeleton from "./_components/dashboard-skeleton";
 import Navbar from "@/src/components/partials/navbar";
+import ErrorState from "@/src/components/common/error-state";
 
 const DashboardPage = () => {
-   const user = useCurrentUser();
-   const {
-      data: permissions,
-      isLoading,
-      error,
-   } = useFetchData<Permission[]>(`/api/permissions?userId=${user?.id}`);
+
+   const { user, permissions, isLoading, error } = useCurrentUser();
+
+   if (isLoading) return <DashboardSkeleton />
+
+   if (error) return <ErrorState message={error.message} />
 
    return (
       <div>
          <Navbar />
-         <Suspense fallback={<DashboardSkeleton />}>
-            <Dashboard
-               user={user}
-               permissions={permissions}
-               isLoading={isLoading}
-               error={error}
-            />
-         </Suspense>
+         <Dashboard
+            user={user}
+            userPermissions={permissions}
+            isLoading={isLoading}
+            error={error}
+         />
       </div>
    );
 };

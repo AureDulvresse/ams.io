@@ -24,21 +24,29 @@ import {
    DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu"
 import {
-   SidebarMenu,
    SidebarMenuButton,
-   SidebarMenuItem,
    useSidebar,
 } from "@/src/components/ui/sidebar"
-import { User } from "next-auth"
-import { Role } from "@prisma/client"
-import { Button } from "../ui/button"
 import { logout } from "@/src/actions/auth.actions"
 import { toast } from "sonner"
-import { useCurrentUser } from "@/src/hooks/use-current-user"
+import { User } from "next-auth"
+import { Role } from "@/src/types/role"
+import { useRouter } from "next/navigation"
 
-export const NavUser = () => {
+export const NavUser = ({ user }: {
+   user: (User & {
+      id: string;
+      first_name: string;
+      last_name: string;
+      role: Role;
+      is_active: boolean;
+      emailVerified?: Date;
+      last_login?: Date;
+   }) | undefined;
+}) => {
+
+   const navigate = useRouter();
    const { isMobile } = useSidebar()
-   const user = useCurrentUser();
 
    const handleLogout = async () => {
       await logout();
@@ -55,7 +63,7 @@ export const NavUser = () => {
                >
                   <Avatar className="h-8 w-8 rounded-lg">
                      <AvatarImage src={user?.image || ""} alt={`${user?.first_name} ${user?.last_name}`} />
-                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                     <AvatarFallback className="rounded-lg">AMS</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                      <span className="truncate font-semibold">{`${user?.first_name} ${user?.last_name}`}</span>
@@ -65,7 +73,7 @@ export const NavUser = () => {
                            Connecté <span className="font-medium">{`(${user?.role.name})`}</span>
                         </span>
                      </div>
-                     
+
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                </SidebarMenuButton>
@@ -80,7 +88,7 @@ export const NavUser = () => {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                      <Avatar className="h-8 w-8 rounded-lg">
                         <AvatarImage src={user?.image || ''} alt={`${user?.first_name} ${user?.last_name}`} />
-                        <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                        <AvatarFallback className="rounded-lg">AMS</AvatarFallback>
                      </Avatar>
                      <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">{`${user?.first_name} ${user?.last_name}`}</span>
@@ -97,7 +105,7 @@ export const NavUser = () => {
                </DropdownMenuGroup>
                <DropdownMenuSeparator />
                <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate.push('/account')}>
                      <BadgeCheck />
                      Account
                   </DropdownMenuItem>
@@ -111,14 +119,9 @@ export const NavUser = () => {
                   </DropdownMenuItem>
                </DropdownMenuGroup>
                <DropdownMenuSeparator />
-               <DropdownMenuItem>
-                  <Button
-                     variant="ghost"
-                     onClick={handleLogout}
-                  >
-                     <LogOut className="w-4 h-4" />
-                     Déconnexion
-                  </Button>
+               <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4" />
+                  Déconnexion
                </DropdownMenuItem>
             </DropdownMenuContent>
          </DropdownMenu>

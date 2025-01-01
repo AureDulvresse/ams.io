@@ -47,7 +47,7 @@ const Card = ({ title, icon, children }: {
 // Composant principal
 const Dashboard = ({
    user,
-   permissions,
+   userPermissions,
    isLoading,
    error,
 }: {
@@ -59,8 +59,8 @@ const Dashboard = ({
       is_active: boolean;
       emailVerified?: Date;
       last_login?: Date;
-   }) | undefined | null;
-   permissions: Permission[] | null;
+   }) | undefined;
+   userPermissions: string[] | null;
    isLoading: boolean;
    error: Error | null;
 }) => {
@@ -80,10 +80,9 @@ const Dashboard = ({
 
    if (isLoading) return <DashboardSkeleton />;
    if (error) return <ErrorState message={error.message} />;
-   if (!permissions) return <ErrorState message="Aucune permission trouvée" />;
+   if (userPermissions?.length == 0 || !userPermissions) return <ErrorState message="Aucune permission trouvée" />;
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
 
-   const permissionCodes = permissions.map(p => p.code);
    const greeting = getGreeting();
 
    return (
@@ -101,8 +100,6 @@ const Dashboard = ({
             </div>
          </div>
 
-
-
          {user.role.name === "superuser" && (
             <div className='flex flex-col gap-2'>
                <AdminDashboard />
@@ -112,45 +109,41 @@ const Dashboard = ({
                <StudentDashboard />
                <TeacherDashboard />
                <LibraryDashboard />
+               <Card
+                  title="Sécurité"
+                  icon={<Shield className="w-4 h-4" />}
+               >
+                  <p>Gérez les paramètres de sécurité</p>
+               </Card>
             </div>
          )}
 
-         {user.role.name === "admin" || hasPermission("access_admin_dashbord", permissionCodes) && (
+         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", userPermissions) && (
             <AdminDashboard />
          )}
 
-         {user.role.name === "directeur" || hasPermission("access_director_dashbord", permissionCodes) && (
+         {user.role.name === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", userPermissions) && (
             <DirectorDashboard />
          )}
 
-         {user.role.name === "comptable" || hasPermission("access_finance_dashbord", permissionCodes) && (
+         {user.role.name === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", userPermissions) && (
             <FinanceDashboard />
          )}
 
-         {user.role.name === "student" || hasPermission("access_student_dashbord", permissionCodes) && (
+         {user.role.name === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", userPermissions) && (
             <StudentDashboard />
          )}
 
-         {user.role.name === "hr" || hasPermission("access_hr_dashbord", permissionCodes) && (
+         {user.role.name === "hr" || hasPermission("HR_DASHBOARD_SHOW", userPermissions) && (
             <HRDashboard />
          )}
 
-         {user.role.name === "teacher" || hasPermission("access_teacher_dashbord", permissionCodes) && (
+         {user.role.name === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", userPermissions) && (
             <TeacherDashboard />
          )}
 
-         {user.role.name === "library" || hasPermission("access_library_dashbord", permissionCodes) && (
+         {user.role.name === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", userPermissions) && (
             <LibraryDashboard />
-         )}
-
-         {/* Sécurité */}
-         {hasPermission("manage_security", permissionCodes) && (
-            <Card
-               title="Sécurité"
-               icon={<Shield className="w-4 h-4" />}
-            >
-               <p>Gérez les paramètres de sécurité</p>
-            </Card>
          )}
 
       </div>
