@@ -18,6 +18,8 @@ import { usePathname } from "next/navigation";
 import { User } from "next-auth";
 import { Role } from "@/src/types/role";
 import { hasPermission } from "@/src/data/permission";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { Minus, Plus } from "lucide-react";
 
 const AppSidebarUser = ({
   user,
@@ -65,429 +67,533 @@ const AppSidebarUser = ({
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {appRoute.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <div className="flex items-center justify-between w-full">
-                    <a
-                      href={item.url}
-                      className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                        ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                        }`}
-                    >
-                      {item.title}
-                    </a>
-                    {isActive(item.url) && (
-                      <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                    )}
-                  </div>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            {appRoute.navMain.map((item, index) => (
+              <Collapsible
+                key={item.title}
+                defaultOpen={index === 1}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem key={item.title}>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton asChild>
+                      <div className="flex items-center justify-between w-full">
+                        <a
+                          href={item.url}
+                          className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                            ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                            }`}
+                        >
+                          {item.title}
+                        </a>
+                        {isActive(item.url) && (
+                          <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                        )}
+                      </div>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                </SidebarMenuItem>
+              </Collapsible>
             ))}
             {user?.role.name === "superuser" ||
               hasPermission("ACADEMY_MODULE_SHOW", permissions)
-              ? appRoute.navAcademy.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navAcademy.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("HR_MODULE_SHOW", permissions)
-              ? appRoute.navHR.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navHR.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("DRAFTING_MODULE_SHOW", permissions)
-              ? appRoute.navDrafting.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navDrafting.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("FINANCE_MODULE_SHOW", permissions)
-              ? appRoute.navFinance.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navFinance.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("LIBRARY_MODULE_SHOW", permissions)
-              ? appRoute.navLibrary.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navLibrary.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("PATRIMONY_MODULE_SHOW", permissions)
-              ? appRoute.navPatrimony.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navPatrimony.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("SYSTEM_USERS", permissions)
-              ? appRoute.navUser.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navUser.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
             {user?.role.name === "superuser" ||
               hasPermission("SYSTEM_USERS", permissions)
-              ? appRoute.navSettings.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex items-center justify-between w-full">
-                      <a
-                        href={item.url}
-                        className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                          ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                          }`}
-                      >
-                        {item.title}
-                      </a>
-                      {isActive(item.url) && (
-                        <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                      )}
-                    </div>
-                  </SidebarMenuButton>
-                  {item.items?.length ? (
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActive(subItem.url)}
+              ? appRoute.navSettings.map((item, index) => (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={index === 1}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem key={item.title}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <div className="flex items-center justify-between w-full">
+                          <span
+                            className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                              ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                              }`}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <a
-                                href={subItem.url}
-                                className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                  ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                  }`}
+                            {item.title}
+                          </span>
+                          <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                          <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                          {isActive(item.url) && (
+                            <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {item.items?.length ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isActive(subItem.url)}
                               >
-                                {subItem.title}
-                              </a>
-                              {isActive(item.url) && (
-                                <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                              )}
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  ) : null}
-                </SidebarMenuItem>
+                                <div className="flex items-center justify-between w-full">
+                                  <a
+                                    href={subItem.url}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
+                                      ? "text-white bg-indigo-500 hover:bg-indigo-500"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                                      }`}
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                  {isActive(item.url) && (
+                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
+                                  )}
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    ) : null
+                    }</SidebarMenuItem>
+                </Collapsible>
               ))
               : null}
           </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
+        </SidebarGroup >
+      </SidebarContent >
       <SidebarRail />
     </>
   );

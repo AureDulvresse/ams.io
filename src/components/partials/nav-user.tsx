@@ -27,11 +27,11 @@ import {
    SidebarMenuButton,
    useSidebar,
 } from "@/src/components/ui/sidebar"
-import { Button } from "../ui/button"
 import { logout } from "@/src/actions/auth.actions"
 import { toast } from "sonner"
 import { User } from "next-auth"
 import { Role } from "@/src/types/role"
+import { useRouter } from "next/navigation"
 
 export const NavUser = ({ user }: {
    user: (User & {
@@ -45,6 +45,7 @@ export const NavUser = ({ user }: {
    }) | undefined;
 }) => {
 
+   const navigate = useRouter();
    const { isMobile } = useSidebar()
 
    const handleLogout = async () => {
@@ -62,7 +63,7 @@ export const NavUser = ({ user }: {
                >
                   <Avatar className="h-8 w-8 rounded-lg">
                      <AvatarImage src={user?.image || ""} alt={`${user?.first_name} ${user?.last_name}`} />
-                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                     <AvatarFallback className="rounded-lg">AMS</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                      <span className="truncate font-semibold">{`${user?.first_name} ${user?.last_name}`}</span>
@@ -87,7 +88,7 @@ export const NavUser = ({ user }: {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                      <Avatar className="h-8 w-8 rounded-lg">
                         <AvatarImage src={user?.image || ''} alt={`${user?.first_name} ${user?.last_name}`} />
-                        <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                        <AvatarFallback className="rounded-lg">AMS</AvatarFallback>
                      </Avatar>
                      <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">{`${user?.first_name} ${user?.last_name}`}</span>
@@ -104,7 +105,7 @@ export const NavUser = ({ user }: {
                </DropdownMenuGroup>
                <DropdownMenuSeparator />
                <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate.push('/account')}>
                      <BadgeCheck />
                      Account
                   </DropdownMenuItem>
@@ -118,14 +119,9 @@ export const NavUser = ({ user }: {
                   </DropdownMenuItem>
                </DropdownMenuGroup>
                <DropdownMenuSeparator />
-               <DropdownMenuItem>
-                  <Button
-                     variant="ghost"
-                     onClick={handleLogout}
-                  >
-                     <LogOut className="w-4 h-4" />
-                     Déconnexion
-                  </Button>
+               <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4" />
+                  Déconnexion
                </DropdownMenuItem>
             </DropdownMenuContent>
          </DropdownMenu>
