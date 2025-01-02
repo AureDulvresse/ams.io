@@ -35,14 +35,13 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
       } else {
          setSearchResults([]);
       }
-      if (searchQuery == "") { setSearchResults([]) }
+      if (searchQuery === "") {
+         setSearchResults([]);
+      }
    }, [searchQuery]);
-
-
 
    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
-
    };
 
    const toggleSearchModal = () => {
@@ -50,16 +49,18 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
    };
 
    return (
-      <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-3">
+      <header className="flex h-16 items-center justify-between gap-2 border-b px-3 sm:flex-wrap sm:gap-y-2">
          {/* Left Side */}
-         <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} />
+         <div className="flex items-center gap-2 sm:w-full sm:justify-between">
+            <div className="flex items-center gap-2">
+               <SidebarTrigger />
+               <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+               <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} className="hidden sm:flex" />
+            </div>
          </div>
 
          {/* Right Side */}
-         <div className="flex items-center gap-4">
+         <div className="flex items-center gap-4 sm:w-full sm:justify-between sm:flex-wrap">
             {/* Search Icon */}
             <button
                className="flex items-center justify-center rounded-full p-2 hover:bg-gray-200"
@@ -111,16 +112,13 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
                         value={searchQuery}
                         onChange={handleSearchChange}
                      />
-                     {/* Spinner pendant la recherche */}
                      {isSearching && (
                         <Loader2
                            className="absolute top-2 right-3 animate-spin text-gray-400 dark:text-gray-500"
                            size={24}
                         />
                      )}
-
                   </div>
-                  {/* Résultats de recherche */}
                   {searchResults.length > 0 && (
                      <div>
                         <ul className="max-h-48 overflow-auto scrollbar-custom">
@@ -135,7 +133,6 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
                            ))}
                         </ul>
                      </div>
-
                   )}
                </DialogContent>
             </Dialog>
