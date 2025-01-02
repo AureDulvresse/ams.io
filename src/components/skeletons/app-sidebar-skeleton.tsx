@@ -10,7 +10,7 @@ import {
 // Composant utilitaire pour les skeletons
 const SkeletonBox = ({ className }: { className?: string }) => (
    <SidebarMenuSkeleton
-      className={`aspect-video rounded-xl bg-muted/50 ${className}`}
+      className={`aspect-video rounded-xl ${className}`}
       aria-hidden="true"
       role="presentation"
    />
