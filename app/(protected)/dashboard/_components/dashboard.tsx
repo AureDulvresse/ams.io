@@ -100,7 +100,7 @@ const Dashboard = ({
             </div>
          </div>
 
-         {user.role.name === "superuser" && (
+         {user.role.name.toLowerCase() === "superuser".toLowerCase() && (
             <div className='flex flex-col gap-2'>
                <AdminDashboard />
                <DirectorDashboard />
@@ -118,31 +118,31 @@ const Dashboard = ({
             </div>
          )}
 
-         {user.role.name === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", userPermissions) && (
             <AdminDashboard />
          )}
 
-         {user.role.name === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", userPermissions) && (
             <DirectorDashboard />
          )}
 
-         {user.role.name === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", userPermissions) && (
             <FinanceDashboard />
          )}
 
-         {user.role.name === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", userPermissions) && (
             <StudentDashboard />
          )}
 
-         {user.role.name === "hr" || hasPermission("HR_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "hr" || hasPermission("HR_DASHBOARD_SHOW", userPermissions) && (
             <HRDashboard />
          )}
 
-         {user.role.name === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", userPermissions) && (
             <TeacherDashboard />
          )}
 
-         {user.role.name === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", userPermissions) && (
+         {user.role.name.toLowerCase() === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", userPermissions) && (
             <LibraryDashboard />
          )}
 
