@@ -14,6 +14,7 @@ import {
    DropdownMenuItem,
    DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
+import BreadcrumbSkeleton from "../skeletons/breadcrumb-skeleton";
 
 interface BreadcrumbItemProps {
    href?: string;
@@ -25,17 +26,21 @@ interface BreadcrumbItemProps {
 
 interface BreadcrumbProps {
    items: BreadcrumbItemProps[];
+   isLoading: boolean;
 }
 
-const DynamicBreadcrumb = ({ items }: BreadcrumbProps) => {
+const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
+
+   if (isLoading) return <BreadcrumbSkeleton />
+
    return (
-      <Breadcrumb className="bg-white dark:bg-gray-900 rounded py-3 px-2 shadow-sm">
+      <Breadcrumb>
          <BreadcrumbList>
             {items.map((item, index) => (
                <React.Fragment key={index}>
-                  {index > 0 && <BreadcrumbSeparator />}
+                  {index > 0 && <BreadcrumbSeparator className="hidden md:block" />}
                   {item.isDropdown ? (
-                     <BreadcrumbItem>
+                     <BreadcrumbItem className="hidden md:block">
                         <DropdownMenu>
                            <DropdownMenuTrigger className="flex items-center gap-1">
                               <BreadcrumbEllipsis className="h-4 w-4" />
@@ -53,7 +58,7 @@ const DynamicBreadcrumb = ({ items }: BreadcrumbProps) => {
                   ) : (
                      <BreadcrumbItem>
                         {item.isCurrent ? (
-                           <BreadcrumbPage className="text-indigo-500 font-bold font-inter">{item.label}</BreadcrumbPage>
+                           <BreadcrumbPage className="text-indigo-500 font-semibold font-inter">{item.label}</BreadcrumbPage>
                         ) : (
                            <BreadcrumbLink href={item.href} className="font-inter">{item.label}</BreadcrumbLink>
                         )}
@@ -66,4 +71,5 @@ const DynamicBreadcrumb = ({ items }: BreadcrumbProps) => {
    );
 }
 
+export type { BreadcrumbItemProps }
 export default DynamicBreadcrumb;

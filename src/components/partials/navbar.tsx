@@ -19,15 +19,16 @@ import appFeatures, { FeaturesProps } from '@/constants/features';
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "../ui/dialog";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
+import DynamicBreadcrumb, { BreadcrumbItemProps } from "../common/dynamique-breadcrumb";
 
-const Navbar = () => {
+const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
    const navigate = useRouter();
    const [searchQuery, setSearchQuery] = useState("");
    const [searchResults, setSearchResults] = useState<FeaturesProps[]>([]);
    const [isSearching, setIsSearching] = useState(false);
    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-   const { user } = useCurrentUser();
+   const { user, isLoading } = useCurrentUser();
 
    useEffect(() => {
       if (searchQuery.length > 0) {
@@ -63,21 +64,7 @@ const Navbar = () => {
          <div className="flex items-center gap-2">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <Suspense fallback={<BreadcrumbSkeleton />}>
-               <Breadcrumb>
-                  <BreadcrumbList>
-                     <BreadcrumbItem className="hidden md:block">
-                        <BreadcrumbLink href="#">
-                           Building Your Application
-                        </BreadcrumbLink>
-                     </BreadcrumbItem>
-                     <BreadcrumbSeparator className="hidden md:block" />
-                     <BreadcrumbItem>
-                        <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                     </BreadcrumbItem>
-                  </BreadcrumbList>
-               </Breadcrumb>
-            </Suspense>
+            <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} />
          </div>
 
          {/* Right Side */}
