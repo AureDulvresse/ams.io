@@ -10,13 +10,13 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
 
   const { user, permissions, isLoading, error } = useCurrentUser();
 
+  if (isLoading) return (<Sidebar {...props} collapsible="icon"><AppSidebarSkeleton /></Sidebar>)
+
   if (error) return <ErrorState message={error.message} />
 
   return (
     <Sidebar {...props} collapsible="icon">
-      <Suspense fallback={<AppSidebarSkeleton />}>
-        <AppSidebarUser user={user} permissions={permissions || []} />
-      </Suspense>
+      <AppSidebarUser user={user} permissions={permissions || []} />
     </Sidebar >
   );
 };

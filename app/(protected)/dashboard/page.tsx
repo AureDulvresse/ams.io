@@ -9,8 +9,6 @@ const DashboardPage = () => {
 
    const { user, permissions, isLoading, error } = useCurrentUser();
 
-   if (isLoading) return <DashboardSkeleton />
-
    if (error) return <ErrorState message={error.message} />
 
    return (
