@@ -14,6 +14,7 @@ import {
    DropdownMenuItem,
    DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
+import BreadcrumbSkeleton from "../skeletons/breadcrumb-skeleton";
 
 interface BreadcrumbItemProps {
    href?: string;
@@ -25,9 +26,13 @@ interface BreadcrumbItemProps {
 
 interface BreadcrumbProps {
    items: BreadcrumbItemProps[];
+   isLoading: boolean;
 }
 
-const DynamicBreadcrumb = ({ items }: BreadcrumbProps) => {
+const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
+
+   if (isLoading) return <BreadcrumbSkeleton />
+
    return (
       <Breadcrumb className="bg-white dark:bg-gray-900 rounded py-3 px-2 shadow-sm">
          <BreadcrumbList>
