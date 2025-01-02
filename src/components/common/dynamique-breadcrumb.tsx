@@ -33,9 +33,9 @@ const DynamicBreadcrumb = ({ items }: BreadcrumbProps) => {
          <BreadcrumbList>
             {items.map((item, index) => (
                <React.Fragment key={index}>
-                  {index > 0 && <BreadcrumbSeparator />}
+                  {index > 0 && <BreadcrumbSeparator className="hidden md:block" />}
                   {item.isDropdown ? (
-                     <BreadcrumbItem>
+                     <BreadcrumbItem className="hidden md:block">
                         <DropdownMenu>
                            <DropdownMenuTrigger className="flex items-center gap-1">
                               <BreadcrumbEllipsis className="h-4 w-4" />
