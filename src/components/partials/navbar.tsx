@@ -55,7 +55,7 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
             <div className="flex items-center gap-2">
                <SidebarTrigger />
                <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
-               <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} className="hidden sm:flex" />
+               <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} />
             </div>
          </div>
 
