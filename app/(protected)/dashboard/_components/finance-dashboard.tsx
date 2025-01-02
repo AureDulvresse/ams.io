@@ -94,8 +94,12 @@ const FinanceDashboard = () => {
 
          {/* Graphiques - Revenus et Dépenses */}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <IncomeChart />
-            <ExpenseChart />
+            <div className="col-span-1">
+               <IncomeChart />
+            </div>
+            <div className="col-span-1">
+               <ExpenseChart />
+            </div>
          </div>
 
          {/* Section des transactions récentes */}
