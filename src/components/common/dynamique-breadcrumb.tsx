@@ -34,7 +34,7 @@ const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
    if (isLoading) return <BreadcrumbSkeleton />
 
    return (
-      <Breadcrumb className="bg-white dark:bg-gray-900 rounded py-3 px-2 shadow-sm">
+      <Breadcrumb>
          <BreadcrumbList>
             {items.map((item, index) => (
                <React.Fragment key={index}>
@@ -58,7 +58,7 @@ const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
                   ) : (
                      <BreadcrumbItem>
                         {item.isCurrent ? (
-                           <BreadcrumbPage className="text-indigo-500 font-bold font-inter">{item.label}</BreadcrumbPage>
+                           <BreadcrumbPage className="text-indigo-500 font-semibold font-inter">{item.label}</BreadcrumbPage>
                         ) : (
                            <BreadcrumbLink href={item.href} className="font-inter">{item.label}</BreadcrumbLink>
                         )}
@@ -71,4 +71,5 @@ const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
    );
 }
 
+export type { BreadcrumbItemProps }
 export default DynamicBreadcrumb;

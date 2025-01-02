@@ -4,6 +4,10 @@ import Dashboard from "./_components/dashboard";
 import Navbar from "@/src/components/partials/navbar";
 import ErrorState from "@/src/components/common/error-state";
 
+const breadcrumbItems = [
+   { label: "Vue d'ensemble", isCurrent: true },
+];
+
 const DashboardPage = () => {
 
    const { user, permissions, isLoading, error } = useCurrentUser();
@@ -12,7 +16,7 @@ const DashboardPage = () => {
 
    return (
       <div>
-         <Navbar />
+         <Navbar breadcrumb={breadcrumbItems} />
          <Dashboard
             user={user}
             userPermissions={permissions}
