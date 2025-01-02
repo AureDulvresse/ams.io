@@ -130,7 +130,7 @@ const LoginForm = () => {
             <div className="flex items-center space-x-2">
                <Checkbox
                   id="remember"
-                  className="h-4 w-4 rounded border-gray-300 text-primary checked:bg-indigo-700 focus-visible:bg-indigo-800 focus:ring-primary"
+                  className="h-4 w-4 rounded border-gray-300 text-primary checked:bg-foreground focus-visible:bg-indigo-900 focus:ring-primary"
                />
                <Label
                   htmlFor="remember"
