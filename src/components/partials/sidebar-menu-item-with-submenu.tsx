@@ -42,7 +42,7 @@ const SidebarMenuItemWithSubmenu: React.FC<SidebarMenuItemWithSubmenuProps> = ({
       >
          <SidebarMenuItem>
             <CollapsibleTrigger asChild>
-               <SidebarMenuButton className={`${isActive(item.url) && "text-white bg-indigo-700 hover:bg-indigo-700 hover:text-white"}`} asChild>
+               <SidebarMenuButton className={`${isActive(item.url) && "text-white bg-primary hover:bg-primary-foreground hover:text-white"}`} asChild>
                   <div className="flex items-center justify-between w-full">
                      {item.icon && <item.icon />}
                      <span
@@ -63,7 +63,7 @@ const SidebarMenuItemWithSubmenu: React.FC<SidebarMenuItemWithSubmenuProps> = ({
                      {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                            <SidebarMenuSubButton
-                              className={`${isActive(item.url) && "text-white bg-indigo-700 hover:bg-indigo-700 hover:text-white"}`}
+                              className={`${isActive(item.url) && "text-white bg-primary hover:bg-primary-foreground hover:text-white"}`}
                               asChild
                               isActive={isActive(subItem.url)}
                            >

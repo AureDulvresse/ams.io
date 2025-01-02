@@ -58,7 +58,7 @@ const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
                   ) : (
                      <BreadcrumbItem>
                         {item.isCurrent ? (
-                           <BreadcrumbPage className="text-indigo-500 font-semibold font-inter">{item.label}</BreadcrumbPage>
+                           <BreadcrumbPage className="text-primary font-semibold font-inter">{item.label}</BreadcrumbPage>
                         ) : (
                            <BreadcrumbLink href={item.href} className="font-inter">{item.label}</BreadcrumbLink>
                         )}

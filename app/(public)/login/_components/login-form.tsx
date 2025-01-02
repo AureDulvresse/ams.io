@@ -62,7 +62,7 @@ const LoginForm = () => {
 
             {/* Texte de bienvenue */}
             <div className="text-center space-y-2">
-               <h1 className="text-3xl font-bold font-oswald tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+               <h1 className="text-3xl font-bold font-oswald tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-primary">
                   Bienvenue sur AMS
                </h1>
                <p className="text-sm text-muted-foreground max-w-sm mx-auto">
@@ -104,7 +104,7 @@ const LoginForm = () => {
                         <FormLabel className='text-muted-foreground'>Mot de passe</FormLabel>
                         <a
                            href="/forgot-password"
-                           className="text-xs text-indigo-700 hover:text-primary underline"
+                           className="text-xs text-primary hover:text-primary underline"
                         >
                            Mot de passe oublié?
                         </a>
@@ -130,7 +130,7 @@ const LoginForm = () => {
             <div className="flex items-center space-x-2">
                <Checkbox
                   id="remember"
-                  className="h-4 w-4 rounded border-gray-300 text-primary checked:bg-foreground focus-visible:bg-indigo-900 focus:ring-primary"
+                  className="h-4 w-4 rounded border-gray-300 text-primary checked:bg-primary focus-visible:bg-primary focus:ring-primary"
                />
                <Label
                   htmlFor="remember"
@@ -143,7 +143,7 @@ const LoginForm = () => {
             {/* Bouton de soumission */}
             <Button
                type="submit"
-               className="w-full bg-indigo-700 hover:bg-indigo-800"
+               className="w-full bg-primary hover:bg-primary"
                disabled={loading}
             >
                {loading ? (

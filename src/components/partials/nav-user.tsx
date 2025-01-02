@@ -108,8 +108,8 @@ export const NavUser = ({
                {/* User Role */}
                <DropdownMenuGroup>
                   <DropdownMenuItem className="cursor-default bg-gray-50 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
-                     <BadgeCheck className="w-4 h-4 text-indigo-500" />
-                     <span className="font-medium capitalize text-indigo-600 dark:text-indigo-400">
+                     <BadgeCheck className="w-4 h-4 text-primary" />
+                     <span className="font-medium capitalize text-primary">
                         {user?.role.name}
                      </span>
                   </DropdownMenuItem>

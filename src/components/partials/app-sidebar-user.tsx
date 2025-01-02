@@ -50,7 +50,7 @@ const AppSidebarUser = ({
                   <Image src={logo} className="size-4" alt="logo AMS" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold text-indigo-700">
+                  <span className="font-semibold text-primary">
                     Université Newton
                   </span>
                   <span className="text-muted-foreground truncate text-xs">
@@ -66,7 +66,7 @@ const AppSidebarUser = ({
         <SidebarGroup>
           <SidebarMenu>
             {appRoute.navMain.map((item, index) => (
-               <SidebarMenuButton className={`${isActive(item.url) && "text-white bg-indigo-700 hover:bg-indigo-700 hover:text-white"}`} asChild>
+               <SidebarMenuButton className={`${isActive(item.url) && "text-white bg-gradient-to-tr from-indigo-600 to-primary hover:text-white"}`} asChild>
                 <div className="flex items-center justify-between w-full">
                   {item.icon && <item.icon />}
                   <a
