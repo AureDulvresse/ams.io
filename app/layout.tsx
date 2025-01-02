@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Oswald, Inter } from "@next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -7,17 +8,16 @@ import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/src/components/ui/sonner";
 import { auth } from "@/auth";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
 });
 
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const oswald = Oswald({
+  subsets: ['latin'],
+  variable: '--font-oswald',
+  weight: ['400', '700']
+})
 
 export const metadata: Metadata = {
   title: "Academia Management Sync",
@@ -34,7 +34,7 @@ export default async function RootLayout({
 
   return (
     <html lang="fr">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${oswald.variable} ${inter.variable} antialiased`}>
         <Analytics />
         <SpeedInsights />
         <SessionProvider session={session || undefined}>

@@ -20,9 +20,9 @@ import {
    FormMessage,
    Form,
 } from '@/src/components/ui/form'
+import { Checkbox } from '@/src/components/ui/checkbox'
 
 type LoginFormValues = z.infer<typeof signInSchema>
-
 const LoginForm = () => {
    const [loading, setLoading] = useState(false)
    const router = useRouter()
@@ -58,13 +58,25 @@ const LoginForm = () => {
 
    return (
       <Form {...form}>
-         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+         <form onSubmit={form.handleSubmit(onSubmit)} className="relative space-y-6">
+
+            {/* Texte de bienvenue */}
+            <div className="text-center space-y-2">
+               <h1 className="text-3xl font-bold font-oswald tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                  Bienvenue sur AMS
+               </h1>
+               <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                  Connectez-vous à votre compte pour accéder à votre tableau de bord
+               </p>
+            </div>
+
+            {/* Champ Email */}
             <FormField
                control={form.control}
                name="email"
                render={({ field }) => (
                   <FormItem>
-                     <FormLabel>Email</FormLabel>
+                     <FormLabel className='text-muted-foreground'>Email</FormLabel>
                      <FormControl>
                         <div className="relative">
                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
@@ -82,16 +94,17 @@ const LoginForm = () => {
                )}
             />
 
+            {/* Champ Mot de passe */}
             <FormField
                control={form.control}
                name="password"
                render={({ field }) => (
                   <FormItem>
                      <div className="flex items-center justify-between">
-                        <FormLabel>Mot de passe</FormLabel>
+                        <FormLabel className='text-muted-foreground'>Mot de passe</FormLabel>
                         <a
                            href="/forgot-password"
-                           className="text-xs text-muted-foreground hover:text-primary"
+                           className="text-xs text-indigo-700 hover:text-primary underline"
                         >
                            Mot de passe oublié?
                         </a>
@@ -113,23 +126,24 @@ const LoginForm = () => {
                )}
             />
 
+            {/* Checkbox Se souvenir de moi */}
             <div className="flex items-center space-x-2">
-               <input
-                  type="checkbox"
+               <Checkbox
                   id="remember"
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-gray-300 text-primary checked:bg-indigo-700 focus-visible:bg-indigo-800 focus:ring-primary"
                />
                <Label
                   htmlFor="remember"
                   className="text-sm text-muted-foreground cursor-pointer"
-               >
+               >  
                   Se souvenir de moi
                </Label>
             </div>
 
+            {/* Bouton de soumission */}
             <Button
                type="submit"
-               className="w-full"
+               className="w-full bg-indigo-700 hover:bg-indigo-800"
                disabled={loading}
             >
                {loading ? (

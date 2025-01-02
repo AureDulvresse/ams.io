@@ -79,7 +79,7 @@ const AppSidebarUser = ({
               </SidebarMenuButton>
             ))}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("ACADEMY_MODULE_SHOW", permissions)
               ? appRoute.navAcademy.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -91,7 +91,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("HR_MODULE_SHOW", permissions)
               ? appRoute.navHR.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -103,7 +103,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("DRAFTING_MODULE_SHOW", permissions)
               ? appRoute.navDrafting.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -115,7 +115,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("FINANCE_MODULE_SHOW", permissions)
               ? appRoute.navFinance.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -127,7 +127,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("LIBRARY_MODULE_SHOW", permissions)
               ? appRoute.navLibrary.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -139,7 +139,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("PATRIMONY_MODULE_SHOW", permissions)
               ? appRoute.navPatrimony.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -151,7 +151,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("SYSTEM_USERS", permissions)
               ? appRoute.navUser.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
@@ -163,7 +163,7 @@ const AppSidebarUser = ({
                 ))
               : null}
 
-            {user?.role.name === "superuser" ||
+            {user?.role.name.toLowerCase() === "superuser" ||
             hasPermission("SYSTEM_USERS", permissions)
               ? appRoute.navSettings.map((item, index) => (
                   <SidebarMenuItemWithSubmenu
