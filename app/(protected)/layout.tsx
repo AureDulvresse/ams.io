@@ -1,3 +1,4 @@
+"use client"
 import ErrorState from "@/src/components/common/error-state";
 import AppSidebar from "@/src/components/partials/app-sidebar";
 import { SidebarContent, SidebarInset, SidebarProvider } from "@/src/components/ui/sidebar";
@@ -12,7 +13,7 @@ const _ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
 
    const { user, permissions, isLoading, error } = useCurrentUser();
 
-   
+
    if (permissions?.length == 0 || !permissions) return <ErrorState message="Aucune permission trouvée" />;
 
    return (
