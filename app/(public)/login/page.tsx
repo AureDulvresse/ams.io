@@ -25,12 +25,12 @@ const LoginPage = () => {
 
                {/* Liens supplémentaires */}
                <div className="text-center space-y-2">
-                  <div className="text-sm text-muted-foreground">
+                  {/* <div className="text-sm text-muted-foreground">
                      Pas encore de compte?{' '}
                      <a href="/register" className="text-primary hover:underline">
                         Créer un compte
                      </a>
-                  </div>
+                  </div> */}
                   <div className="text-xs text-muted-foreground">
                      En vous connectant, vous acceptez nos{' '}
                      <a href="#" className="underline underline-offset-4 hover:text-primary">
