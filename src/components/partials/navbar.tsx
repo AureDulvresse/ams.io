@@ -1,16 +1,7 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
-import {
-   Breadcrumb,
-   BreadcrumbItem,
-   BreadcrumbLink,
-   BreadcrumbList,
-   BreadcrumbPage,
-   BreadcrumbSeparator,
-} from "../ui/breadcrumb";
 import { Separator } from "@radix-ui/react-separator";
-import BreadcrumbSkeleton from "../skeletons/breadcrumb-skeleton";
 import { Skeleton } from "../ui/skeleton";
 import { NavUser } from "./nav-user";
 import { Bell, Loader2, MessageCircle, Search } from "lucide-react";

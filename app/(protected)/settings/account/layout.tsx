@@ -1,16 +1,21 @@
 import React from "react";
 import Navbar from "@/src/components/partials/navbar";
-import { SidebarContent, SidebarInset, SidebarProvider } from "@/src/components/ui/sidebar";
 import UserProfileSidebar from "./_components/user-profile-sidebar";
 
 interface ProtectedLayoutProps {
    children: React.ReactNode;
 }
 
+const breadcrumbItems = [
+   { href: "/", label: "Accueil" },
+   { href: "#", label: "Paramètre" },
+   { label: "Mon compte", isCurrent: true },
+];
+
 const UserProfileLayout = ({ children }: ProtectedLayoutProps) => {
    return (
       <div className="min-h-screen bg-background">
-         <Navbar />
+         <Navbar breadcrumb={breadcrumbItems} />
          <div className="flex h-[calc(100vh-4rem)]">
             <aside className="w-64 border-r shrink-0">
                <div className="sticky top-0 h-full overflow-y-auto">
