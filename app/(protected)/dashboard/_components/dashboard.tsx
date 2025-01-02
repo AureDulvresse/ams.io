@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import {
    CalendarClock,
    Shield,
@@ -87,14 +87,14 @@ const Dashboard = ({
 
    return (
       <div className="p-6 space-y-6">
-         <div className="flex justify-between items-start bg-muted rounded-lg p-2">
+         <div className="flex justify-between items-start bg-indigo-700 text-white rounded-lg p-2">
             <div className="space-y-2">
-               <h1 className="text-xl font-bold tracking-tight text-gray-900">
+               <h1 className="text-xl font-bold tracking-tight">
                   {greeting}, {user.first_name}
                </h1>
                <p>Bienvenue sur votre tableau de bord</p>
             </div>
-            <div className="flex items-center justify-center gap-1 text-sm text-gray-900 px-2 py-1.5">
+            <div className="flex items-center justify-center gap-1 text-sm px-2 py-1.5">
                <CalendarClock size={14} />
                {currentTime}
             </div>

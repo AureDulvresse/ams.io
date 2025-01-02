@@ -63,22 +63,17 @@ const SidebarMenuItemWithSubmenu: React.FC<SidebarMenuItemWithSubmenuProps> = ({
                      {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                            <SidebarMenuSubButton
+                              className={`${isActive(item.url) && "text-white bg-indigo-700 hover:bg-indigo-700 hover:text-white"}`}
                               asChild
                               isActive={isActive(subItem.url)}
                            >
                               <div className="flex items-center justify-between w-full">
                                  <a
                                     href={subItem.url}
-                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out ${isActive(item.url)
-                                       ? "text-white bg-indigo-500 hover:bg-indigo-500"
-                                       : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
-                                       }`}
+                                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out`}
                                  >
                                     {subItem.title}
                                  </a>
-                                 {isActive(item.url) && (
-                                    <div className="h-8 w-1 bg-indigo-500 rounded-lg"></div>
-                                 )}
                               </div>
                            </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

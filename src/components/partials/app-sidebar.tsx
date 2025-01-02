@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
 import ErrorState from "../common/error-state";
 import { Sidebar } from "../ui/sidebar";
@@ -10,15 +10,13 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
 
   const { user, permissions, isLoading, error } = useCurrentUser();
 
+  if (isLoading) return (<Sidebar {...props} collapsible="icon"><AppSidebarSkeleton /></Sidebar>)
+
   if (error) return <ErrorState message={error.message} />
 
   return (
     <Sidebar {...props} collapsible="icon">
-      {isLoading ? (
-        <AppSidebarSkeleton />
-      ) : (
-        <AppSidebarUser user={user} permissions={permissions || []} />
-      )}
+      <AppSidebarUser user={user} permissions={permissions || []} />
     </Sidebar >
   );
 };

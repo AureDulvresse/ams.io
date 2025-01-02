@@ -145,7 +145,7 @@ const Navbar = () => {
                   {/* Résultats de recherche */}
                   {searchResults.length > 0 && (
                      <div>
-                        <ul className="max-h-20 overflow-auto scrollbar-custom">
+                        <ul className="max-h-48 overflow-auto scrollbar-custom">
                            {searchResults.map((result, index) => (
                               <li
                                  key={index}

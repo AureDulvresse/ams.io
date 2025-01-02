@@ -66,12 +66,17 @@ const AppSidebarUser = ({
         <SidebarGroup>
           <SidebarMenu>
             {appRoute.navMain.map((item, index) => (
-              <SidebarMenuItemWithSubmenu
-                key={item.title}
-                item={item}
-                index={index}
-                isActive={isActive}
-              />
+               <SidebarMenuButton className={`${isActive(item.url) && "text-white bg-indigo-700 hover:bg-indigo-700 hover:text-white"}`} asChild>
+                <div className="flex items-center justify-between w-full">
+                  {item.icon && <item.icon />}
+                  <a
+                    href={item.url}
+                    className={`w-full h-8 px-1 py-3 flex items-center rounded-lg transition-all duration-300 ease-in-out`}
+                  >
+                    {item.title}
+                  </a>
+                </div>
+              </SidebarMenuButton>
             ))}
 
             {user?.role.name === "superuser" ||
