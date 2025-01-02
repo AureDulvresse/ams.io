@@ -87,7 +87,7 @@ const Dashboard = ({
 
    return (
       <div className="p-6 space-y-6">
-         <div className="flex justify-between items-start bg-indigo-700 text-white rounded-lg p-2">
+         <div className="flex justify-between items-start bg-gradient-to-tr from-indigo-600/80 to-primary/80 text-white rounded-lg p-2">
             <div className="space-y-2">
                <h1 className="text-xl font-bold tracking-tight">
                   {greeting}, {user.first_name}
