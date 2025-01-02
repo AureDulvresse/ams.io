@@ -91,7 +91,7 @@ export const NavUser = ({
                {/* User Info */}
                <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-3 py-2 text-left">
-                     <Avatar className="h-10 w-10 rounded-full">
+                     <Avatar className="h-10 w-10 rounded-lg">
                         <AvatarImage
                            src={user?.image || ""}
                            alt={`${user?.first_name} ${user?.last_name}`}
