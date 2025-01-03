@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
    CalendarClock,
    Shield,
@@ -17,39 +17,8 @@ import HRDashboard from './hr-dashboard';
 import TeacherDashboard from './teacher-dashboard';
 import LibraryDashboard from './library-dashboard';
 
-// Fonction pour obtenir la salutation selon l'heure
-const getGreeting = () => {
-   const hour = new Date().getHours();
-   if (hour >= 5 && hour < 12) return "Bonjour";
-   if (hour >= 12 && hour < 18) return "Bon après-midi";
-   return "Bonsoir";
-};
-
-const Card = ({ title, icon, children }: {
-   title: string;
-   icon: React.ReactNode;
-   children: React.ReactNode;
-}) => (
-   <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="border-b border-gray-200 p-4">
-         <h3 className="font-medium flex items-center gap-2">
-            {icon}
-            {title}
-         </h3>
-      </div>
-      <div className="p-4">
-         {children}
-      </div>
-   </div>
-);
-
-// Composant principal
-const Dashboard = ({
-   user,
-   userPermissions,
-   isLoading,
-   error,
-}: {
+// Types
+interface DashboardProps {
    user: (User & {
       id: string;
       first_name: string;
@@ -62,89 +31,166 @@ const Dashboard = ({
    userPermissions: string[] | null;
    isLoading: boolean;
    error: Error | null;
-}) => {
+}
 
+interface DashboardSection {
+   id: string;
+   component: React.ReactNode;
+   permission: string;
+   roleNames: string[];
+}
+
+const Card = ({
+   title,
+   icon,
+   children,
+   className = ""
+}: {
+   title: string;
+   icon: React.ReactNode;
+   children: React.ReactNode;
+   className?: string;
+}) => (
+   <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md ${className}`}>
+      <div className="border-b border-gray-200 p-4 bg-gray-50">
+         <h3 className="font-medium flex items-center gap-2 text-gray-700">
+            {icon}
+            {title}
+         </h3>
+      </div>
+      <div className="p-4">
+         {children}
+      </div>
+   </div>
+);
+
+const getGreeting = () => {
+   const hour = new Date().getHours();
+   if (hour >= 5 && hour < 12) return "Bonjour";
+   if (hour >= 12 && hour < 18) return "Bon après-midi";
+   return "Bonsoir";
+};
+
+const Dashboard = ({
+   user,
+   userPermissions,
+   isLoading,
+   error,
+}: DashboardProps) => {
    const [currentTime, setCurrentTime] = useState<string | null>(null);
 
    useEffect(() => {
-      const timer = setInterval(() => {
+      const updateTime = () => {
          const now = new Date();
-         const formattedTime = now.toLocaleTimeString();
-         const formattedDate = now.toLocaleDateString();
-         setCurrentTime(`${formattedDate} ${formattedTime}`);
-      }, 1000);
+         const options: Intl.DateTimeFormatOptions = {
+            dateStyle: 'long',
+            timeStyle: 'medium'
+         };
+         setCurrentTime(new Intl.DateTimeFormat('fr-FR', options).format(now));
+      };
 
+      updateTime();
+      const timer = setInterval(updateTime, 1000);
       return () => clearInterval(timer);
    }, []);
 
    if (isLoading) return <DashboardSkeleton />;
    if (error) return <ErrorState message={error.message} />;
-   if (userPermissions?.length == 0 || !userPermissions) return <ErrorState message="Aucune permission trouvée" />;
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
+   if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
 
+   const dashboardSections: DashboardSection[] = [
+      {
+         id: 'admin',
+         component: <AdminDashboard />,
+         permission: 'ADMIN_DASHBOARD_SHOW',
+         roleNames: ['admin', 'superuser']
+      },
+      {
+         id: 'director',
+         component: <DirectorDashboard />,
+         permission: 'MANAGER_DASHBOARD_SHOW',
+         roleNames: ['directeur', 'superuser']
+      },
+      {
+         id: 'finance',
+         component: <FinanceDashboard />,
+         permission: 'FINANCE_DASHBOARD_SHOW',
+         roleNames: ['comptable', 'superuser']
+      },
+      {
+         id: 'student',
+         component: <StudentDashboard />,
+         permission: 'STUDENT_DASHBOARD_SHOW',
+         roleNames: ['student', 'superuser']
+      },
+      {
+         id: 'hr',
+         component: <HRDashboard />,
+         permission: 'HR_DASHBOARD_SHOW',
+         roleNames: ['hr', 'superuser']
+      },
+      {
+         id: 'teacher',
+         component: <TeacherDashboard />,
+         permission: 'TEACHER_DASHBOARD_SHOW',
+         roleNames: ['teacher', 'superuser']
+      },
+      {
+         id: 'library',
+         component: <LibraryDashboard />,
+         permission: 'LIBRARY_DASHBOARD_SHOW',
+         roleNames: ['library', 'superuser']
+      }
+   ];
+
+   const userRole = user.role.name.toLowerCase();
    const greeting = getGreeting();
 
    return (
       <div className="p-6 space-y-6">
-         <div className="flex justify-between items-start bg-gradient-to-tr from-indigo-600/80 to-primary/80 text-white rounded-lg p-2">
-            <div className="space-y-2">
-               <h1 className="text-xl font-bold tracking-tight">
-                  {greeting}, {user.first_name}
-               </h1>
-               <p>Bienvenue sur votre tableau de bord</p>
-            </div>
-            <div className="flex items-center justify-center gap-1 text-sm px-2 py-1.5">
-               <CalendarClock size={14} />
-               {currentTime}
+         <div className="bg-gradient-to-tr from-indigo-600 to-primary rounded-xl p-6 text-white shadow-lg">
+            <div className="flex justify-between items-center">
+               <div className="space-y-2">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                     {greeting}, {user.first_name}
+                  </h1>
+                  <p className="text-indigo-100">
+                     Bienvenue sur votre tableau de bord
+                  </p>
+               </div>
+               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  <CalendarClock size={16} />
+                  <span className="text-sm font-medium">{currentTime}</span>
+               </div>
             </div>
          </div>
 
-         {user.role.name.toLowerCase() === "superuser".toLowerCase() && (
-            <div className='flex flex-col gap-2'>
-               <AdminDashboard />
-               <DirectorDashboard />
-               <HRDashboard />
-               <FinanceDashboard />
-               <StudentDashboard />
-               <TeacherDashboard />
-               <LibraryDashboard />
+         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {dashboardSections.map(section => {
+               const hasRole = section.roleNames.includes(userRole);
+               const hasRequiredPermission = hasPermission(section.permission, userPermissions);
+
+               if (hasRole || hasRequiredPermission) {
+                  return (
+                     <div key={section.id} className="col-span-full">
+                        {section.component}
+                     </div>
+                  );
+               }
+               return null;
+            })}
+
+            {userRole === 'superuser' && (
                <Card
                   title="Sécurité"
                   icon={<Shield className="w-4 h-4" />}
+                  className="col-span-full"
                >
                   <p>Gérez les paramètres de sécurité</p>
                </Card>
-            </div>
-         )}
-
-         {user.role.name.toLowerCase() === "admin" || hasPermission("ADMIN_DASHBOARD_SHOW", userPermissions) && (
-            <AdminDashboard />
-         )}
-
-         {user.role.name.toLowerCase() === "directeur" || hasPermission("MANAGER_DASHBOARD_SHOW", userPermissions) && (
-            <DirectorDashboard />
-         )}
-
-         {user.role.name.toLowerCase() === "comptable" || hasPermission("FINANCE_DASHBOARD_SHOW", userPermissions) && (
-            <FinanceDashboard />
-         )}
-
-         {user.role.name.toLowerCase() === "student" || hasPermission("STUDENT_DASHBOARD_SHOW", userPermissions) && (
-            <StudentDashboard />
-         )}
-
-         {user.role.name.toLowerCase() === "hr" || hasPermission("HR_DASHBOARD_SHOW", userPermissions) && (
-            <HRDashboard />
-         )}
-
-         {user.role.name.toLowerCase() === "teacher" || hasPermission("TEACHER_DASHBOARD_SHOW", userPermissions) && (
-            <TeacherDashboard />
-         )}
-
-         {user.role.name.toLowerCase() === "library" || hasPermission("LIBRARY_DASHBOARD_SHOW", userPermissions) && (
-            <LibraryDashboard />
-         )}
-
+            )}
+         </div>
       </div>
    );
 };
