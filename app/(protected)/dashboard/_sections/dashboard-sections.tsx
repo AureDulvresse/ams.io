@@ -1,3 +1,4 @@
+import { MySectionProps } from "@/src/types/custom-props";
 import AdminDashboard from "../_components/admin-dashboard";
 import DirectorDashboard from "../_components/director-dashboard";
 import FinanceDashboard from "../_components/finance-dashboard";
@@ -7,14 +8,7 @@ import StudentDashboard from "../_components/student-dashboard";
 import TeacherDashboard from "../_components/teacher-dashboard";
 
 
-export interface DashboardSection {
-   id: string;
-   component: React.ReactNode;
-   permission: string;
-   roleNames: string[];
-}
-
-const dashboardSections: DashboardSection[] = [
+const dashboardSections: MySectionProps[] = [
    {
       id: 'admin',
       component: <AdminDashboard />,

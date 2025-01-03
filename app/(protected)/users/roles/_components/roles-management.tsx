@@ -2,14 +2,19 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { Card, CardContent } from "@/src/components/ui/card";
 import { Shield, LockIcon } from "lucide-react";
 import { hasPermission } from '@/src/data/permission';
 import UnauthorizedAccess from '@/src/components/common/unauthorized-access';
+import { MyPageProps } from '@/src/types/custom-props';
+import ErrorState from '@/src/components/common/error-state';
+import roleManagementSections from '../_sections/role-management-section';
+import { Card, CardContent } from '@/src/components/ui/card';
 import { DataTable } from '@/src/components/common/data-table';
-import { Role } from '@/src/types/role';
-import { roleColumns } from '@/constants/role-columns';
-import { MyPageProps } from '@/src/types/my-page-props';
+import { permissionColumns } from '@/constants/role-columns';
+import useFetchData from '@/src/hooks/use-fetch-data';
+import { Permission } from '@/src/types/permission';
+import { isSuperUser } from '@/src/data/user';
+import AppPageSkeleton from '@/src/components/skeletons/app-page-skeleton';
 
 const RoleManagement = ({
    user,
@@ -18,53 +23,22 @@ const RoleManagement = ({
    error,
 }: MyPageProps) => {
    const [activeTab, setActiveTab] = useState("roles");
+   const { data: appPermissions, isLoading: permissionLoading, error: permissionError } = useFetchData<Permission[]>('/api/permissions');
 
-   // Mock data
-   const roles: Role[] = [
-      {
-         id: 1,
-         name: "Administrateur",
-         description: "Accès complet au système",
-         permissions: ["ALL"],
-         created_at: new Date()
-      },
-      {
-         id: 2,
-         name: "Enseignant",
-         description: "Gestion des cours et notes",
-         permissions: ["COURSE_MANAGE", "GRADES_MANAGE"],
-         created_at: new Date()
-      }
-   ];
+   if (isLoading || permissionLoading) return <AppPageSkeleton />;
+   
+   if (error) return <ErrorState message={error.message} />;
+   if (permissionError) return <ErrorState message={permissionError.message} />;
+   if (!user) return <ErrorState message="Utilisateur non trouvé" />;
+   if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
 
-
-
-   // CRUD handlers
-   const handleView = (role: Role) => {
-      console.log("Viewing role:", role);
-   };
-
-   const handleEdit = (role: Role) => {
-      console.log("Editing role:", role);
-   };
-
-   const handleDelete = (role: Role) => {
-      console.log("Deleting role:", role);
-   };
-
-   const handleAdd = () => {
-      console.log("Adding new role");
-   };
+   const userRole = user.role.name.toLowerCase();
 
    // Access control
-   const canAccessRoles = hasPermission("ROLES_MANAGEMENT_ACCESS", userPermissions || []);
+   const canAccessRoles = isSuperUser(userRole) || hasPermission("SYSTEM_ADMIN", userPermissions || []) || hasPermission("ROLE_SHOW", userPermissions || []);
 
    if (!canAccessRoles && !isLoading) {
       return <UnauthorizedAccess />;
-   }
-
-   if (isLoading) {
-      return null;
    }
 
    return (
@@ -91,23 +65,31 @@ const RoleManagement = ({
             </TabsList>
 
             <TabsContent value="roles" className="space-y-4">
-               <Card>
-                  <CardContent className="pt-6">
-                     <DataTable
-                        columns={roleColumns}
-                        data={roles}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onAdd={handleAdd}
-                        pageSize={5}
-                     />
-                  </CardContent>
-               </Card>
+               {roleManagementSections.map(section => {
+                  const hasRole = section.roleNames.includes(userRole);
+                  const hasRequiredPermission = hasPermission(section.permission, userPermissions);
+
+                  if (hasRole || hasRequiredPermission) {
+                     return (
+                        <div key={section.id} className="col-span-full">
+                           {section.component}
+                        </div>
+                     );
+                  }
+                  return null;
+               })}
             </TabsContent>
 
             <TabsContent value="permissions" className="space-y-4">
-               {/* Permissions content would go here */}
+               <Card>
+                  <CardContent className="pt-6">
+                     <DataTable
+                        columns={permissionColumns}
+                        data={appPermissions || []}
+                        loading={isLoading}
+                     />
+                  </CardContent>
+               </Card>
             </TabsContent>
          </Tabs>
       </div>

@@ -1,47 +1,31 @@
-import { db } from "@/src/lib/prisma";
+import { isAuthenticated } from "@/auth";
 import { NextResponse } from "next/server";
-import {
-  createPermission,
-  getUserPermissionsById,
-} from "@/src/data/permission";
+import { db } from "@/src/lib/prisma";
+import { createRole } from "@/src/data/role";
 import { limiter } from "@/src/lib/rate-limit";
 import { validateCsrfToken } from "@/src/lib/csrf";
-import { isAuthenticated } from "@/auth";
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-
-    let permissions = null;
-
     // Vérification de l'authentification
     const session = await isAuthenticated(request);
-    if (!session)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });;
 
-    // // Rate limiting
-    // try {
-    //   await limiter.check(10, "PERMISSIONS_API_CACHE");
-    // } catch {
-    //   return NextResponse.json(
-    //     { error: "Rate limit exceeded" },
-    //     { status: 429 }
-    //   );
-    // }
-
-    if (userId) {
-      permissions = await getUserPermissionsById(userId);
-      return NextResponse.json(permissions);
+    // Rate limiting
+    try {
+      await limiter.check(10, "ROLES_API_CACHE");
+    } catch {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429 }
+      );
     }
 
-    permissions = await db.permission.findMany({
-      orderBy: {
-        updated_at: "desc",
-      },
+    const roles = await db.role.findMany({
+      orderBy: { updated_at: "desc" },
     });
 
-    return NextResponse.json(permissions, {
+    return NextResponse.json(roles, {
       headers: {
         "Cache-Control": "private, no-cache, no-store, must-revalidate",
         Pragma: "no-cache",
@@ -49,7 +33,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("GET permissions error:", error);
+    console.error("GET roles error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -73,7 +57,7 @@ export async function POST(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(5, "PERMISSIONS_CREATE_CACHE");
+      await limiter.check(5, "ROLES_CREATE_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
@@ -83,7 +67,7 @@ export async function POST(request: Request) {
 
     const formData = await request.json();
 
-    const result = await createPermission(formData);
+    const result = await createRole(formData.data);
 
     if (result?.error) {
       return NextResponse.json({ error: result.error }, { status: 400 });

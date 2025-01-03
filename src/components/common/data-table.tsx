@@ -43,10 +43,12 @@ import {
 import * as XLSX from 'xlsx'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { Skeleton } from "../ui/skeleton"
 
 interface DataTableProps<TData, TValue> {
    columns: ColumnDef<TData, TValue>[]
    data: TData[]
+   loading?: boolean
    onView?: (row: TData) => void
    onEdit?: (row: TData) => void
    onDelete?: (row: TData) => void
@@ -57,6 +59,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
    columns,
    data,
+   loading = false,
    onView,
    onEdit,
    onDelete,
@@ -77,6 +80,17 @@ export function DataTable<TData, TValue>({
          String(value).toLowerCase().includes(globalFilter.toLowerCase())
       )
    }
+
+   // Création d'un skeleton pour chaque cellule
+   const skeletonRows = Array.from({ length: 5 }).map((_, rowIndex) => (
+      <TableRow key={`skeleton-row-${rowIndex}`}>
+         {columns.map((column, colIndex) => (
+            <TableCell key={`skeleton-cell-${colIndex}`}>
+               <Skeleton className="h-4 bg-gray-300 rounded dark:bg-gray-700 animate-pulse" />
+            </TableCell>
+         ))}
+      </TableRow>
+   ));
 
    const table = useReactTable({
       data,
@@ -227,87 +241,93 @@ export function DataTable<TData, TValue>({
 
             {/* Table */}
             <div className="rounded-md border">
-               <Table>
-                  <TableHeader>
-                     {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                           {headerGroup.headers.map((header) => (
-                              <TableHead
-                                 key={header.id}
-                                 onClick={header.column.getToggleSortingHandler()}
-                                 className={header.column.getCanSort() ? "cursor-pointer select-none" : ""}
-                              >
-                                 {header.isPlaceholder
-                                    ? null
-                                    : flexRender(
-                                       header.column.columnDef.header,
-                                       header.getContext()
-                                    )}
-                              </TableHead>
-                           ))}
-                           <TableHead>Actions</TableHead>
-                        </TableRow>
-                     ))}
-                  </TableHeader>
-                  <TableBody>
-                     {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                           <TableRow
-                              key={row.id}
-                              data-state={row.getIsSelected() && "selected"}
-                              className="cursor-pointer hover:bg-gray-50"
-                              onClick={() => handleRowClick(row.original)}
-                           >
-                              {row.getVisibleCells().map((cell) => (
-                                 <TableCell key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                 </TableCell>
+               {loading ? (
+                  <Table>
+                     <TableBody>{skeletonRows}</TableBody>
+                  </Table>
+               ) : (
+                  <Table>
+                     <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                           <TableRow key={headerGroup.id}>
+                              {headerGroup.headers.map((header) => (
+                                 <TableHead
+                                    key={header.id}
+                                    onClick={header.column.getToggleSortingHandler()}
+                                    className={header.column.getCanSort() ? "cursor-pointer select-none" : ""}
+                                 >
+                                    {header.isPlaceholder
+                                       ? null
+                                       : flexRender(
+                                          header.column.columnDef.header,
+                                          header.getContext()
+                                       )}
+                                 </TableHead>
                               ))}
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                 <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                       <Button variant="ghost" size="icon">
-                                          <MoreHorizontal className="h-4 w-4" />
-                                       </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                       {onView && (
-                                          <DropdownMenuItem onClick={() => onView(row.original)}>
-                                             <Eye className="mr-2 h-4 w-4" />
-                                             View
-                                          </DropdownMenuItem>
-                                       )}
-                                       {onEdit && (
-                                          <DropdownMenuItem onClick={() => onEdit(row.original)}>
-                                             Edit
-                                          </DropdownMenuItem>
-                                       )}
-                                       {onDelete && (
-                                          <DropdownMenuItem
-                                             onClick={() => onDelete(row.original)}
-                                             className="text-red-600"
-                                          >
-                                             Delete
-                                          </DropdownMenuItem>
-                                       )}
-                                    </DropdownMenuContent>
-                                 </DropdownMenu>
+                              <TableHead>Actions</TableHead>
+                           </TableRow>
+                        ))}
+                     </TableHeader>
+                     <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                           table.getRowModel().rows.map((row) => (
+                              <TableRow
+                                 key={row.id}
+                                 data-state={row.getIsSelected() && "selected"}
+                                 className="cursor-pointer hover:bg-gray-50"
+                                 onClick={() => handleRowClick(row.original)}
+                              >
+                                 {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </TableCell>
+                                 ))}
+                                 <TableCell onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenu>
+                                       <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="icon">
+                                             <MoreHorizontal className="h-4 w-4" />
+                                          </Button>
+                                       </DropdownMenuTrigger>
+                                       <DropdownMenuContent>
+                                          {onView && (
+                                             <DropdownMenuItem onClick={() => onView(row.original)}>
+                                                <Eye className="mr-2 h-4 w-4" />
+                                                View
+                                             </DropdownMenuItem>
+                                          )}
+                                          {onEdit && (
+                                             <DropdownMenuItem onClick={() => onEdit(row.original)}>
+                                                Edit
+                                             </DropdownMenuItem>
+                                          )}
+                                          {onDelete && (
+                                             <DropdownMenuItem
+                                                onClick={() => onDelete(row.original)}
+                                                className="text-red-600"
+                                             >
+                                                Delete
+                                             </DropdownMenuItem>
+                                          )}
+                                       </DropdownMenuContent>
+                                    </DropdownMenu>
+                                 </TableCell>
+                              </TableRow>
+                           ))
+                        ) : (
+                           <TableRow>
+                              <TableCell
+                                 colSpan={columns.length + 1}
+                                 className="h-24 text-center"
+                              >
+                                 <Frown className="w-12 h-12 text-muted-foreground" />
+                                 <p className="text-lg text-muted-foreground">Aucune donnée à afficher</p>
                               </TableCell>
                            </TableRow>
-                        ))
-                     ) : (
-                        <TableRow>
-                           <TableCell
-                              colSpan={columns.length + 1}
-                              className="h-24 text-center"
-                           >
-                              <Frown className="w-12 h-12 text-muted-foreground" />
-                              <p className="text-lg text-muted-foreground">Aucune donnée à afficher</p>
-                           </TableCell>
-                        </TableRow>
-                     )}
-                  </TableBody>
-               </Table>
+                        )}
+                     </TableBody>
+                  </Table>
+               )}
             </div>
 
             {/* Pagination */}

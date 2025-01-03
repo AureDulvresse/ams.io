@@ -5,10 +5,12 @@ import {
    Shield,
 } from 'lucide-react';
 import ErrorState from '@/src/components/common/error-state';
-import DashboardSkeleton from './dashboard-skeleton';
+import DashboardSkeleton from '../../../../src/components/skeletons/dashboard-skeleton';
 import { hasPermission } from '@/src/data/permission';
 import dashboardSections from '../_sections/dashboard-sections';
-import { MyPageProps } from '@/src/types/my-page-props';
+import { MyPageProps } from '@/src/types/custom-props';
+import UnauthorizedAccess from '@/src/components/common/unauthorized-access';
+import { isSuperUser } from '@/src/data/user';
 
 const Card = ({
    title,
@@ -70,7 +72,16 @@ const Dashboard = ({
    if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
 
    const userRole = user.role.name.toLowerCase();
+
+   // Access control
+   const canAccessRoles = isSuperUser(userRole) || hasPermission("SYSTEM_ADMIN", userPermissions || []) || hasPermission("DASHBOARD_SHOW", userPermissions || []);
+
+   if (!canAccessRoles && !isLoading) {
+      return <UnauthorizedAccess />;
+   }
+
    const greeting = getGreeting();
+   
 
    return (
       <div className="p-6 space-y-6">

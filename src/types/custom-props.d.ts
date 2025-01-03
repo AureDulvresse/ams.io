@@ -17,3 +17,10 @@ export type MyPageProps = {
   isLoading: boolean;
   error: Error | null;
 };
+
+export type MySectionProps = {
+  id: string;
+  component: React.ReactNode;
+  permission: string;
+  roleNames: string[];
+}

@@ -14,10 +14,6 @@ interface ProtectedLayoutProps {
 }
 
 const _ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
-   const { error } = useCurrentUser();
-
-   if (error) return <ErrorState message={error.message} />;
-
    return (
       <SidebarProvider className="w-full h-full">
          <AppSidebar />
