@@ -52,7 +52,7 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
    };
 
    return (
-      <header className="relative flex h-16 shrink-0 items-center justify-between gap-2 border-b px-3">
+      <header className="relative flex h-16 shrink-0 items-center justify-between gap-2 border-b px-3 z-20">
          {/* Left Side */}
          <div className="flex items-center gap-2">
             <SidebarTrigger />
