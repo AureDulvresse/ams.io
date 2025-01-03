@@ -4,7 +4,7 @@ import { SidebarTrigger } from "../ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
 import { Skeleton } from "../ui/skeleton";
 import { NavUser } from "./nav-user";
-import { Bell, Loader2, MessageCircle, Search } from "lucide-react";
+import { Bell, Loader2, Menu, MessageCircle, Search, X } from "lucide-react";
 import { Input } from "../ui/input";
 import appFeatures, { FeaturesProps } from '@/constants/features';
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "../ui/dialog";
@@ -18,6 +18,7 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
    const [searchResults, setSearchResults] = useState<FeaturesProps[]>([]);
    const [isSearching, setIsSearching] = useState(false);
    const [isSearchOpen, setIsSearchOpen] = useState(false);
+   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
    const { user, isLoading } = useCurrentUser();
 
@@ -35,9 +36,7 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
       } else {
          setSearchResults([]);
       }
-      if (searchQuery === "") {
-         setSearchResults([]);
-      }
+      if (searchQuery == "") { setSearchResults([]) }
    }, [searchQuery]);
 
    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,20 +47,32 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
       setIsSearchOpen(!isSearchOpen);
    };
 
+   const toggleMobileMenu = () => {
+      setIsMobileMenuOpen(!isMobileMenuOpen);
+   };
+
    return (
-      <header className="flex h-16 items-center justify-between gap-2 border-b px-3 sm:flex-wrap sm:gap-y-2">
+      <header className="relative flex h-16 shrink-0 items-center justify-between gap-2 border-b px-3">
          {/* Left Side */}
-         <div className="flex items-center gap-2 sm:w-full sm:justify-between">
-            <div className="flex items-center gap-2">
+         <div className="flex items-center gap-2">
+            <div className="hidden md:block">
                <SidebarTrigger />
-               <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+            </div>
+            <button
+               className="md:hidden"
+               onClick={toggleMobileMenu}
+               aria-label="Toggle mobile menu"
+            >
+               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <Separator orientation="vertical" className="mr-2 h-4 hidden md:block" />
+            <div className="hidden md:block">
                <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} />
             </div>
          </div>
 
-         {/* Right Side */}
-         <div className="flex items-center gap-4 sm:w-full sm:justify-between sm:flex-wrap">
-            {/* Search Icon */}
+         {/* Right Side - Desktop */}
+         <div className="hidden md:flex items-center gap-4">
             <button
                className="flex items-center justify-center rounded-full p-2 hover:bg-gray-200"
                onClick={toggleSearchModal}
@@ -69,28 +80,61 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
             >
                <Search size={20} />
             </button>
-
-            {/* Notification Icon */}
             <button
                className="flex items-center justify-center rounded-full p-2 hover:bg-gray-200"
                aria-label="Notifications"
             >
                <Bell size={20} />
             </button>
-
-            {/* Messaging Icon */}
             <button
                className="flex items-center justify-center rounded-full p-2 hover:bg-gray-200"
                aria-label="Messages"
             >
                <MessageCircle size={20} />
             </button>
-
-            {/* User Avatar */}
             <Suspense fallback={<Skeleton className="h-8 w-8 rounded-full" />}>
                <NavUser user={user} />
             </Suspense>
          </div>
+
+         {/* Right Side - Mobile */}
+         <div className="md:hidden flex items-center gap-2">
+            <button
+               className="flex items-center justify-center rounded-full p-2 hover:bg-gray-200"
+               onClick={toggleSearchModal}
+               aria-label="Search"
+            >
+               <Search size={20} />
+            </button>
+            <Suspense fallback={<Skeleton className="h-8 w-8 rounded-full" />}>
+               <NavUser user={user} />
+            </Suspense>
+         </div>
+
+         {/* Mobile Menu */}
+         {isMobileMenuOpen && (
+            <div className="absolute top-16 left-0 right-0 bg-white border-b shadow-lg md:hidden">
+               <div className="p-4">
+                  <DynamicBreadcrumb items={breadcrumb} isLoading={isLoading} />
+                  <div className="flex items-center justify-around mt-4">
+                     <button
+                        className="flex flex-col items-center gap-1"
+                        aria-label="Notifications"
+                     >
+                        <Bell size={20} />
+                        <span className="text-sm">Notifications</span>
+                     </button>
+                     <button
+                        className="flex flex-col items-center gap-1"
+                        aria-label="Messages"
+                     >
+                        <MessageCircle size={20} />
+                        <span className="text-sm">Messages</span>
+                     </button>
+                  </div>
+               </div>
+            </div>
+         )}
 
          {/* Search Modal */}
          {isSearchOpen && (
