@@ -59,8 +59,6 @@ export const useCurrentUser = (): FetchResponse => {
 
       const permissions: string[] = await response.json();
 
-      console.log(permissions)
-
       setState({
         permissions,
         isLoading: false,
