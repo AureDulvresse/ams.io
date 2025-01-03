@@ -1,5 +1,4 @@
 import { db } from "../lib/prisma";
-import { Permission } from "../types/permission";
 import { getUserById } from "./user";
 
 /**

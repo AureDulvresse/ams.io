@@ -75,3 +75,11 @@ export const {
   },
   ...authConfig,
 });
+
+export async function isAuthenticated(request: Request) {
+  const session = await auth();
+  if (!session) {
+    return null;
+  }
+  return session;
+}

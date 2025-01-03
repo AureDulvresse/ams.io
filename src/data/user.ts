@@ -49,3 +49,6 @@ export const getUserById = async (id: string) => {
     return null;
   }
 };
+
+export const isSuperUser = (userRole: string) =>
+  userRole.toLowerCase() == "superuser";

@@ -27,6 +27,7 @@ interface FetchResponse extends FetchState {
         last_login?: Date;
       })
     | undefined; // Données user connecté
+  userRole: string | undefined;
 }
 
 export const useCurrentUser = (): FetchResponse => {
@@ -41,44 +42,49 @@ export const useCurrentUser = (): FetchResponse => {
 
   const user = session.data?.user;
 
-  const fetchData = useCallback(async (user: any): Promise<void> => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoading: true,
-      status: "loading",
-    }));
+  const userRole = user?.role.name;
 
-    try {
-      const response = await fetch(`/api/permissions?userId=${user?.id}`);
+  const fetchData = useCallback(
+    async (user: any): Promise<void> => {
+      setState((prevState) => ({
+        ...prevState,
+        isLoading: true,
+        status: "loading",
+      }));
 
-      if (!response.ok) {
-        throw new Error(
-          `HTTP Error: ${response.statusText} (${response.status})`
-        );
+      try {
+        const response = await fetch(`/api/permissions?userId=${user?.id}`);
+
+        if (!response.ok) {
+          throw new Error(
+            `HTTP Error: ${response.statusText} (${response.status})`
+          );
+        }
+
+        const permissions: string[] = await response.json();
+
+        setState({
+          permissions,
+          isLoading: false,
+          error: null,
+          status: "success",
+        });
+      } catch (error) {
+        setState({
+          permissions: [],
+          isLoading: false,
+          error: error instanceof Error ? error : new Error("Unknown error"),
+          status: "error",
+        });
       }
-
-      const permissions: string[] = await response.json();
-
-      setState({
-        permissions,
-        isLoading: false,
-        error: null,
-        status: "success",
-      });
-    } catch (error) {
-      setState({
-        permissions: [],
-        isLoading: false,
-        error: error instanceof Error ? error : new Error("Unknown error"),
-        status: "error",
-      });
-    }
-  }, [useFetchData]);
+    },
+    [useFetchData]
+  );
 
   useEffect(() => {
     // Lance une première requête à l'initialisation
     fetchData(user);
   }, [fetchData, user]);
 
-  return { ...state, user };
+  return { ...state, user, userRole };
 };
