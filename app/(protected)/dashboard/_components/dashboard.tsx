@@ -1,5 +1,5 @@
 "use client"
-import React, { Suspense, useEffect, useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import {
    CalendarClock,
    Shield,
@@ -7,7 +7,6 @@ import {
 import { User } from 'next-auth';
 import ErrorState from '@/src/components/common/error-state';
 import { Role } from '@/src/types/role';
-import { Permission } from '@/src/types/permission';
 import DashboardSkeleton from './dashboard-skeleton';
 import AdminDashboard from './admin-dashboard';
 import FinanceDashboard from './finance-dashboard';
