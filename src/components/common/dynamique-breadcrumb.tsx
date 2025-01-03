@@ -48,8 +48,14 @@ const DynamicBreadcrumb = ({ items, isLoading }: BreadcrumbProps) => {
                            </DropdownMenuTrigger>
                            <DropdownMenuContent align="start">
                               {item.dropdownItems?.map((dropdownItem, idx) => (
-                                 <DropdownMenuItem key={idx} ref={dropdownItem.href} className="font-inter">
-                                    {dropdownItem.label}
+                                 <DropdownMenuItem key={idx} className="font-inter">
+                                    {dropdownItem.href ? (
+                                       <a href={dropdownItem.href} className="text-muted-foreground">
+                                          {dropdownItem.label}
+                                       </a>
+                                    ) : (
+                                       dropdownItem.label
+                                    )}
                                  </DropdownMenuItem>
                               ))}
                            </DropdownMenuContent>

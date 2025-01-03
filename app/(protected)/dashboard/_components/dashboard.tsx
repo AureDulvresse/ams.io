@@ -4,41 +4,11 @@ import {
    CalendarClock,
    Shield,
 } from 'lucide-react';
-import { User } from 'next-auth';
 import ErrorState from '@/src/components/common/error-state';
-import { Role } from '@/src/types/role';
 import DashboardSkeleton from './dashboard-skeleton';
-import AdminDashboard from './admin-dashboard';
-import FinanceDashboard from './finance-dashboard';
-import DirectorDashboard from './director-dashboard';
 import { hasPermission } from '@/src/data/permission';
-import StudentDashboard from './student-dashboard';
-import HRDashboard from './hr-dashboard';
-import TeacherDashboard from './teacher-dashboard';
-import LibraryDashboard from './library-dashboard';
-
-// Types
-interface DashboardProps {
-   user: (User & {
-      id: string;
-      first_name: string;
-      last_name: string;
-      role: Role;
-      is_active: boolean;
-      emailVerified?: Date;
-      last_login?: Date;
-   }) | undefined;
-   userPermissions: string[] | null;
-   isLoading: boolean;
-   error: Error | null;
-}
-
-interface DashboardSection {
-   id: string;
-   component: React.ReactNode;
-   permission: string;
-   roleNames: string[];
-}
+import dashboardSections from '../_sections/dashboard-sections';
+import { MyPageProps } from '@/src/types/my-page-props';
 
 const Card = ({
    title,
@@ -76,7 +46,7 @@ const Dashboard = ({
    userPermissions,
    isLoading,
    error,
-}: DashboardProps) => {
+}: MyPageProps) => {
    const [currentTime, setCurrentTime] = useState<string | null>(null);
 
    useEffect(() => {
@@ -98,51 +68,6 @@ const Dashboard = ({
    if (error) return <ErrorState message={error.message} />;
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
    if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
-
-   const dashboardSections: DashboardSection[] = [
-      {
-         id: 'admin',
-         component: <AdminDashboard />,
-         permission: 'ADMIN_DASHBOARD_SHOW',
-         roleNames: ['admin', 'superuser']
-      },
-      {
-         id: 'director',
-         component: <DirectorDashboard />,
-         permission: 'MANAGER_DASHBOARD_SHOW',
-         roleNames: ['directeur', 'superuser']
-      },
-      {
-         id: 'finance',
-         component: <FinanceDashboard />,
-         permission: 'FINANCE_DASHBOARD_SHOW',
-         roleNames: ['comptable', 'superuser']
-      },
-      {
-         id: 'student',
-         component: <StudentDashboard />,
-         permission: 'STUDENT_DASHBOARD_SHOW',
-         roleNames: ['student', 'superuser']
-      },
-      {
-         id: 'hr',
-         component: <HRDashboard />,
-         permission: 'HR_DASHBOARD_SHOW',
-         roleNames: ['hr', 'superuser']
-      },
-      {
-         id: 'teacher',
-         component: <TeacherDashboard />,
-         permission: 'TEACHER_DASHBOARD_SHOW',
-         roleNames: ['teacher', 'superuser']
-      },
-      {
-         id: 'library',
-         component: <LibraryDashboard />,
-         permission: 'LIBRARY_DASHBOARD_SHOW',
-         roleNames: ['library', 'superuser']
-      }
-   ];
 
    const userRole = user.role.name.toLowerCase();
    const greeting = getGreeting();

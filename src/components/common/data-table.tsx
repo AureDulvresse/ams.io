@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react"
+"use client"
+import { useState } from "react"
 import {
    ColumnDef,
    flexRender,
