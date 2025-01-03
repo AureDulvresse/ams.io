@@ -44,8 +44,8 @@ const DirectorDashboard = () => {
          </div>
 
          <div className="grid grid-cols-2 gap-2">
-            <IncomeChart />
-            <ExpenseChart />
+            <IncomeChart className="col-span-1" />
+            <ExpenseChart className="col-span-1" />
          </div>
 
          <div className="grid grid-cols-2 gap-2">
