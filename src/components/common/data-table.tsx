@@ -38,7 +38,9 @@ import {
    MoreHorizontal,
    Eye,
    Settings,
-   Frown
+   Frown,
+   Pencil,
+   Trash2
 } from "lucide-react"
 import * as XLSX from 'xlsx'
 import { jsPDF } from 'jspdf'
@@ -298,6 +300,7 @@ export function DataTable<TData, TValue>({
                                           )}
                                           {onEdit && (
                                              <DropdownMenuItem onClick={() => onEdit(row.original)}>
+                                                <Pencil className="mr-2 h-4 w-4" />
                                                 Edit
                                              </DropdownMenuItem>
                                           )}
@@ -306,6 +309,7 @@ export function DataTable<TData, TValue>({
                                                 onClick={() => onDelete(row.original)}
                                                 className="text-red-600"
                                              >
+                                                <Trash2 className="mr-2 h-4 w-4" />
                                                 Delete
                                              </DropdownMenuItem>
                                           )}
@@ -367,7 +371,7 @@ export function DataTable<TData, TValue>({
                   {selectedRow && (
                      <div className="space-y-2">
                         {Object.entries(selectedRow).map(([key, value]) => (
-                           <div key={key} className="grid grid-cols-2 gap-2">
+                           <div key={key} className="grid grid-cols-2 gap-2 border-b border-muted-foreground py-2">
                               <div className="font-medium">{key}:</div>
                               <div>{String(value)}</div>
                            </div>
@@ -377,12 +381,12 @@ export function DataTable<TData, TValue>({
                </div>
                <DialogFooter className="flex justify-end gap-2">
                   {onView && (
-                     <Button onClick={() => onView(selectedRow as TData)}>
+                     <Button variant={"outline"} onClick={() => onView(selectedRow as TData)}>
                         View
                      </Button>
                   )}
                   {onEdit && (
-                     <Button onClick={() => onEdit(selectedRow as TData)}>
+                     <Button variant={"outline"} onClick={() => onEdit(selectedRow as TData)}>
                         Edit
                      </Button>
                   )}
