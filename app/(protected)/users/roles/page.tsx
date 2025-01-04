@@ -25,9 +25,11 @@ const breadcrumbItems = [
 
 const RolesPage = () => {
    const { user, permissions, isLoading, error } = useContextData();
-   const { data: appPermissions, isLoading: permissionLoading, error: permissionError } = useFetchData<Permission[]>('/api/permissions');
+   const { data: appPermissions, isLoading: fetchLoading, error: fetchError } = useFetchData<Permission[]>('/api/permissions');
 
+   if (fetchLoading) return null
    if (error) return <ErrorState message={error.message} />;
+   if (fetchError) return <ErrorState message={fetchError.message} />;
 
    return (
       <div>
