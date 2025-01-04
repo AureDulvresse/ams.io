@@ -5,7 +5,7 @@ import { useCurrentUser } from "@/src/hooks/use-current-user";
 import ErrorState from "@/src/components/common/error-state";
 import Navbar from "@/src/components/partials/navbar";
 import RoleManagement from "./_components/roles-management";
-import { useContextData } from "@/context";
+import { useUserData } from "@/context";
 import useFetchData from "@/src/hooks/use-fetch-data";
 import { Permission } from "@/src/types/permission";
 
@@ -24,7 +24,7 @@ const breadcrumbItems = [
 ];
 
 const RolesPage = () => {
-   const { user, permissions, isLoading, error } = useContextData();
+   const { user, permissions, isLoading, error } = useUserData();
    const { data: appPermissions, isLoading: fetchLoading, error: fetchError } = useFetchData<Permission[]>('/api/permissions');
 
    if (fetchLoading) return null

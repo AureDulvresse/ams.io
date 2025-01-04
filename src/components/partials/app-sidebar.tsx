@@ -4,10 +4,10 @@ import ErrorState from "../common/error-state";
 import { Sidebar } from "../ui/sidebar";
 import AppSidebarUser from "./app-sidebar-user";
 import AppSidebarSkeleton from "../skeletons/app-sidebar-skeleton";
-import { useContextData } from "@/context";
+import { useUserData } from "@/context";
 
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
-  const { user, permissions, isLoading, error } = useContextData();
+  const { user, permissions, isLoading, error } = useUserData();
 
   if (isLoading)
     return (

@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 
-const AppContext = createContext<any>(null);
+const UserContext = createContext<any>(null);
 
-export const useContextData = () => useContext(AppContext);
+export const useUserData = () => useContext(UserContext);
 
-export default AppContext;
+export default UserContext;

@@ -6,16 +6,15 @@ import { DataTable } from '@/src/components/common/data-table';
 import { roleColumns } from '@/constants/role-columns';
 import { Role } from '@/src/types/role';
 import { hasPermission } from '@/src/data/permission';
-import { useCurrentUser } from '@/src/hooks/use-current-user';
 import { isSuperUser } from '@/src/data/user';
 import useFetchData from '@/src/hooks/use-fetch-data';
-import { Permission } from '@prisma/client';
 import ErrorState from '@/src/components/common/error-state';
+import { useUserData } from '@/context';
 
 
 const RoleSection = () => {
 
-   const { permissions, userRole } = useCurrentUser()
+   const { permissions, userRole } = useUserData()
    const { data: roles, isLoading, error } = useFetchData<Role[]>('/api/roles');
 
    if (error) return <ErrorState message={error.message} />;

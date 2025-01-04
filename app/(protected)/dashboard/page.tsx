@@ -2,7 +2,7 @@
 import Dashboard from "./_components/dashboard";
 import Navbar from "@/src/components/partials/navbar";
 import ErrorState from "@/src/components/common/error-state";
-import { useContextData } from "@/context";
+import { useUserData } from "@/context";
 
 const breadcrumbItems = [
    { label: "Vue d'ensemble", isCurrent: true },
@@ -10,7 +10,7 @@ const breadcrumbItems = [
 
 const DashboardPage = () => {
 
-   const { user, permissions, isLoading, error } = useContextData();
+   const { user, permissions, isLoading, error } = useUserData();
 
    if (error) return <ErrorState message={error.message} />
 
