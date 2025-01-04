@@ -20,15 +20,15 @@ export async function GET(request: Request) {
     if (!session)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // // Rate limiting
-    // try {
-    //   await limiter.check(10, "PERMISSIONS_API_CACHE");
-    // } catch {
-    //   return NextResponse.json(
-    //     { error: "Rate limit exceeded" },
-    //     { status: 429 }
-    //   );
-    // }
+    // Rate limiting
+    try {
+      await limiter.check(50, "PERMISSIONS_API_CACHE");
+    } catch {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429 }
+      );
+    }
 
     if (userId) {
       permissions = await getUserPermissionsById(userId);
