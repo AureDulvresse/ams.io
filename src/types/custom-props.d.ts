@@ -1,5 +1,6 @@
 import { User } from "next-auth";
 import { Role } from "@/src/types/role";
+import { Permission } from "./permission";
 
 export type MyPageProps = {
   user:
@@ -23,4 +24,8 @@ export type MySectionProps = {
   component: React.ReactNode;
   permission: string;
   roleNames: string[];
+};
+
+export interface RoleManagementPageProps extends MyPageProps {
+  listPermissions: Permission[] | null;
 }

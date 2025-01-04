@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/ta
 import { Shield, LockIcon } from "lucide-react";
 import { hasPermission } from '@/src/data/permission';
 import UnauthorizedAccess from '@/src/components/common/unauthorized-access';
-import { MyPageProps } from '@/src/types/custom-props';
+import { MyPageProps, RoleManagementPageProps } from '@/src/types/custom-props';
 import ErrorState from '@/src/components/common/error-state';
 import roleManagementSections from '../_sections/role-management-section';
 import { Card, CardContent } from '@/src/components/ui/card';
@@ -19,16 +19,15 @@ import AppPageSkeleton from '@/src/components/skeletons/app-page-skeleton';
 const RoleManagement = ({
    user,
    userPermissions,
+   listPermissions,
    isLoading,
    error,
-}: MyPageProps) => {
+}: RoleManagementPageProps) => {
    const [activeTab, setActiveTab] = useState("roles");
-   const { data: appPermissions, isLoading: permissionLoading, error: permissionError } = useFetchData<Permission[]>('/api/permissions');
 
-   if (isLoading || permissionLoading) return <AppPageSkeleton />;
+   if (isLoading) return <AppPageSkeleton />;
    
    if (error) return <ErrorState message={error.message} />;
-   if (permissionError) return <ErrorState message={permissionError.message} />;
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
    if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
 
@@ -85,7 +84,7 @@ const RoleManagement = ({
                   <CardContent className="pt-6">
                      <DataTable
                         columns={permissionColumns}
-                        data={appPermissions || []}
+                        data={listPermissions || []}
                         loading={isLoading}
                      />
                   </CardContent>

@@ -15,7 +15,7 @@ interface FetchState {
   status: FetchStatus; // État actuel de la requête
 }
 
-interface FetchResponse extends FetchState {
+export interface FetchCurrentUserResponse extends FetchState {
   user:
     | (User & {
         id: string;
@@ -30,7 +30,7 @@ interface FetchResponse extends FetchState {
   userRole: string | undefined;
 }
 
-export const useCurrentUser = (): FetchResponse => {
+export const useCurrentUser = (): FetchCurrentUserResponse => {
   // Initialisation de l'état de la requête
   const [state, setState] = useState<FetchState>({
     permissions: null,
