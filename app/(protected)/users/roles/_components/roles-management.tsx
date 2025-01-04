@@ -45,7 +45,7 @@ const RoleManagement = ({
       <div className="p-6 space-y-6">
          <div className="flex justify-between items-center">
             <div>
-               <h1 className="text-2xl font-bold">Gestion des Rôles</h1>
+               <h1 className="text-2xl font-bold font-oswald text-primary">Gestion des Rôles</h1>
                <p className="text-muted-foreground">
                   Gérez les rôles et les permissions des utilisateurs
                </p>
