@@ -5,29 +5,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/ta
 import { Shield, LockIcon } from "lucide-react";
 import { hasPermission } from '@/src/data/permission';
 import UnauthorizedAccess from '@/src/components/common/unauthorized-access';
-import { MyPageProps, RoleManagementPageProps } from '@/src/types/custom-props';
+import { RoleManagementPageProps } from '@/src/types/custom-props';
 import ErrorState from '@/src/components/common/error-state';
-import roleManagementSections from '../_sections/role-management-section';
 import { Card, CardContent } from '@/src/components/ui/card';
 import { DataTable } from '@/src/components/common/data-table';
-import { permissionColumns } from '@/constants/role-columns';
-import useFetchData from '@/src/hooks/use-fetch-data';
-import { Permission } from '@/src/types/permission';
+import { permissionColumns, roleColumns } from '@/constants/role-columns';
 import { isSuperUser } from '@/src/data/user';
 import AppPageSkeleton from '@/src/components/skeletons/app-page-skeleton';
+import { Role } from '@/src/types/role';
 
 const RoleManagement = ({
    user,
    userPermissions,
    listPermissions,
+   listRoles,
    isLoading,
-   error,
 }: RoleManagementPageProps) => {
    const [activeTab, setActiveTab] = useState("roles");
 
+   // CRUD handlers
+   const handleView = (role: Role) => {
+      console.log("Viewing role:", role);
+   };
+
+   const handleEdit = (role: Role) => {
+      console.log("Editing role:", role);
+   };
+
+   const handleDelete = (role: Role) => {
+      console.log("Deleting role:", role);
+   };
+
+   const handleAdd = () => {
+      console.log("Adding new role");
+   };
+
    if (isLoading) return <AppPageSkeleton />;
-   
-   if (error) return <ErrorState message={error.message} />;
+
    if (!user) return <ErrorState message="Utilisateur non trouvé" />;
    if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
 
@@ -64,19 +78,19 @@ const RoleManagement = ({
             </TabsList>
 
             <TabsContent value="roles" className="space-y-4">
-               {roleManagementSections.map(section => {
-                  const hasRole = section.roleNames.includes(userRole);
-                  const hasRequiredPermission = hasPermission(section.permission, userPermissions);
-
-                  if (hasRole || hasRequiredPermission) {
-                     return (
-                        <div key={section.id} className="col-span-full">
-                           {section.component}
-                        </div>
-                     );
-                  }
-                  return null;
-               })}
+               <Card>
+                  <CardContent className="pt-6">
+                     <DataTable
+                        columns={roleColumns}
+                        data={listRoles || []}
+                        loading={isLoading}
+                        onView={isSuperUser(userRole || "") || hasPermission('ROLE_DELETE', userPermissions || []) ? handleView : undefined}
+                        onEdit={isSuperUser(userRole || "") || hasPermission('ROLE_DELETE', userPermissions || []) ? handleEdit : undefined}
+                        onDelete={isSuperUser(userRole || "") || hasPermission('ROLE_DELETE', userPermissions || []) ? handleDelete : undefined}
+                        onAdd={isSuperUser(userRole || "") || hasPermission('ROLE_CREATE', userPermissions || []) ? handleAdd : undefined}
+                     />
+                  </CardContent>
+               </Card>
             </TabsContent>
 
             <TabsContent value="permissions" className="space-y-4">

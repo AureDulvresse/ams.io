@@ -15,8 +15,8 @@ export type MyPageProps = {
       })
     | undefined;
   userPermissions: string[] | null;
-  isLoading: boolean;
-  error: Error | null;
+  isLoading?: boolean;
+  error?: Error | null;
 };
 
 export type MySectionProps = {
@@ -28,4 +28,5 @@ export type MySectionProps = {
 
 export interface RoleManagementPageProps extends MyPageProps {
   listPermissions: Permission[] | null;
+  listRoles: Role[] | null;
 }

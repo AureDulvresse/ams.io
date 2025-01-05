@@ -7,28 +7,52 @@ import {
    DialogHeader,
    DialogTitle,
 } from "@/src/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-interface ModalFormProps {
+interface ModalFormProps<TFormData> {
    isOpen: boolean;
    title: string;
    description?: string;
-   form: React.ReactNode;
+   defaultValues?: Partial<TFormData>;
+   children: React.ReactNode;
    onClose: () => void;
-   onCancel?: () => void;
-   onSave?: (formData: FormData) => void;
-   onConfirm?: () => void;
+   submitText?: string;
+   serverAction: (data: TFormData) => Promise<{ success: boolean; error?: string; }>;
+   className?: string;
 }
 
-const ModalForm: React.FC<ModalFormProps> = ({
+const ModalForm = <TFormData,>({
    isOpen,
    title,
    description,
-   form,
+   defaultValues,
+   children,
    onClose,
-   onCancel,
-   onSave,
-   onConfirm,
-}) => {
+   submitText,
+   serverAction,
+   className
+}: ModalFormProps<TFormData>) => {
+
+   const form = useForm<TFormData>({
+      defaultValues: defaultValues as TFormData,
+
+   })
+
+   const onSubmit = async (formData: TFormData) : Promise<void> => {
+      try {
+         const result = await serverAction(formData);
+
+         if (result.success) {
+            form.reset()
+            onClose();
+            toast.success("")
+         }
+      } catch (error) {
+         
+      }
+   }
+
    return (
       <Dialog open={isOpen} onOpenChange={onClose}>
          <DialogContent>
