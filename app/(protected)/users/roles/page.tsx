@@ -9,6 +9,7 @@ import { useUserData } from "@/context";
 import useFetchData from "@/src/hooks/use-fetch-data";
 import { Permission } from "@/src/types/permission";
 import { Role } from "@/src/types/role";
+import AppPageSkeleton from "@/src/components/skeletons/app-page-skeleton";
 
 const breadcrumbItems = [
    { href: "/", label: "Vue d'ensemble" },
@@ -26,11 +27,10 @@ const breadcrumbItems = [
 
 const RolesPage = () => {
    const { user, permissions, isLoading, error } = useUserData();
-   const { data: appPermissions, isLoading: loadingPermissions, error: errorPermission } = useFetchData<Permission[]>('/api/permissions');
+   const { data: appPermissions, error: errorPermission } = useFetchData<Permission[]>('/api/permissions');
    const { data: roles, isLoading: loadingRoles, error: errorRole } = useFetchData<Role[]>('/api/roles');
 
 
-   if (loadingPermissions || loadingRoles) return null
    if (error) return <ErrorState message={error.message} />;
    if (errorPermission) return <ErrorState message={errorPermission.message} />;
    if (errorRole) return <ErrorState message={errorRole.message} />;
@@ -43,7 +43,7 @@ const RolesPage = () => {
             userPermissions={permissions}
             listPermissions={appPermissions || []}
             listRoles={roles}
-            isLoading={isLoading}
+            isLoading={loadingRoles}
             error={error}
          />
       </div>
