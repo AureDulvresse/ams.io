@@ -1,83 +1,117 @@
-import { Button } from "@/src/components/ui/button";
+import React from 'react';
+import { useForm, FieldValues, DefaultValues, UseFormReturn } from 'react-hook-form';
+import { Loader2, X } from 'lucide-react';
 import {
    Dialog,
    DialogContent,
-   DialogDescription,
-   DialogFooter,
    DialogHeader,
    DialogTitle,
-} from "@/src/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+   DialogFooter,
+} from '@/src/components/ui/dialog';
+import { Button } from '@/src/components/ui/button';
+import { cn } from '@/src/lib/utils';
 
-interface ModalFormProps<TFormData> {
+export type FormComponentProps<TFormData extends FieldValues> = {
+   form: UseFormReturn<TFormData>;
+};
+
+export type ModalFormProps<TFormData extends FieldValues> = {
    isOpen: boolean;
-   title: string;
-   description?: string;
-   defaultValues?: Partial<TFormData>;
-   children: React.ReactNode;
    onClose: () => void;
+   title: string;
+   defaultValues?: DefaultValues<TFormData>;
+   children: React.ReactElement<FormComponentProps<TFormData>> | React.ReactElement<FormComponentProps<TFormData>>[];
    submitText?: string;
-   serverAction: (data: TFormData) => Promise<{ success: boolean; error?: string; }>;
+   serverAction: (data: TFormData) => Promise<{ success: boolean; error?: string }>;
    className?: string;
-}
+};
 
-const ModalForm = <TFormData,>({
+const ModalForm = <TFormData extends FieldValues>({
    isOpen,
+   onClose,
    title,
-   description,
    defaultValues,
    children,
-   onClose,
-   submitText,
+   submitText = "Save",
    serverAction,
-   className
-}: ModalFormProps<TFormData>) => {
-
+   className,
+}: ModalFormProps<TFormData>): JSX.Element => {
    const form = useForm<TFormData>({
-      defaultValues: defaultValues as TFormData,
+      defaultValues,
+   });
 
-   })
-
-   const onSubmit = async (formData: TFormData) : Promise<void> => {
+   const handleSubmit = async (formData: TFormData): Promise<void> => {
       try {
          const result = await serverAction(formData);
 
          if (result.success) {
-            form.reset()
+            form.reset();
             onClose();
-            toast.success("")
+         } else {
+            // You might want to use a toast notification here instead of console.error
+            console.error('Submission error:', result.error);
          }
       } catch (error) {
-         
+         console.error('Form submission failed:', error);
+         // Handle the error appropriately - maybe show a toast or set form error
       }
-   }
+   };
+
+   const enhanceChildrenWithForm = (children: React.ReactElement<FormComponentProps<TFormData>> | React.ReactElement<FormComponentProps<TFormData>>[]): React.ReactNode => {
+      return React.Children.map(children, (child) => {
+         if (React.isValidElement(child)) {
+            return React.cloneElement(child, { form });
+         }
+         return child;
+      });
+   };
 
    return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-         <DialogContent>
+         <DialogContent className={cn('sm:max-w-lg', className)}>
             <DialogHeader>
-               <DialogTitle>{title}</DialogTitle>
-               {description && <DialogDescription>{description}</DialogDescription>}
+               <DialogTitle className="flex items-center justify-between">
+                  {title}
+                  <Button
+                     variant="ghost"
+                     size="icon"
+                     className="h-6 w-6 rounded-md"
+                     onClick={onClose}
+                  >
+                     <X className="h-4 w-4" />
+                  </Button>
+               </DialogTitle>
             </DialogHeader>
-            <div className="py-4">{form}</div>
-            <DialogFooter className="flex justify-end gap-2">
-               {onCancel && (
-                  <Button variant={"outline"} onClick={() => onCancel()}>
-                     Annuler
+
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
+               <div className="space-y-4 py-4">
+                  {enhanceChildrenWithForm(children)}
+               </div>
+
+               <DialogFooter className="gap-2">
+                  <Button
+                     type="button"
+                     variant="outline"
+                     onClick={onClose}
+                     disabled={form.formState.isSubmitting}
+                  >
+                     Cancel
                   </Button>
-               )}
-               {onConfirm && (
-                  <Button variant={"outline"} onClick={() => onConfirm()}>
-                     Confirmer
+                  <Button
+                     type="submit"
+                     disabled={form.formState.isSubmitting}
+                  >
+                     {form.formState.isSubmitting ? (
+                        <>
+                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                           Loading...
+                        </>
+                     ) : (
+                        submitText
+                     )}
                   </Button>
-               )}
-               {onSave && (
-                  <Button variant={"outline"} onClick={() => onSave(formData as FormData)}>
-                     Enregistrer
-                  </Button>
-               )}
-            </DialogFooter>
+               </DialogFooter>
+            </form>
          </DialogContent>
       </Dialog>
    );
