@@ -10,7 +10,7 @@ import {
    FormMessage,
 } from "../components/ui/form";
 import { Input } from "../components/ui/input";
-import useFetchData, { useList } from "../hooks/use-fetch-data";
+import { useList } from "../hooks/use-fetch-data";
 import { Permission } from "../types/permission";
 
 export const RoleFormFields = ({
