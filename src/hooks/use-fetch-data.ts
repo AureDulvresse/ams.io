@@ -1,5 +1,3 @@
-// hooks/useQuery.ts
-
 import {
   useQuery,
   UseQueryResult,
@@ -9,7 +7,7 @@ import {
 import { QueryOptions, ApiResponse } from "../types/query.types";
 import { apiClient } from "@/services/api-client";
 
-export function useQueryData<TData>(
+export function useFetchData<TData>(
   queryKey: QueryKey,
   endpoint: string,
   options: QueryOptions = {}
@@ -31,7 +29,7 @@ export function useList<TData>(
   resourcePath: string,
   options?: QueryOptions
 ): UseQueryResult<ApiResponse<TData[]>, Error> {
-  return useQueryData<TData[]>([resourcePath, "list"], resourcePath, options);
+  return useFetchData<TData[]>([resourcePath, "list"], resourcePath, options);
 }
 
 export function useDetail<TData>(
@@ -39,7 +37,7 @@ export function useDetail<TData>(
   id: string | number,
   options?: QueryOptions
 ): UseQueryResult<ApiResponse<TData>, Error> {
-  return useQueryData<TData>(
+  return useFetchData<TData>(
     [resourcePath, "detail", id],
     `${resourcePath}/${id}`,
     options
