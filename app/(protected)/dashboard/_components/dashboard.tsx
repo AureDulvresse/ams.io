@@ -77,6 +77,7 @@ const Dashboard = ({
    const canAccessRoles = isSuperUser(userRole) || hasPermission("SYSTEM_ADMIN", userPermissions || []) || hasPermission("DASHBOARD_SHOW", userPermissions || []);
 
    if (!canAccessRoles && !isLoading) {
+      console.log(userPermissions)
       return <UnauthorizedAccess />;
    }
 

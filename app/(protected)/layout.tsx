@@ -1,5 +1,6 @@
 "use client";
 import UserContext from "@/context";
+import ErrorState from "@/src/components/common/error-state";
 import AppSidebar from "@/src/components/partials/app-sidebar";
 import {
    SidebarContent,
@@ -16,6 +17,12 @@ interface ProtectedLayoutProps {
 const _ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
 
    const data = useCurrentUser();
+
+   console.log(data)
+
+   if (data.error) {
+      console.error("Error:", data.error)
+      return <ErrorState message={data.error.message} />}
 
    return (
       <UserContext.Provider value={data}>
