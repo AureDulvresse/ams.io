@@ -66,7 +66,7 @@ const AppSidebarUser = ({
         <SidebarGroup>
           <SidebarMenu>
             {appRoute.navMain.map((item, index) => (
-              <SidebarMenuButton className={`${isActive(item.url) && "text-white bg-gradient-to-tr from-indigo-600 to-primary hover:bg-gradient-to-tr hover:from-indigo-600 hover:to-primary hover:text-white"}`} asChild>
+              <SidebarMenuButton key={index} className={`${isActive(item.url) && "text-white bg-gradient-to-tr from-indigo-600 to-primary hover:bg-gradient-to-tr hover:from-indigo-600 hover:to-primary hover:text-white"}`} asChild>
                 <div className="flex items-center justify-between w-full">
                   {item.icon && <item.icon />}
                   <a

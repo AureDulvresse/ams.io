@@ -52,20 +52,21 @@ export const getPermissionByCode = async (code: string) => {
   return null;
 };
 
-export const createPermission = async (data: any) => {
-  // Vérifier si la permission avec le même code existe déjà
-  const existingPermission = await getPermissionByCode(data?.code);
-
-  if (existingPermission)
-    return { error: "Un département avec ce nom existe déjà." };
-
-  // Créer la permission
-  const permission = await db.permission.create({
-    data: data,
+// Lire toutes les permissions
+export async function getPermissions() {
+  return db.permission.findMany({
+    orderBy: {
+      updated_at: "desc",
+    },
   });
+}
 
-  return { data: permission };
-};
+// Lire une permission spécifique
+export async function getPermissionById(id: number) {
+  return db.permission.findUnique({
+    where: { id },
+  });
+}
 
 export const hasPermission = (code: string, permissionCodes: string[]) =>
   permissionCodes.includes(code);

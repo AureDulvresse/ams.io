@@ -1,4 +1,5 @@
 "use client";
+import UserContext from "@/context";
 import ErrorState from "@/src/components/common/error-state";
 import AppSidebar from "@/src/components/partials/app-sidebar";
 import {
@@ -14,13 +15,24 @@ interface ProtectedLayoutProps {
 }
 
 const _ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
+
+   const data = useCurrentUser();
+
+   console.log(data)
+
+   if (data.error) {
+      console.error("Error:", data.error)
+      return <ErrorState message={data.error.message} />}
+
    return (
-      <SidebarProvider className="w-full h-full">
-         <AppSidebar />
-         <SidebarContent>
-            <SidebarInset>{children}</SidebarInset>
-         </SidebarContent>
-      </SidebarProvider>
+      <UserContext.Provider value={data}>
+         <SidebarProvider className="w-full h-full">
+            <AppSidebar />
+            <SidebarContent>
+               <SidebarInset>{children}</SidebarInset>
+            </SidebarContent>
+         </SidebarProvider>
+      </UserContext.Provider>
    );
 };
 

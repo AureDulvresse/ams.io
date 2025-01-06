@@ -1,12 +1,12 @@
-import { db } from "@/src/lib/prisma";
 import { NextResponse } from "next/server";
 import {
-  createPermission,
+  getPermissions,
   getUserPermissionsById,
 } from "@/src/data/permission";
 import { limiter } from "@/src/lib/rate-limit";
 import { validateCsrfToken } from "@/src/lib/csrf";
 import { isAuthenticated } from "@/auth";
+import { createPermission } from "@/src/actions/permission.actions";
 
 export async function GET(request: Request) {
   try {
@@ -20,26 +20,22 @@ export async function GET(request: Request) {
     if (!session)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // // Rate limiting
-    // try {
-    //   await limiter.check(10, "PERMISSIONS_API_CACHE");
-    // } catch {
-    //   return NextResponse.json(
-    //     { error: "Rate limit exceeded" },
-    //     { status: 429 }
-    //   );
-    // }
+    // Rate limiting
+    try {
+      await limiter.check(50, "PERMISSIONS_API_CACHE");
+    } catch {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429 }
+      );
+    }
 
     if (userId) {
       permissions = await getUserPermissionsById(userId);
       return NextResponse.json(permissions);
     }
 
-    permissions = await db.permission.findMany({
-      orderBy: {
-        updated_at: "desc",
-      },
-    });
+    permissions = await getPermissions()
 
     return NextResponse.json(permissions, {
       headers: {

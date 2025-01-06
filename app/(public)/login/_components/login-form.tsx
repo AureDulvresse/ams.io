@@ -47,6 +47,7 @@ const LoginForm = () => {
          }
 
          toast.success("Connexion réussie !")
+         form.reset();
          router.push('/dashboard')
 
       } catch (err: any) {
@@ -135,7 +136,7 @@ const LoginForm = () => {
                <Label
                   htmlFor="remember"
                   className="text-sm text-muted-foreground cursor-pointer"
-               >  
+               >
                   Se souvenir de moi
                </Label>
             </div>

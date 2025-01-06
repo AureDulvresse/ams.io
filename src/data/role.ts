@@ -21,17 +21,29 @@ export const getRoleByName = async (name: string) => {
   }
 };
 
-export const createRole = async (data: any) => {
-  // Vérifier si la permission avec le même code existe déjà
-  const existingRole = await getRoleByName(data?.name);
-
-  if (existingRole)
-    return { error: "Un rôle avec ce nom existe déjà." };
-
-  // Créer le rôle
-  const role = await db.role.create({
-    data: data,
+// Lire les rôles
+export async function getRoles() {
+  return db.role.findMany({
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+    },
   });
+}
 
-  return { data: role };
-};
+// Lire un rôle spécifique
+export async function getRoleById(id: number) {
+  return db.role.findUnique({
+    where: { id },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
+        },
+      },
+    },
+  });
+}

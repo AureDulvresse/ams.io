@@ -1,90 +1,110 @@
 "use client";
+
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { Permission } from "../types/permission";
-import useFetchData from "./use-fetch-data";
-import { useCallback, useEffect, useState } from "react";
 import { Role } from "../types/role";
 import { User } from "next-auth";
 
-// Types pour les états de la requête
-type FetchStatus = "idle" | "loading" | "success" | "error";
-interface FetchState {
-  permissions: string[] | null; // Liste des permisions du user
-  isLoading: boolean; // Indique si la requête est en cours
-  error: Error | null; // Erreur rencontrée (s'il y en a)
-  status: FetchStatus; // État actuel de la requête
+// Types
+interface ExtendedUser extends User {
+  id: string;
+  first_name: string;
+  last_name: string;
+  role: Role;
+  is_active: boolean;
+  emailVerified?: Date;
+  last_login?: Date;
 }
 
-interface FetchResponse extends FetchState {
-  user:
-    | (User & {
-        id: string;
-        first_name: string;
-        last_name: string;
-        role: Role;
-        is_active: boolean;
-        emailVerified?: Date;
-        last_login?: Date;
-      })
-    | undefined; // Données user connecté
-  userRole: string | undefined;
+interface UseCurrentUserReturn {
+  user: ExtendedUser | null;
+  userRole: string | null;
+  permissions: string[];
+  isLoading: boolean;
+  error: Error | null;
 }
 
-export const useCurrentUser = (): FetchResponse => {
-  // Initialisation de l'état de la requête
-  const [state, setState] = useState<FetchState>({
-    permissions: null,
-    isLoading: false,
-    error: null,
-    status: "idle",
-  });
-  const session = useSession();
+/**
+ * Hook pour gérer l'utilisateur courant et ses permissions
+ */
+export const useCurrentUser = (): UseCurrentUserReturn => {
+  const { data: session, status } = useSession();
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const user = session.data?.user;
-
-  const userRole = user?.role.name;
-
-  const fetchData = useCallback(
-    async (user: any): Promise<void> => {
-      setState((prevState) => ({
-        ...prevState,
-        isLoading: true,
-        status: "loading",
-      }));
-
-      try {
-        const response = await fetch(`/api/permissions?userId=${user?.id}`);
-
-        if (!response.ok) {
-          throw new Error(
-            `HTTP Error: ${response.statusText} (${response.status})`
-          );
-        }
-
-        const permissions: string[] = await response.json();
-
-        setState({
-          permissions,
-          isLoading: false,
-          error: null,
-          status: "success",
-        });
-      } catch (error) {
-        setState({
-          permissions: [],
-          isLoading: false,
-          error: error instanceof Error ? error : new Error("Unknown error"),
-          status: "error",
-        });
-      }
-    },
-    [useFetchData]
-  );
+  const user = session?.user as ExtendedUser | null;
+  const userRole = user?.role?.name ?? null;
 
   useEffect(() => {
-    // Lance une première requête à l'initialisation
-    fetchData(user);
-  }, [fetchData, user]);
+    const fetchPermissions = async () => {
+      if (!user?.id) {
+        setPermissions([]);
+        setIsLoading(false);
+        return;
+      }
 
-  return { ...state, user, userRole };
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/permissions?userId=${user.id}`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch permissions");
+        }
+
+        const data = await response.json();
+        setPermissions(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("An error occurred"));
+        setPermissions([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // On attend que la session soit chargée avant de récupérer les permissions
+    if (status === "loading") {
+      setIsLoading(true);
+      return;
+    }
+
+    fetchPermissions();
+  }, [user?.id, status]);
+
+  return {
+    user,
+    userRole,
+    permissions,
+    isLoading: status === "loading" || isLoading,
+    error,
+  };
 };
+
+// Exemple d'utilisation:
+/*
+const MyComponent = () => {
+  const { user, userRole, permissions, isLoading, error } = useCurrentUser();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (!user) {
+    return <div>Not authenticated</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome {user.first_name}!</h1>
+      <p>Role: {userRole}</p>
+      <p>Permissions: {permissions.join(', ')}</p>
+    </div>
+  );
+};
+*/
