@@ -10,6 +10,8 @@ import {
 } from '@/src/components/ui/dialog';
 import { Button } from '@/src/components/ui/button';
 import { cn } from '@/src/lib/utils';
+import { toast } from 'sonner';
+import { Form } from '../ui/form';
 
 export type FormComponentProps<TFormData extends FieldValues> = {
    form: UseFormReturn<TFormData>;
@@ -22,7 +24,8 @@ export type ModalFormProps<TFormData extends FieldValues> = {
    defaultValues?: DefaultValues<TFormData>;
    children: React.ReactElement<FormComponentProps<TFormData>> | React.ReactElement<FormComponentProps<TFormData>>[];
    submitText?: string;
-   serverAction: (data: TFormData) => Promise<{ success: boolean; error?: string }>;
+   successMessage?: string;
+   serverAction: (data: TFormData) => Promise<{ success: boolean; error?: string; data?: any }>;
    className?: string;
 };
 
@@ -33,6 +36,7 @@ const ModalForm = <TFormData extends FieldValues>({
    defaultValues,
    children,
    submitText = "Save",
+   successMessage = "Enregistrement éffectué",
    serverAction,
    className,
 }: ModalFormProps<TFormData>): JSX.Element => {
@@ -46,14 +50,17 @@ const ModalForm = <TFormData extends FieldValues>({
 
          if (result.success) {
             form.reset();
+            toast.success(successMessage)
             onClose();
          } else {
             // You might want to use a toast notification here instead of console.error
+            toast.error(result.error);
             console.error('Submission error:', result.error);
          }
       } catch (error) {
          console.error('Form submission failed:', error);
          // Handle the error appropriately - maybe show a toast or set form error
+         toast.error("Une erreur inconnu s'est produite")
       }
    };
 
@@ -72,46 +79,39 @@ const ModalForm = <TFormData extends FieldValues>({
             <DialogHeader>
                <DialogTitle className="flex items-center justify-between">
                   {title}
-                  <Button
-                     variant="ghost"
-                     size="icon"
-                     className="h-6 w-6 rounded-md"
-                     onClick={onClose}
-                  >
-                     <X className="h-4 w-4" />
-                  </Button>
                </DialogTitle>
             </DialogHeader>
 
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
-               <div className="space-y-4 py-4">
+            <Form {...form}>
+               <form onSubmit={form.handleSubmit(handleSubmit)} className="relative space-y-6">
+                  
                   {enhanceChildrenWithForm(children)}
-               </div>
 
-               <DialogFooter className="gap-2">
-                  <Button
-                     type="button"
-                     variant="outline"
-                     onClick={onClose}
-                     disabled={form.formState.isSubmitting}
-                  >
-                     Cancel
-                  </Button>
-                  <Button
-                     type="submit"
-                     disabled={form.formState.isSubmitting}
-                  >
-                     {form.formState.isSubmitting ? (
-                        <>
-                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                           Loading...
-                        </>
-                     ) : (
-                        submitText
-                     )}
-                  </Button>
-               </DialogFooter>
-            </form>
+                  <DialogFooter className="gap-2">
+                     <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={form.formState.isSubmitting}
+                     >
+                        Cancel
+                     </Button>
+                     <Button
+                        type="submit"
+                        disabled={form.formState.isSubmitting}
+                     >
+                        {form.formState.isSubmitting ? (
+                           <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Loading...
+                           </>
+                        ) : (
+                           submitText
+                        )}
+                     </Button>
+                  </DialogFooter>
+               </form>
+            </Form>
          </DialogContent>
       </Dialog>
    );
