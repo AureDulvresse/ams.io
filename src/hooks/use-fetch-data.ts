@@ -7,7 +7,7 @@ import {
 import { QueryOptions, ApiResponse } from "../types/query.types";
 import { apiClient } from "@/services/api-client";
 
-export function useFetchData<TData>(
+export default function useFetchData<TData>(
   queryKey: QueryKey,
   endpoint: string,
   options: QueryOptions = {}
