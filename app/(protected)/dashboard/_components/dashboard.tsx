@@ -74,7 +74,7 @@ const Dashboard = ({
    const userRole = user.role.name.toLowerCase();
 
    // Access control
-   const canAccessRoles = isSuperUser(userRole) || hasPermission("SYSTEM_ADMIN", userPermissions || []) || hasPermission("DASHBOARD_SHOW", userPermissions || []);
+   const canAccessRoles = isSuperUser(userRole) || hasPermission("SYSTEM_ADMIN", userPermissions || []) || hasPermission("DASHBORD_SHOW", userPermissions || []);
 
    if (!canAccessRoles && !isLoading) {
       console.log(userPermissions)

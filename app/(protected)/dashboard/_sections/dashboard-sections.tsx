@@ -19,7 +19,7 @@ const dashboardSections: MySectionProps[] = [
       id: 'director',
       component: <DirectorDashboard />,
       permission: 'MANAGER_DASHBOARD_SHOW',
-      roleNames: ['directeur', 'superuser']
+      roleNames: ['directeur', 'manager', 'superuser']
    },
    {
       id: 'finance',
