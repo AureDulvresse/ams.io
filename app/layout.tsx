@@ -6,6 +6,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/src/components/ui/sonner";
 import { auth } from "@/auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ReactQueryProvider from "@/providers/react-query-provider";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,7 +39,9 @@ export default async function RootLayout({
         <Analytics />
         <SpeedInsights />
         <SessionProvider session={session || undefined}>
-          {children}
+          <ReactQueryProvider>
+            {children}
+          </ReactQueryProvider>
         </SessionProvider>
         <Toaster />
       </body>

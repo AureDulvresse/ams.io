@@ -23,3 +23,7 @@ export interface ApiResponse<T = unknown> {
   statusText: string;
   headers: Headers;
 }
+
+export interface RequestConfig extends RequestInit {
+  params?: Record<string, string>;
+}
