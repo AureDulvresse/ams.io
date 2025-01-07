@@ -31,11 +31,11 @@ export async function getDepartments() {
 export async function getDepartmentById(id: number) {
   return db.department.findUnique({
     where: { id },
-    include: {
-      courses: true,
-      staff: true,
-      programs: true,
-    },
+    // include: {
+    //   courses: true,
+    //   staff: true,
+    //   programs: true,
+    // },
   });
 }
 

@@ -11,7 +11,7 @@ import { db } from "../lib/prisma";
 export async function createDepartment(data: {
   name: string;
   code: string;
-  type: "academic" | "administrative" | "service";
+  type: string // "academic" | "administrative" | "service";
   description?: string | undefined;
 }) {
   const existingDepartment =
@@ -37,7 +37,7 @@ export async function updateDepartment(
   data: {
     name: string;
     code: string;
-    type: "academic" | "administrative" | "service";
+    type: string // "academic" | "administrative" | "service";
     description?: string | undefined;
   }
 ) {
