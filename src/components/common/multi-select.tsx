@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Input } from "../ui/input";
+import { Checkbox } from "../ui/checkbox";
 
 export type MultiSelectProps = {
   options: { label: string; value: number }[]; // Liste des options
@@ -62,8 +63,7 @@ export const MultiSelect = ({
             key={option.value}
             className="flex items-center space-x-2 rounded-lg"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={value.includes(option.value)}
               onChange={() => handleToggle(option.value)}
             />

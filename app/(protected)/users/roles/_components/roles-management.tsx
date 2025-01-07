@@ -19,11 +19,13 @@ import { isSuperUser } from "@/src/data/user";
 import AppPageSkeleton from "@/src/components/skeletons/app-page-skeleton";
 import { Role } from "@/src/types/role";
 import ModalForm from "@/src/components/common/modal-form";
-import { createRole } from "@/src/actions/role.actions";
+import { createRole, deleteRole } from "@/src/actions/role.actions";
 import { RoleFormFields } from "@/src/forms/role-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { roleSchema } from "@/src/schemas/role.schema";
+import { useDelete, useServerAction } from "@/src/hooks/use-server-action";
+import { toast } from "sonner";
 
 const RoleManagement = ({
    user,
@@ -36,6 +38,19 @@ const RoleManagement = ({
    const [isAddModalFormOpen, setIsAddModalFormOpen] = useState(false);
    const roleForm = useForm<z.infer<typeof roleSchema>>();
 
+   // Mutations
+   const deleteMutation = useServerAction<number>(deleteRole, {
+      onSuccess: (data) => {
+         toast.success("Rôle supprimé avec succès");
+      },
+      onError: (error) => {
+         toast.error(error.message);
+         console.error('Deletion error:', error);
+      },
+      invalidateQueries: ["/api/roles", "list"],
+   }
+   )
+
    // CRUD handlers
    const handleView = (role: Role) => {
       console.log("Viewing role:", role);
@@ -45,8 +60,8 @@ const RoleManagement = ({
       console.log("Editing role:", role);
    };
 
-   const handleDelete = (role: Role) => {
-      console.log("Deleting role:", role);
+   const handleDelete = async (role: Role) => {
+      deleteMutation.mutate(role.id)
    };
 
    if (isLoading) return <AppPageSkeleton />;
@@ -147,6 +162,7 @@ const RoleManagement = ({
             title="Créer un rôle"
             defaultValues={{ name: "", description: "", permissionIds: [] }}
             serverAction={createRole}
+            invalidQuery={['/api/roles', 'list']}
             successMessage="Rôle créé avec succès"
          >
             <RoleFormFields form={roleForm} />

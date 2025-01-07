@@ -75,7 +75,20 @@ export async function updateRole(
 
 // Supprimer un rôle
 export async function deleteRole(id: number) {
-  return db.role.delete({
+
+  console.log(id);
+  
+  const existingRole = await getRoleById(id);
+
+  if (!existingRole)
+    return {
+      success: false,
+      error: "Ce rôle ne peut être supprimer car il n'existe pas",
+    };
+
+  const deletedRole = await db.role.delete({
     where: { id },
   });
+
+  return { success: true, data: deletedRole };
 }
