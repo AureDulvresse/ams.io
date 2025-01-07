@@ -24,31 +24,35 @@ export const getUserByEmail = async (email: string) => {
     return null;
   }
 };
-
 export const getUserById = async (id: string) => {
   try {
     const user = await db.user.findUnique({
       where: { id },
       include: {
         role: {
-          select: {
-            id: true,
-            name: true,
+          include: {
+            permissions: {
+              include: {
+                permission: true, // Inclut les détails des permissions
+              },
+            },
           },
         },
       },
     });
 
-    // Check if the user exists
+    // Vérifier si l'utilisateur existe
     if (!user) {
-      throw Error("User not found");
+      throw new Error("User not found");
     }
 
     return user;
   } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
     return null;
   }
 };
+
 
 export const isSuperUser = (userRole: string) =>
   userRole.toLowerCase() == "superuser";
