@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./src/lib/prisma";
 import authConfig from "@/auth.config";
 import { getUserById } from "./src/data/user";
-import { Role } from "@prisma/client";
+import { Role } from "./src/types/role";
 
 export const {
   handlers: { GET, POST },
