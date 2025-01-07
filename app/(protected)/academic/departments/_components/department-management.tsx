@@ -53,7 +53,7 @@ const DepartmentManagement = ({
 
   const handleView = (department: Department) => {
     // Redirection vers la page de détail
-    router.push(`/users/departments/${department.id}`);
+    router.push(`/academic/departments/${department.id}`);
   };
 
   const handleDelete = (department: Department) => {
