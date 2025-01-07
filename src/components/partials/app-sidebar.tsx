@@ -19,9 +19,14 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   if (error) return <ErrorState message={error.message} />;
 
   return (
-    <Sidebar {...props} collapsible="icon" className="z-80 bg-white dark:bg-gray-950  ">
+    <Sidebar
+      {...props}
+      collapsible="icon"
+      className="z-80 bg-gradient-to-br from-white to-gray-200 dark:from-gray-900 dark:to-gray-950 sm:from-white sm:to-gray-200 sm:dark:from-gray-900 sm:dark:to-gray-950"
+    >
       <AppSidebarUser user={user} permissions={permissions || []} />
     </Sidebar>
+
   );
 };
 
