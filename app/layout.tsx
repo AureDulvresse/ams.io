@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
-import { Oswald, Inter } from "next/font/google";
+import { Oswald, Inter, Fredoka } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/src/components/ui/sonner";
 import { auth } from "@/auth";
+import ReactQueryProvider from "@/providers/react-query-provider";
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 });
+
+const fredoka = Fredoka({
+  subsets: ['latin'],
+  variable: '--font-fredoka',
+  weight: ['500', '600', '700']
+})
 
 const oswald = Oswald({
   subsets: ['latin'],
@@ -33,11 +40,13 @@ export default async function RootLayout({
 
   return (
     <html lang="fr">
-      <body className={`${oswald.variable} ${inter.variable} antialiased`}>
+      <body className={`${oswald.variable} ${inter.variable} ${fredoka.variable} antialiased`}>
         <Analytics />
         <SpeedInsights />
         <SessionProvider session={session || undefined}>
-          {children}
+          <ReactQueryProvider>
+            {children}
+          </ReactQueryProvider>
         </SessionProvider>
         <Toaster />
       </body>

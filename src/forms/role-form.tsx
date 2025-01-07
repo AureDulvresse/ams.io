@@ -10,7 +10,7 @@ import {
    FormMessage,
 } from "../components/ui/form";
 import { Input } from "../components/ui/input";
-import useFetchData from "../hooks/use-fetch-data";
+import { useList } from "../hooks/use-fetch-data";
 import { Permission } from "../types/permission";
 
 export const RoleFormFields = ({
@@ -21,10 +21,12 @@ export const RoleFormFields = ({
    permissionIds: number[];
 }>) => {
    const {
-      data: listPermissions,
-      isLoading,
-      error,
-   } = useFetchData<Permission[]>("/api/permissions");
+      data: appPermissionsResponse,
+      isLoading: isLoadingPermissions,
+      error: permissionsError
+   } = useList<Permission>('/api/permissions');
+
+   const appPermissions = appPermissionsResponse?.data ?? [];
 
    return (
       <div className="space-y-4">
@@ -62,19 +64,19 @@ export const RoleFormFields = ({
          />
 
          {/* Gestion des permissions */}
-         {isLoading && (
+         {isLoadingPermissions && (
             <div className="h-36 rounded-lg">
                <FetchLoader />
             </div>
          )}
 
-         {error && (
+         {permissionsError && (
             <div className="h-36 rounded-lg">
-               <ErrorState message={error.message} />
+               <ErrorState message={permissionsError.message} />
             </div>
          )}
 
-         {listPermissions && (
+         {appPermissions && (
             <FormField
                control={form.control}
                name="permissionIds"
@@ -83,7 +85,7 @@ export const RoleFormFields = ({
                      <FormLabel>Permissions</FormLabel>
                      <FormControl>
                         <MultiSelect
-                           options={listPermissions.map((perm) => ({
+                           options={appPermissions.map((perm) => ({
                               label: perm.name,
                               value: perm.id,
                            }))}

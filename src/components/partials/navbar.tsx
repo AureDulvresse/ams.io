@@ -91,7 +91,7 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
                <MessageCircle size={20} />
             </button>
             <Suspense fallback={<Skeleton className="h-8 w-8 rounded-full" />}>
-               <NavUser user={user} />
+               <NavUser user={user || undefined} />
             </Suspense>
          </div>
 
@@ -105,7 +105,7 @@ const Navbar = ({ breadcrumb }: { breadcrumb: BreadcrumbItemProps[] }) => {
                <Search size={20} />
             </button>
             <Suspense fallback={<Skeleton className="h-8 w-8 rounded-full" />}>
-               <NavUser user={user} />
+               <NavUser user={user || undefined} />
             </Suspense>
          </div>
 

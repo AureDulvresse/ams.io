@@ -14,23 +14,23 @@ export const roleColumns: ColumnDef<Role, any>[] = [
       accessorKey: "description",
       header: "Description",
    },
+   // {
+   //    accessorKey: "permissions",
+   //    header: "Permissions",
+   //    cell: ({ row }) => (
+   //       <div className="flex flex-wrap gap-1">
+   //          {row.original.permissions?.map((permission) => (
+   //             <Badge key={permission.permission_id} variant="secondary" className="text-xs">
+   //                {permission.permission.name}
+   //             </Badge>
+   //          ))}
+   //       </div>
+   //    ),
+   // },
    {
-      accessorKey: "permissions",
-      header: "Permissions",
-      cell: ({ row }) => (
-         <div className="flex flex-wrap gap-1">
-            {row.original.permissions?.map((permission) => (
-               <Badge key={permission} variant="secondary" className="text-xs">
-                  {permission}
-               </Badge>
-            ))}
-         </div>
-      ),
-   },
-   {
-      accessorKey: "createdAt",
-      header: "Date de création",
-      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
+      accessorKey: "updatedAt",
+      header: "Dernière mise à jour de création",
+      cell: ({ row }) => row.original.updated_at ? new Date(row.original.updated_at).toLocaleDateString() : new Date(row.original.created_at).toLocaleDateString(),
    },
 ];
 

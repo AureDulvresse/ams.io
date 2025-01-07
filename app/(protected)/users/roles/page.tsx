@@ -1,53 +1,68 @@
 "use client";
 
 import React from "react";
-import { useCurrentUser } from "@/src/hooks/use-current-user";
+import { useUserData } from "@/context";
+import { useList } from "@/src/hooks/use-fetch-data";
+import { Permission } from "@/src/types/permission";
+import { Role } from "@/src/types/role";
 import ErrorState from "@/src/components/common/error-state";
 import Navbar from "@/src/components/partials/navbar";
 import RoleManagement from "./_components/roles-management";
-import { useUserData } from "@/context";
-import useFetchData from "@/src/hooks/use-fetch-data";
-import { Permission } from "@/src/types/permission";
-import { Role } from "@/src/types/role";
 import AppPageSkeleton from "@/src/components/skeletons/app-page-skeleton";
 
-const breadcrumbItems = [
+const BREADCRUMB_ITEMS = [
    { href: "/", label: "Vue d'ensemble" },
    { href: "#", label: "Paramètre" },
    {
       href: "#",
       label: "Paramètre",
       isDropdown: true,
-      dropdownItems: [
-         { label: "Utilisateurs", href: "#" }
-      ],
+      dropdownItems: [{ label: "Utilisateurs", href: "#" }],
    },
    { label: "Rôle & Permissions", isCurrent: true },
 ];
 
-const RolesPage = () => {
-   const { user, permissions, isLoading, error } = useUserData();
-   const { data: appPermissions, error: errorPermission } = useFetchData<Permission[]>('/api/permissions');
-   const { data: roles, isLoading: loadingRoles, error: errorRole } = useFetchData<Role[]>('/api/roles');
+export default function RolesPage() {
+   // Récupération des données utilisateur depuis le contexte
+   const { user, permissions, isLoading: isLoadingUser, error: userError } = useUserData();
 
+   // Récupération des permissions de l'application
+   const {
+      data: appPermissionsResponse,
+      isLoading: isLoadingPermissions,
+      error: permissionsError
+   } = useList<Permission>('/api/permissions');
 
+   // Récupération des rôles
+   const {
+      data: rolesResponse,
+      isLoading: isLoadingRoles,
+      error: rolesError
+   } = useList<Role>('/api/roles');
+
+   // Gestion du chargement
+   const isLoading = isLoadingUser || isLoadingPermissions || isLoadingRoles;
+   if (isLoading) return <AppPageSkeleton />;
+
+   // Gestion des erreurs
+   const error = userError || permissionsError || rolesError;
    if (error) return <ErrorState message={error.message} />;
-   if (errorPermission) return <ErrorState message={errorPermission.message} />;
-   if (errorRole) return <ErrorState message={errorRole.message} />;
+
+   // Extraction des données des réponses
+   const appPermissions = appPermissionsResponse?.data ?? [];
+   const roles = rolesResponse?.data ?? [];
 
    return (
       <div>
-         <Navbar breadcrumb={breadcrumbItems} />
+         <Navbar breadcrumb={BREADCRUMB_ITEMS} />
          <RoleManagement
             user={user}
             userPermissions={permissions}
-            listPermissions={appPermissions || []}
+            listPermissions={appPermissions}
             listRoles={roles}
-            isLoading={loadingRoles}
+            isLoading={isLoading}
             error={error}
          />
       </div>
    );
-};
-
-export default RolesPage;
+}

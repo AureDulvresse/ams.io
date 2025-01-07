@@ -93,6 +93,7 @@ const config: Config = {
       fontFamily: {
         inter: ["var(--font-inter)", ...fontFamily.sans],
         oswald: ["var(--font-oswald)", ...fontFamily.sans],
+        fredoka: ["var(--font-fredoka)", ...fontFamily.sans],
       },
     },
   },

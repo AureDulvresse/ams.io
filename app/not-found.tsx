@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 
-const NotFoundPage: React.FC = async () => {
+const NotFound: React.FC = async () => {
   const router = useRouter();
   
   return (
@@ -23,4 +23,4 @@ const NotFoundPage: React.FC = async () => {
   );
 };
 
-export default NotFoundPage;
+export default NotFound;

@@ -47,7 +47,7 @@ export const appRoute = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: LayoutDashboard
+      icon: LayoutDashboard,
     },
   ],
   navAcademy: [
@@ -57,11 +57,15 @@ export const appRoute = {
       icon: GraduationCap,
       items: [
         {
+          title: "Départements",
+          url: "/academic/departments",
+        },
+        {
           title: "Cours et Matières",
           url: "/academic/courses",
         },
         {
-          title: "Planning",
+          title: "Emploi du temps",
           url: "/academic/schedule",
         },
         {
@@ -119,8 +123,12 @@ export const appRoute = {
           url: "/drafting/events",
         },
         {
-          title: "Emploi du temps",
-          url: "/schedule",
+          title: "Calendrier",
+          url: "/drafting/calendar",
+        },
+        {
+          title: "Mes tâches",
+          url: "/drafting/to-do",
         },
       ],
     },

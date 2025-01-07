@@ -18,8 +18,6 @@ const _ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
 
    const data = useCurrentUser();
 
-   console.log(data)
-
    if (data.error) {
       console.error("Error:", data.error)
       return <ErrorState message={data.error.message} />}

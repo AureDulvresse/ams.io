@@ -39,7 +39,7 @@ export async function createRole(data: {
 // Mettre à jour un rôle avec au moins une permission
 export async function updateRole(
   id: number,
-  data: { name?: string; description?: string; permissionIds: number[] }
+  data: { name: string; description: string; permissionIds: number[] }
 ) {
   if (!data.permissionIds || data.permissionIds.length === 0) {
     return {
@@ -75,7 +75,53 @@ export async function updateRole(
 
 // Supprimer un rôle
 export async function deleteRole(id: number) {
-  return db.role.delete({
-    where: { id },
-  });
+  try {
+    const existingRole = await getRoleById(id);
+
+    if (!existingRole) {
+      return {
+        success: false,
+        error: "Ce rôle n'existe pas",
+      };
+    }
+
+    // Vérifier si le rôle est utilisé par des utilisateurs
+    const usersWithRole = await db.user.findMany({
+      where: {
+        role_id: existingRole.id,
+      },
+    });
+
+    if (usersWithRole.length > 0) {
+      return {
+        success: false,
+        error:
+          "Ce rôle ne peut pas être supprimé car il est actuellement attribué à des utilisateurs",
+      };
+    }
+
+    // Supprimer d'abord les relations dans la table de liaison role_permissions
+    await db.rolePermission.deleteMany({
+      where: {
+        role_id: id,
+      },
+    });
+
+    // Puis supprimer le rôle
+    const deletedRole = await db.role.delete({
+      where: { id },
+    });
+
+    return {
+      success: true,
+      data: deletedRole,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la suppression du rôle:", error);
+    return {
+      success: false,
+      error:
+        "Impossible de supprimer ce rôle. Il est peut-être utilisé par d'autres éléments du système.",
+    };
+  }
 }
