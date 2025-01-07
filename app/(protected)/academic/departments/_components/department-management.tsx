@@ -16,7 +16,10 @@ import { departmentSchema } from "@/src/schemas/department.schema";
 import { DepartmentFormFields } from "@/src/forms/department-form";
 import { Department } from "@/src/types/department";
 import { departmentColumns } from "@/constants/department-columns";
-import { createDepartment } from "@/src/actions/department.actions";
+import { createDepartment, deleteDepartment, updateDepartment } from "@/src/actions/department.actions";
+import { useRouter } from "next/navigation";
+import { useDelete } from "@/src/hooks/use-server-action";
+import { toast } from "sonner";
 
 const DepartmentManagement = ({
   user,
@@ -25,19 +28,36 @@ const DepartmentManagement = ({
   isLoading,
 }: MyPageProps) => {
   const [isAddModalFormOpen, setIsAddModalFormOpen] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const departmentForm = useForm<z.infer<typeof departmentSchema>>();
+  const router = useRouter();
+
+  // Mutations
+  const deleteMutation = useDelete<number>(deleteDepartment, {
+    onSuccess: () => {
+      toast.success("Departement supprimé avec succès");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.error("Deletion error:", error);
+    },
+    invalidateQueries: ["/api/departments", "list"],
+  });
 
   // CRUD handlers
-  const handleView = (department: Department) => {
-    console.log("Viewing department:", department);
+  const handleEdit = (department: Department) => {
+    setSelectedDepartment(department);
+    setIsEditModalOpen(true);
   };
 
-  const handleEdit = (department: Department) => {
-    console.log("Editing department:", department);
+  const handleView = (department: Department) => {
+    // Redirection vers la page de détail
+    router.push(`/users/departments/${department.id}`);
   };
 
   const handleDelete = (department: Department) => {
-    console.log("Deleting department:", department);
+    deleteMutation.mutate(department.id);
   };
 
   if (isLoading) return <AppPageSkeleton />;
@@ -80,25 +100,25 @@ const DepartmentManagement = ({
             loading={isLoading}
             onView={
               isSuperUser(userRole || "") ||
-              hasPermission("DEPARTMENT_VIEW", userPermissions || [])
+                hasPermission("DEPARTMENT_VIEW", userPermissions || [])
                 ? handleView
                 : undefined
             }
             onEdit={
               isSuperUser(userRole || "") ||
-              hasPermission("DEPARTMENT_EDIT", userPermissions || [])
+                hasPermission("DEPARTMENT_EDIT", userPermissions || [])
                 ? handleEdit
                 : undefined
             }
             onDelete={
               isSuperUser(userRole || "") ||
-              hasPermission("DEPARTMENT_DELETE", userPermissions || [])
+                hasPermission("DEPARTMENT_DELETE", userPermissions || [])
                 ? handleDelete
                 : undefined
             }
             onAdd={
               isSuperUser(userRole || "") ||
-              hasPermission("DEPARTMENT_CREATE", userPermissions || [])
+                hasPermission("DEPARTMENT_CREATE", userPermissions || [])
                 ? () => setIsAddModalFormOpen(true)
                 : undefined
             }
@@ -109,7 +129,7 @@ const DepartmentManagement = ({
       <ModalForm
         isOpen={isAddModalFormOpen}
         onClose={() => setIsAddModalFormOpen(false)}
-        title="Créer un Département"
+        title="Créer un département"
         defaultValues={{
           name: "",
           code: "",
@@ -117,10 +137,35 @@ const DepartmentManagement = ({
           description: "",
         }}
         serverAction={createDepartment}
+        invalidQuery={["/api/departments", "list"]}
         successMessage="Département créé avec succès"
       >
         <DepartmentFormFields form={departmentForm} />
       </ModalForm>
+
+      {/* Modal d'édition */}
+      {selectedDepartment && (
+        <ModalForm
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedDepartment(null);
+          }}
+          title={`Modifier le rôle: ${selectedDepartment.name}`}
+          defaultValues={{
+            name: selectedDepartment.name,
+            code: selectedDepartment.code,
+            type: selectedDepartment.type,
+            description: selectedDepartment.description || "",
+          }}
+          serverAction={(data) => updateDepartment(selectedDepartment.id, data)}
+          invalidQuery={["/api/departments", "list"]}
+          successMessage="Departement modifié avec succès"
+        >
+          <DepartmentFormFields form={departmentForm} />
+        </ModalForm>
+      )}
+
     </div>
   );
 };
