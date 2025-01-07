@@ -9,7 +9,6 @@ interface RoleDetailPageProps {
    };
 }
 
-
 const BREADCRUMB_ITEMS = [
    { href: "/", label: "Vue d'ensemble" },
    { href: "#", label: "Paramètre" },

@@ -151,7 +151,7 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
             defaultValues={{
                name: role.name,
                description: role.description || "",
-               permissionIds: role.permissions?.map((p) => p.permission_id),
+               permissionIds: role.permissions.map((p) => p.permission_id),
             }}
             serverAction={(data) => updateRole(role.id, data)}
             invalidQuery={["/api/roles", "list", `role-${role.id}`]}

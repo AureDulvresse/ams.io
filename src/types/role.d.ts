@@ -6,5 +6,5 @@ export type Role = {
   description?: string | null;
   created_at: Date;
   updated_at?: Date;
-  permissions?: RolePermission[];
+  permissions: RolePermission[];
 };

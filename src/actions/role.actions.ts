@@ -39,7 +39,7 @@ export async function createRole(data: {
 // Mettre à jour un rôle avec au moins une permission
 export async function updateRole(
   id: number,
-  data: { name?: string; description?: string; permissionIds: number[] }
+  data: { name: string; description: string; permissionIds: number[] }
 ) {
   if (!data.permissionIds || data.permissionIds.length === 0) {
     return {
