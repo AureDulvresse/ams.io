@@ -10,13 +10,13 @@ import {
 } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Edit, Shield, Trash2, Users } from "lucide-react";
+import { ArrowLeft, Building2, Edit, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import ModalForm from "@/src/components/common/modal-form";
 import { DepartmentFormFields } from "@/src/forms/department-form";
 import { useForm } from "react-hook-form";
 import { deleteDepartment, updateDepartment } from "@/src/actions/department.actions";
-import { useDelete, useUpdate } from "@/src/hooks/use-server-action";
+import { useDelete } from "@/src/hooks/use-server-action";
 import { toast } from "sonner";
 import {
    Table,
@@ -93,7 +93,7 @@ export default function DepartmentDetailView({ department }: DepartmentDetailVie
          <Card>
             <CardHeader>
                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
+                  <Building2 className="w-5 h-5" />
                   <p className="uppercase">{department.name}</p>
                </CardTitle>
                <CardDescription>{department.description}</CardDescription>
