@@ -1,9 +1,10 @@
 import { isAuthenticated } from "@/auth";
 import { NextResponse } from "next/server";
+import { db } from "@/src/lib/prisma";
 import { limiter } from "@/src/lib/rate-limit";
 import { validateCsrfToken } from "@/src/lib/csrf";
-import { createRole } from "@/src/actions/role.actions";
-import { getRoles } from "@/src/data/role";
+import { createDepartment } from "@/src/actions/department.actions";
+import { getDepartments } from "@/src/data/department";
 
 export async function GET(request: Request) {
   try {
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(10, "ROLES_API_CACHE");
+      await limiter.check(10, "DEPARTMENTS_API_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
     }
 
     // Récupération des rôles
-    const roles = await getRoles();
+    const roles = await getDepartments();
 
     // Réponse avec des headers de cache
     return NextResponse.json(roles, {
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("GET roles error:", error);
+    console.error("GET departments error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(10, "ROLES_CREATE_CACHE");
+      await limiter.check(10, "DEPARTMENTS_CREATE_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
@@ -82,9 +83,9 @@ export async function POST(request: Request) {
     }
 
     // Création du rôle
-    const result = await createRole(formData.data);
+    const result = await createDepartment(formData.data);
 
-    // Gestion des erreurs renvoyées par `createRole`
+    // Gestion des erreurs renvoyées par `createDepartment`
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }

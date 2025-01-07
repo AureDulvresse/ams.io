@@ -1,10 +1,5 @@
 import { db } from "../lib/prisma";
 
-/**
- * Récupère les permissions d'un utilisateur par son ID
- * @param name - Nom du role
- * @returns Liste des codes de permissions ou null en cas d'erreur
- */
 export const getRoleByName = async (name: string) => {
   try {
     // Récupérer les permissions liées au rôle de l'utilisateur
@@ -30,6 +25,9 @@ export async function getRoles() {
           permission: true,
         },
       },
+    },
+    orderBy: {
+      updated_at: "desc",
     },
   });
 }

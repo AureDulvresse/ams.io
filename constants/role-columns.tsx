@@ -28,9 +28,9 @@ export const roleColumns: ColumnDef<Role, any>[] = [
       ),
    },
    {
-      accessorKey: "createdAt",
-      header: "Date de création",
-      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
+      accessorKey: "updatedAt",
+      header: "Dernière mise à jour de création",
+      cell: ({ row }) => row.original.updated_at ? new Date(row.original.updated_at).toLocaleDateString() : new Date(row.original.created_at).toLocaleDateString(),
    },
 ];
 

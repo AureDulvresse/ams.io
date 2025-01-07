@@ -322,7 +322,7 @@ export function DataTable<TData, TValue>({
                            <TableRow>
                               <TableCell
                                  colSpan={columns.length + 1}
-                                 className="h-24 text-center"
+                                 className="h-24 text-center flex items-center justify-center flex-col"
                               >
                                  <Frown className="w-12 h-12 text-muted-foreground" />
                                  <p className="text-lg text-muted-foreground">Aucune donnée à afficher</p>
