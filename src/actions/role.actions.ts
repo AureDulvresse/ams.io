@@ -75,20 +75,53 @@ export async function updateRole(
 
 // Supprimer un rôle
 export async function deleteRole(id: number) {
+  try {
+    const existingRole = await getRoleById(id);
 
-  console.log(id);
-  
-  const existingRole = await getRoleById(id);
+    if (!existingRole) {
+      return {
+        success: false,
+        error: "Ce rôle n'existe pas",
+      };
+    }
 
-  if (!existingRole)
+    // Vérifier si le rôle est utilisé par des utilisateurs
+    const usersWithRole = await db.user.findMany({
+      where: {
+        role_id: existingRole.id,
+      },
+    });
+
+    if (usersWithRole.length > 0) {
+      return {
+        success: false,
+        error:
+          "Ce rôle ne peut pas être supprimé car il est actuellement attribué à des utilisateurs",
+      };
+    }
+
+    // Supprimer d'abord les relations dans la table de liaison role_permissions
+    await db.rolePermission.deleteMany({
+      where: {
+        role_id: id,
+      },
+    });
+
+    // Puis supprimer le rôle
+    const deletedRole = await db.role.delete({
+      where: { id },
+    });
+
+    return {
+      success: true,
+      data: deletedRole,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la suppression du rôle:", error);
     return {
       success: false,
-      error: "Ce rôle ne peut être supprimer car il n'existe pas",
+      error:
+        "Impossible de supprimer ce rôle. Il est peut-être utilisé par d'autres éléments du système.",
     };
-
-  const deletedRole = await db.role.delete({
-    where: { id },
-  });
-
-  return { success: true, data: deletedRole };
+  }
 }

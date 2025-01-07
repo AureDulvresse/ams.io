@@ -154,9 +154,9 @@ const ModalForm = <TFormData extends FieldValues>({
                      </Button>
                      <Button
                         type="submit"
-                        disabled={form.formState.isSubmitting || !form.formState.isDirty}
+                        disabled={form.formState.isSubmitting || !form.formState.isDirty || mutation.isPending}
                      >
-                        {form.formState.isSubmitting ? (
+                        {form.formState.isSubmitting || mutation.isPending ? (
                            <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               {loadingText}

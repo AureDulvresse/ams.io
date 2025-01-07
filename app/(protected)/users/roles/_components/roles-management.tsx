@@ -19,13 +19,16 @@ import { isSuperUser } from "@/src/data/user";
 import AppPageSkeleton from "@/src/components/skeletons/app-page-skeleton";
 import { Role } from "@/src/types/role";
 import ModalForm from "@/src/components/common/modal-form";
-import { createRole, deleteRole } from "@/src/actions/role.actions";
+import { createRole, deleteRole, updateRole } from "@/src/actions/role.actions";
 import { RoleFormFields } from "@/src/forms/role-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { roleSchema } from "@/src/schemas/role.schema";
-import { useDelete, useServerAction } from "@/src/hooks/use-server-action";
+import {
+   useDelete,
+} from "@/src/hooks/use-server-action";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const RoleManagement = ({
    user,
@@ -36,32 +39,36 @@ const RoleManagement = ({
 }: RoleManagementPageProps) => {
    const [activeTab, setActiveTab] = useState("roles");
    const [isAddModalFormOpen, setIsAddModalFormOpen] = useState(false);
+   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
    const roleForm = useForm<z.infer<typeof roleSchema>>();
+   const router = useRouter()
 
    // Mutations
-   const deleteMutation = useServerAction<number>(deleteRole, {
-      onSuccess: (data) => {
+   const deleteMutation = useDelete<number>(deleteRole, {
+      onSuccess: () => {
          toast.success("Rôle supprimé avec succès");
       },
       onError: (error) => {
          toast.error(error.message);
-         console.error('Deletion error:', error);
+         console.error("Deletion error:", error);
       },
       invalidateQueries: ["/api/roles", "list"],
-   }
-   )
+   });
 
    // CRUD handlers
-   const handleView = (role: Role) => {
-      console.log("Viewing role:", role);
-   };
-
    const handleEdit = (role: Role) => {
-      console.log("Editing role:", role);
+      setSelectedRole(role);
+      setIsEditModalOpen(true);
    };
 
-   const handleDelete = async (role: Role) => {
-      deleteMutation.mutate(role.id)
+   const handleView = (role: Role) => {
+      // Redirection vers la page de détail
+      router.push(`/users/roles/${role.id}`);
+   };
+
+   const handleDelete = (role: Role) => {
+      deleteMutation.mutate(role.id);
    };
 
    if (isLoading) return <AppPageSkeleton />;
@@ -95,7 +102,11 @@ const RoleManagement = ({
             </div>
          </div>
 
-         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+         <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-4"
+         >
             <TabsList>
                <TabsTrigger value="roles" className="gap-2">
                   <Shield className="w-4 h-4" />
@@ -162,11 +173,34 @@ const RoleManagement = ({
             title="Créer un rôle"
             defaultValues={{ name: "", description: "", permissionIds: [] }}
             serverAction={createRole}
-            invalidQuery={['/api/roles', 'list']}
+            invalidQuery={["/api/roles", "list"]}
             successMessage="Rôle créé avec succès"
          >
             <RoleFormFields form={roleForm} />
          </ModalForm>
+
+         {/* Modal d'édition */}
+         {selectedRole && (
+            <ModalForm
+               isOpen={isEditModalOpen}
+               onClose={() => {
+                  setIsEditModalOpen(false);
+                  setSelectedRole(null);
+               }}
+               title={`Modifier le rôle: ${selectedRole.name}`}
+               defaultValues={{
+                  name: selectedRole.name,
+                  description: selectedRole.description || "",
+                  permissionIds: selectedRole.permissions ? selectedRole.permissions.map(p => p.permission_id) : []
+               }}
+               serverAction={(data) => updateRole(selectedRole.id, data)}
+               invalidQuery={["/api/roles", "list"]}
+               successMessage="Rôle modifié avec succès"
+            >
+               <RoleFormFields form={roleForm} />
+            </ModalForm>
+         )}
+
       </div>
    );
 };
