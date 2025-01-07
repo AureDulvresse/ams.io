@@ -7,7 +7,7 @@ import {
 } from "../data/department";
 import { db } from "../lib/prisma";
 
-// Créer un department avec au moins une permission
+// Créer un department
 export async function createDepartment(data: {
   name: string;
   code: string;
@@ -62,7 +62,60 @@ export async function updateDepartment(
 
 // Supprimer un department
 export async function deleteDepartment(id: number) {
-  return db.department.delete({
-    where: { id },
-  });
+  try {
+    const existingRole = await getDepartmentById(id);
+
+    if (!existingRole) {
+      return {
+        success: false,
+        error: "Ce departement n'existe pas",
+      };
+    }
+
+    // Vérifier si le deépartement est utilisé par des courses, personel, programmes
+    const coursesWithDepartment = await db.course.findMany({
+      where: {
+        department_id: existingRole.id,
+      },
+    });
+
+    const staffWithDepartment = await db.staff.findMany({
+      where: {
+        department_id: existingRole.id,
+      },
+    });
+
+    const programsWithDepartment = await db.program.findMany({
+      where: {
+        department_id: existingRole.id,
+      },
+    });
+
+    const linkedDepartment = coursesWithDepartment.length > 0 || staffWithDepartment.length > 0 || programsWithDepartment.length > 0;
+
+    if (linkedDepartment) {
+      return {
+        success: false,
+        error:
+          "Ce département ne peut pas être supprimé car il est actuellement attribué à des cours ou un personnel ou encore à un programme",
+      };
+    }
+
+    // Puis supprimer le departement
+    const deletedDepartment = await db.role.delete({
+      where: { id },
+    });
+
+    return {
+      success: true,
+      data: deletedDepartment,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la suppression du rôle:", error);
+    return {
+      success: false,
+      error:
+        "Impossible de supprimer ce rôle. Il est peut-être utilisé par d'autres éléments du système.",
+    };
+  }
 }
