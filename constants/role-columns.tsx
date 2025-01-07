@@ -14,19 +14,19 @@ export const roleColumns: ColumnDef<Role, any>[] = [
       accessorKey: "description",
       header: "Description",
    },
-   {
-      accessorKey: "permissions",
-      header: "Permissions",
-      cell: ({ row }) => (
-         <div className="flex flex-wrap gap-1">
-            {row.original.permissions?.map((permission) => (
-               <Badge key={permission} variant="secondary" className="text-xs">
-                  {permission}
-               </Badge>
-            ))}
-         </div>
-      ),
-   },
+   // {
+   //    accessorKey: "permissions",
+   //    header: "Permissions",
+   //    cell: ({ row }) => (
+   //       <div className="flex flex-wrap gap-1">
+   //          {row.original.permissions?.map((permission) => (
+   //             <Badge key={permission.permission_id} variant="secondary" className="text-xs">
+   //                {permission.permission.name}
+   //             </Badge>
+   //          ))}
+   //       </div>
+   //    ),
+   // },
    {
       accessorKey: "updatedAt",
       header: "Dernière mise à jour de création",
