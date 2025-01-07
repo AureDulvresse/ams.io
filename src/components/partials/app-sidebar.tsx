@@ -19,7 +19,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   if (error) return <ErrorState message={error.message} />;
 
   return (
-    <Sidebar {...props} collapsible="icon">
+    <Sidebar {...props} collapsible="icon" className="z-50">
       <AppSidebarUser user={user} permissions={permissions || []} />
     </Sidebar>
   );
