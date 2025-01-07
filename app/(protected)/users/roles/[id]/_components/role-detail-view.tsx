@@ -26,6 +26,9 @@ import {
    TableHeader,
    TableRow,
 } from "@/src/components/ui/table";
+import ModalConfirm from "@/src/components/common/modal-confirm";
+import { roleSchema } from "@/src/schemas/role.schema";
+import { z } from "zod";
 
 interface RoleDetailViewProps {
    role: Role;
@@ -34,18 +37,7 @@ interface RoleDetailViewProps {
 export default function RoleDetailView({ role }: RoleDetailViewProps) {
    const router = useRouter();
    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-   const form = useForm();
-
-   const updateMutation = useUpdate(updateRole, {
-      onSuccess: () => {
-         toast.success("Rôle mis à jour avec succès");
-         setIsEditModalOpen(false);
-      },
-      onError: (error) => {
-         toast.error(error.message);
-      },
-      invalidateQueries: ["/api/roles", "list", `role-${role.id}`],
-   });
+   const roleForm = useForm<z.infer<typeof roleSchema>>();
 
    const deleteMutation = useDelete(deleteRole, {
       onSuccess: () => {
@@ -58,10 +50,8 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
       invalidateQueries: ["/api/roles", "list"],
    });
 
-   const handleDelete = async () => {
-      if (confirm("Êtes-vous sûr de vouloir supprimer ce rôle ?")) {
-         deleteMutation.mutate(role.id);
-      }
+   const handleDelete = () => {
+      deleteMutation.mutate(role.id);
    };
 
    return (
@@ -84,14 +74,19 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
                   <Edit className="w-4 h-4" />
                   Modifier
                </Button>
-               <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  className="gap-2"
-               >
-                  <Trash2 className="w-4 h-4" />
-                  Supprimer
-               </Button>
+               <ModalConfirm
+                  trigger={
+                     <Button variant="destructive" className="gap-2">
+                        <Trash2 className="w-4 h-4" />
+                        Supprimer
+                     </Button>
+                  }
+                  title="Supprimer le rôle"
+                  description={`Êtes-vous sûr de vouloir supprimer le rôle "${role.name}" ? Cette action est irréversible.`}
+                  confirmText="Supprimer"
+                  cancelText="Annuler"
+                  onConfirm={handleDelete}
+               />
             </div>
          </div>
 
@@ -162,7 +157,7 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
             invalidQuery={["/api/roles", "list", `role-${role.id}`]}
             successMessage="Rôle modifié avec succès"
          >
-            <RoleFormFields form={form} />
+            <RoleFormFields form={roleForm} />
          </ModalForm>
       </div>
    );
