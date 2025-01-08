@@ -570,16 +570,18 @@ export function DataTable<TData, TValue>({
                <div className="grid gap-4 py-4">
                   {selectedRow && (
                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(selectedRow).map(([key, value]) => (
-                           <div key={key} className="space-y-1">
-                              <p className="text-sm font-medium text-muted-foreground">
-                                 {key}
-                              </p>
-                              <p className="text-sm">
-                                 {value === null ? "—" : String(value)}
-                              </p>
-                           </div>
-                        ))}
+                        {Object.entries(selectedRow)
+                           .filter(([key]) => key !== "id") // Exclure la clé "id"
+                           .map(([key, value]) => (
+                              <div key={key} className="space-y-1">
+                                 <p className="text-sm capitalize font-medium text-muted-foreground">
+                                    {key}
+                                 </p>
+                                 <p className="text-sm">
+                                    {value === null ? "—" : String(value)}
+                                 </p>
+                              </div>
+                           ))}
                      </div>
                   )}
                </div>
