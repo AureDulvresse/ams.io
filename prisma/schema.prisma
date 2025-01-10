@@ -342,6 +342,9 @@ model Course {
   description   String?
   credits       Int
   department_id Int
+  status        String
+  archived_at   DateTime
+  archive_reason String
   created_at    DateTime             @default(now())
   updated_at    DateTime             @updatedAt
   department    Department           @relation(fields: [department_id], references: [id])
@@ -350,7 +353,7 @@ model Course {
   teachers      TeacherCourse[]
   classes       Class[]
   materials     CourseMaterial[]
-  subjects       Subject[]
+  subjects      Subject[]
 }
 
 model Subject {
@@ -359,7 +362,7 @@ model Subject {
   name        String
   description String?
   course_id   Int
-  class_id Int
+  class_id    Int
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   courses     Course   @relation(fields: [course_id], references: [id])

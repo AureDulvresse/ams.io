@@ -222,6 +222,7 @@ const CourseManagement = ({
           prerequisites: [],
           
         }}
+        className="overflow-auto max-h-96 grid c"
         serverAction={createCourse}
         invalidQuery={["/api/courses", "list"]}
         successMessage="Cours créé avec succès"

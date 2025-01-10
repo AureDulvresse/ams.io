@@ -6,8 +6,8 @@ import { useList } from "@/src/hooks/use-fetch-data";
 import ErrorState from "@/src/components/common/error-state";
 import Navbar from "@/src/components/partials/navbar";
 import AppPageSkeleton from "@/src/components/skeletons/app-page-skeleton";
-import DepartmentManagement from "./_components/course-management";
 import { Department } from "@/src/types/department";
+import CourseManagement from "./_components/course-management";
 
 const BREADCRUMB_ITEMS = [
    { href: "/", label: "Vue d'ensemble" },
@@ -15,11 +15,11 @@ const BREADCRUMB_ITEMS = [
    { label: "Départements / Services", isCurrent: true },
 ];
 
-export default function DepartmentsPage() {
+export default function CoursesPage() {
    // Récupération des données utilisateur depuis le contexte
    const { user, permissions, isLoading: isLoadingUser, error: userError } = useUserData();
 
-   // Récupération des rôles
+   // Récupération des departments
    const {
       data: departmentsResponse,
       isLoading: isLoadingDepartments,
@@ -40,10 +40,13 @@ export default function DepartmentsPage() {
    return (
       <div>
          <Navbar breadcrumb={BREADCRUMB_ITEMS} />
-         <DepartmentManagement
+         <CourseManagement
             user={user}
             userPermissions={permissions}
-            listItem={departments}
+            listItem={[{
+               courses: [],
+               subjects: [],
+            }]}
             isLoading={isLoading}
             error={error}
          />
