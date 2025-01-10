@@ -171,7 +171,7 @@ model Department {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   code        String    @unique
-  type        String    // academic, administrative, service
+  type        String // academic, administrative, service
   description String?
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
@@ -350,6 +350,19 @@ model Course {
   teachers      TeacherCourse[]
   classes       Class[]
   materials     CourseMaterial[]
+  subjects       Subject[]
+}
+
+model Subject {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique
+  name        String
+  description String?
+  course_id   Int
+  class_id Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  courses     Course   @relation(fields: [course_id], references: [id])
 }
 
 model CoursePrerequisite {
