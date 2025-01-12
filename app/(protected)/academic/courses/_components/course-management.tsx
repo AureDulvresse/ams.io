@@ -220,9 +220,9 @@ const CourseManagement = ({
           description: "",
           credits: 0,
           prerequisites: [],
-          
+
         }}
-        className="overflow-auto max-h-96 grid c"
+        className="overflow-auto max-h-96 grid"
         serverAction={createCourse}
         invalidQuery={["/api/courses", "list"]}
         successMessage="Cours créé avec succès"
@@ -242,10 +242,11 @@ const CourseManagement = ({
           defaultValues={{
             name: selectedCourse.name,
             code: selectedCourse.code,
-            dpartment_id: selectedCourse.department_id,
+            department_id: selectedCourse.department_id,
             description: selectedCourse.description || "",
             credits: selectedCourse.credits,
-            prerequisites: selectedCourse.prerequisites,
+            prerequisites: selectedCourse.prerequisites ? selectedCourse.prerequisites.map((p) => p.prerequisite_id)
+              : []
           }}
           serverAction={(data) => updateCourse(selectedCourse.id, data)}
           invalidQuery={["/api/courses", "list"]}
@@ -284,6 +285,7 @@ const CourseManagement = ({
             name: selectedSubject.name,
             code: selectedSubject.code,
             description: selectedSubject.description || "",
+            course_id: selectedSubject.course_id,
           }}
           serverAction={(data) => updateSubject(selectedSubject.id, data)}
           invalidQuery={["/api/subjects", "list"]}

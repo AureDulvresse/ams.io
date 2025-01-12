@@ -17,7 +17,7 @@ export type MyPageProps = {
   userPermissions: string[] | null;
   isLoading?: boolean;
   error?: Error | null;
-  listItem?: T[];
+  listItem?: T[] | any;
 };
 
 export type MySectionProps = {

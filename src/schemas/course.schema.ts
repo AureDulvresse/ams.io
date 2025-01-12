@@ -37,7 +37,6 @@ export const subjectSchema = z.object({
   course_id: z.number().positive("Veuillez sélectionner un cours"),
 });
 
-
 // Schémas de validation supplémentaires
 export const courseVersionSchema = z.object({
   version: z.string(),
