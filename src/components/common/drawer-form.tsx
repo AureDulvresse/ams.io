@@ -55,7 +55,7 @@ const DrawerForm = <TFormData extends FieldValues>({
    preventCloseOnSuccess = false,
    resetOnClose = true,
    onSuccessCallback,
-   side = 'right',
+   side = 'bottom',
 }: DrawerFormProps<TFormData>): JSX.Element => {
    const form = useForm<TFormData>({
       defaultValues,
