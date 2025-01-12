@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/ta
 import { Course, Subject } from "@/src/types/course";
 import { courseSchema, subjectSchema } from "@/src/schemas/course.schema";
 import { SubjectFormFields } from "@/src/forms/subject-form";
+import SlideOverForm from "@/src/components/common/slide-over-form";
 
 const CourseManagement = ({
   user,
@@ -209,7 +210,7 @@ const CourseManagement = ({
       </Tabs>
 
       {/* Modal d'ajout de cours */}
-      <ModalForm
+      <SlideOverForm
         isOpen={isAddCourseModalOpen}
         onClose={() => setIsAddCourseModalOpen(false)}
         title="Créer un cours"
@@ -228,7 +229,7 @@ const CourseManagement = ({
         successMessage="Cours créé avec succès"
       >
         <CourseFormFields form={courseForm} subjects={[]} />
-      </ModalForm>
+      </SlideOverForm>
 
       {/* Modal d'édition de cours */}
       {selectedCourse && (

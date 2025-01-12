@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { useForm, FieldValues, DefaultValues, UseFormReturn } from 'react-hook-form';
-import { Loader2, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import {
-   Dialog,
-   DialogContent,
-   DialogHeader,
-   DialogTitle,
-   DialogFooter,
-} from '@/src/components/ui/dialog';
+   Sheet,
+   SheetContent,
+   SheetHeader,
+   SheetTitle,
+   SheetFooter,
+   SheetClose,
+} from '@/src/components/ui/sheet';
 import { Button } from '@/src/components/ui/button';
 import { cn } from '@/src/lib/utils';
 import { toast } from 'sonner';
@@ -19,7 +20,7 @@ export type FormComponentProps<TFormData extends FieldValues> = {
    form: UseFormReturn<TFormData>;
 };
 
-export type ModalFormProps<TFormData extends FieldValues> = {
+export type SlideOverFormProps<TFormData extends FieldValues> = {
    isOpen: boolean;
    onClose: () => void;
    title: string;
@@ -35,18 +36,19 @@ export type ModalFormProps<TFormData extends FieldValues> = {
    preventCloseOnSuccess?: boolean;
    resetOnClose?: boolean;
    onSuccessCallback?: (data: any) => void;
-   width?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+   side?: 'left' | 'right';
+   size?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
 };
 
-const ModalForm = <TFormData extends FieldValues>({
+const SlideOverForm = <TFormData extends FieldValues>({
    isOpen,
    onClose,
    title,
    defaultValues,
    children,
-   submitText = "Save",
-   cancelText = "Cancel",
-   loadingText = "Loading...",
+   submitText = "Enregistrer",
+   cancelText = "Annuler",
+   loadingText = "Chargement...",
    successMessage = "Enregistrement effectué",
    serverAction,
    className,
@@ -54,13 +56,13 @@ const ModalForm = <TFormData extends FieldValues>({
    preventCloseOnSuccess = false,
    resetOnClose = true,
    onSuccessCallback,
-   width = 'lg',
-}: ModalFormProps<TFormData>): JSX.Element => {
+   side = 'right',
+   size = 'default',
+}: SlideOverFormProps<TFormData>): JSX.Element => {
    const form = useForm<TFormData>({
       defaultValues,
    });
 
-   // Reset form when modal closes
    useEffect(() => {
       if (!isOpen && resetOnClose) {
          form.reset(defaultValues);
@@ -109,68 +111,71 @@ const ModalForm = <TFormData extends FieldValues>({
       });
    };
 
-   const dialogSizeClass = {
+   const sizeClasses = {
       sm: 'sm:max-w-sm',
-      md: 'sm:max-w-md',
+      default: 'sm:max-w-md',
       lg: 'sm:max-w-lg',
       xl: 'sm:max-w-xl',
-      '2xl': 'sm:max-w-2xl',
-   }[width];
+      full: 'sm:max-w-full',
+   };
+
+   // Coins arrondis en fonction du côté d'ouverture
+   const roundedClasses = side === 'right' ? 'rounded-l-xl' : 'rounded-r-xl';
 
    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-         <DialogContent className={cn(dialogSizeClass, className)}>
-            <DialogHeader>
-               <DialogTitle className="flex items-center justify-between">
-                  {title}
-                  {/* <Button
-                     type="button"
-                     variant="ghost"
-                     className="h-8 w-8 p-0"
-                     onClick={handleClose}
-                     disabled={form.formState.isSubmitting}
-                  >
-                     <X className="h-4 w-4" />
-                  </Button> */}
-               </DialogTitle>
-            </DialogHeader>
+      <Sheet open={isOpen} onOpenChange={handleClose}>
+         <SheetContent
+            side={side}
+            className={cn(
+               "flex flex-col p-0 gap-0 w-full min-h-full h-full",
+               roundedClasses,
+               sizeClasses[size],
+               className
+            )}
+         >
+            <SheetHeader className="px-6 py-4 border-b">
+               <SheetTitle>{title}</SheetTitle>
+            </SheetHeader>
 
             <Form {...form}>
-               <form
-                  onSubmit={form.handleSubmit(handleSubmit)}
-                  className="relative space-y-6"
-                  noValidate
-               >
-                  {enhanceChildrenWithForm(children)}
+               <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col h-full" noValidate>
+                  <div className="flex-1 overflow-y-auto px-6 py-6">
+                     <div className="space-y-6">
+                        {enhanceChildrenWithForm(children)}
+                     </div>
+                  </div>
 
-                  <DialogFooter className="gap-2 pt-4">
-                     <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleClose}
-                        disabled={form.formState.isSubmitting}
-                     >
-                        {cancelText}
-                     </Button>
-                     <Button
-                        type="submit"
-                        disabled={form.formState.isSubmitting || !form.formState.isDirty || mutation.isPending}
-                     >
-                        {form.formState.isSubmitting || mutation.isPending ? (
-                           <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              {loadingText}
-                           </>
-                        ) : (
-                           submitText
-                        )}
-                     </Button>
-                  </DialogFooter>
+                  <SheetFooter className="px-6 py-4 border-t mt-auto">
+                     <div className="flex justify-end gap-3 w-full">
+                        <SheetClose asChild>
+                           <Button
+                              type="button"
+                              variant="outline"
+                              disabled={form.formState.isSubmitting}
+                           >
+                              {cancelText}
+                           </Button>
+                        </SheetClose>
+                        <Button
+                           type="submit"
+                           disabled={form.formState.isSubmitting || !form.formState.isDirty || mutation.isPending}
+                        >
+                           {form.formState.isSubmitting || mutation.isPending ? (
+                              <>
+                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                 {loadingText}
+                              </>
+                           ) : (
+                              submitText
+                           )}
+                        </Button>
+                     </div>
+                  </SheetFooter>
                </form>
             </Form>
-         </DialogContent>
-      </Dialog>
+         </SheetContent>
+      </Sheet>
    );
 };
 
-export default ModalForm;
+export default SlideOverForm;
