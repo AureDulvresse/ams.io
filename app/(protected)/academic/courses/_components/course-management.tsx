@@ -130,10 +130,10 @@ const CourseManagement = ({
         </div>
       </div>
 
-      <Tabs defaultValue="courses" className="w-full">
+      <Tabs defaultValue="subjects" className="w-full">
         <TabsList>
-          <TabsTrigger value="courses">Cours</TabsTrigger>
           <TabsTrigger value="subjects">Matières</TabsTrigger>
+          <TabsTrigger value="courses">Cours</TabsTrigger>
         </TabsList>
 
         <TabsContent value="courses">
