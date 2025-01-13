@@ -95,6 +95,9 @@ model Permission {
   created_at  DateTime         @default(now())
   updated_at  DateTime         @updatedAt
   roles       RolePermission[]
+
+@@map("permissions")
+
 }
 
 model Role {
@@ -105,6 +108,8 @@ model Role {
   updated_at  DateTime         @updatedAt
   users       User[]
   permissions RolePermission[]
+
+  @@map("roles")
 }
 
 model RolePermission {
@@ -114,6 +119,7 @@ model RolePermission {
   permission    Permission @relation(fields: [permission_id], references: [id])
 
   @@id([role_id, permission_id])
+  @@map("role_permissions")
 }
 
 //==================== UTILISATEURS DE L'APPLICATION ====================//
