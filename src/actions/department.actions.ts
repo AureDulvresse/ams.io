@@ -11,7 +11,7 @@ import { db } from "../lib/prisma";
 export async function createDepartment(data: {
   name: string;
   code: string;
-  type: string // "academic" | "administrative" | "service";
+  type: string; // "academic" | "administrative" | "service";
   description?: string | undefined;
 }) {
   const existingDepartment =
@@ -37,7 +37,7 @@ export async function updateDepartment(
   data: {
     name: string;
     code: string;
-    type: string // "academic" | "administrative" | "service";
+    type: string; // "academic" | "administrative" | "service";
     description?: string | undefined;
   }
 ) {
@@ -73,9 +73,9 @@ export async function deleteDepartment(id: number) {
     }
 
     // Vérifier si le deépartement est utilisé par des courses, personel, programmes
-    const coursesWithDepartment = await db.course.findMany({
+    const coursesWithSubject = await db.course.findMany({
       where: {
-        department_id: existingRole.id,
+        subject_id: existingRole.id,
       },
     });
 
@@ -91,7 +91,15 @@ export async function deleteDepartment(id: number) {
       },
     });
 
-    const linkedDepartment = coursesWithDepartment.length > 0 || staffWithDepartment.length > 0 || programsWithDepartment.length > 0;
+    if (coursesWithSubject.length > 0)
+      return {
+        success: false,
+        error:
+          "Ce département ne peut pas être supprimé car il est actuellement attribué à des matières ou des cours",
+      };
+
+    const linkedDepartment =
+      staffWithDepartment.length > 0 || programsWithDepartment.length > 0;
 
     if (linkedDepartment) {
       return {
