@@ -10,46 +10,55 @@ import { Department } from "@/src/types/department";
 import CourseManagement from "./_components/course-management";
 
 const BREADCRUMB_ITEMS = [
-   { href: "/", label: "Vue d'ensemble" },
-   { href: "#", label: "Academie" },
-   { label: "Départements / Services", isCurrent: true },
+  { href: "/", label: "Vue d'ensemble" },
+  { href: "#", label: "Academie" },
+  { label: "Départements / Services", isCurrent: true },
 ];
 
 export default function CoursesPage() {
-   // Récupération des données utilisateur depuis le contexte
-   const { user, permissions, isLoading: isLoadingUser, error: userError } = useUserData();
+  // Récupération des données utilisateur depuis le contexte
+  const {
+    user,
+    permissions,
+    isLoading: isLoadingUser,
+    error: userError,
+  } = useUserData();
 
-   // Récupération des departments
-   const {
-      data: departmentsResponse,
-      isLoading: isLoadingDepartments,
-      error: departmentsError
-   } = useList<Department>('/api/departments');
+  // Récupération des departments
+  const {
+    data: departmentsResponse,
+    isLoading: isLoadingDepartments,
+    error: departmentsError,
+  } = useList<Department>("/api/departments");
 
-   // Gestion du chargement
-   const isLoading = isLoadingUser || isLoadingDepartments;
-   if (isLoading) return <AppPageSkeleton />;
+  // Gestion du chargement
+  const isLoading = isLoadingUser || isLoadingDepartments;
+  if (isLoading) return <AppPageSkeleton />;
 
-   // Gestion des erreurs
-   const error = userError || departmentsError;
-   if (error) return <ErrorState message={error.message} />;
+  // Gestion des erreurs
+  const error = userError || departmentsError;
+  if (error) return <ErrorState message={error.message} />;
 
-   // Extraction des données des réponses
-   const departments = departmentsResponse?.data ?? [];
+  // Extraction des données des réponses
+  const departments = departmentsResponse?.data ?? [];
 
-   return (
-      <div>
-         <Navbar breadcrumb={BREADCRUMB_ITEMS} />
-         <CourseManagement
-            user={user}
-            userPermissions={permissions}
-            listItem={[{
-               courses: [],
-               subjects: [],
-            }]}
-            isLoading={isLoading}
-            error={error}
-         />
-      </div>
-   );
+  return (
+    <div>
+      <Navbar breadcrumb={BREADCRUMB_ITEMS} />
+      <CourseManagement
+        user={user}
+        userPermissions={permissions}
+        listItem={[
+          {
+            courses: [],
+            subjects: [],
+          },
+        ]}
+        isLoading={isLoading}
+        error={error}
+        subjects={[]}
+        departments={[]}
+      />
+    </div>
+  );
 }
