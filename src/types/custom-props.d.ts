@@ -31,3 +31,8 @@ export interface RoleManagementPageProps extends MyPageProps {
   listPermissions: Permission[] | null;
   listRoles: Role[] | null;
 }
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}

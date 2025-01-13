@@ -10,14 +10,18 @@ import {
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
-import { subjectSchema } from "../schemas/course.schema";
+import { subjectSchema } from "@/src/schemas/subject.schema";
+import { MultiSelect } from "../components/common/multi-select";
+import { Department } from "../types/department";
 
 interface SubjectFormFieldsProps {
    form: UseFormReturn<z.infer<typeof subjectSchema>>;
+   departments: Department[];
 }
 
 export const SubjectFormFields: React.FC<SubjectFormFieldsProps> = ({
    form,
+   departments,
 }) => {
    return (
       <div className="space-y-4">
@@ -43,6 +47,28 @@ export const SubjectFormFields: React.FC<SubjectFormFieldsProps> = ({
                   <FormLabel>Code de la matière</FormLabel>
                   <FormControl>
                      <Input placeholder="Ex: MATH" {...field} />
+                  </FormControl>
+                  <FormMessage />
+               </FormItem>
+            )}
+         />
+
+         <FormField
+            control={form.control}
+            name="departmentIds"
+            render={({ field }) => (
+               <FormItem>
+                  <FormLabel>Departements</FormLabel>
+                  <FormControl>
+                     <MultiSelect
+                        options={departments.map((d) => ({
+                           label: d.name,
+                           value: d.id,
+                        }))}
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        placeholder="Sélectionnez un departement"
+                     />
                   </FormControl>
                   <FormMessage />
                </FormItem>

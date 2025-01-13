@@ -165,19 +165,21 @@ model Semester {
   updated_at       DateTime     @updatedAt
   academicYear     AcademicYear @relation(fields: [academic_year_id], references: [id])
   grades           Grade[]
+  Course           Course[]
 }
 
 model Department {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
-  code        String    @unique
+  id          Int                 @id @default(autoincrement())
+  name        String              @unique
+  code        String              @unique
   type        String // academic, administrative, service
   description String?
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
+  created_at  DateTime            @default(now())
+  updated_at  DateTime            @updatedAt
   staff       Staff[]
   courses     Course[]
   programs    Program[]
+  subjects    SubjectDepartment[]
 }
 
 model Program {
@@ -336,37 +338,48 @@ model Leave {
 
 //==================== COURS ET CLASSES ====================//
 model Course {
-  id            Int                  @id @default(autoincrement())
-  code          String               @unique @db.VarChar(20)
-  name          String               @db.VarChar(100)
-  description   String?              @db.VarChar(500)
-  credits       Int                  @db.Integer
-  department_id Int
-  status        String               // active, archived
-  created_at    DateTime             @default(now())
-  updated_at    DateTime             @updatedAt
-  department    Department           @relation(fields: [department_id], references: [id])
-  prerequisites CoursePrerequisite[] @relation("PrerequisiteToCourse")
-  requiredFor   CoursePrerequisite[] @relation("CourseToPrerequisite")
-  teachers      TeacherCourse[]
-  classes       Class[]
-  materials     CourseMaterial[]
-  subjects      Subject[]
-  versions      CourseVersion[]
-  sourceEquivalences CourseEquivalence[] @relation("SourceCourse")
-  targetEquivalences CourseEquivalence[] @relation("TargetCourse")
-  groupMemberships   CourseGroupMembership[]
+  id                    Int                     @id @default(autoincrement())
+  code                  String                  @unique @db.VarChar(20)
+  name                  String                  @db.VarChar(100)
+  description           String?                 @db.VarChar(500)
+  credits               Int                     @db.Integer
+  subject_id            Int
+  status                String // active, archived
+  semester_id           Int
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+  subject               Department              @relation(fields: [subject_id], references: [id])
+  semester              Semester                @relation(fields: [semester_id], references: [id])
+  prerequisites         CoursePrerequisite[]    @relation("PrerequisiteToCourse")
+  requiredFor           CoursePrerequisite[]    @relation("CourseToPrerequisite")
+  teachers              TeacherCourse[]
+  classes               Class[]
+  materials             CourseMaterial[]
+  versions              CourseVersion[]
+  sourceEquivalences    CourseEquivalence[]     @relation("SourceCourse")
+  targetEquivalences    CourseEquivalence[]     @relation("TargetCourse")
+  groupMemberships      CourseGroupMembership[]
   enrollmentConstraints EnrollmentConstraint[]
 }
+
 model Subject {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique @db.VarChar(20)
-  name        String   @db.VarChar(100)
-  description String?  @db.VarChar(500)
-  course_id   Int
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  course      Course   @relation(fields: [course_id], references: [id])
+  id          Int                 @id @default(autoincrement())
+  code        String              @unique @db.VarChar(20)
+  name        String              @unique @db.VarChar(100)
+  description String?             @db.VarChar(500)
+  created_at  DateTime            @default(now())
+  updated_at  DateTime            @updatedAt
+  departments SubjectDepartment[]
+}
+
+model SubjectDepartment {
+  id            Int        @id @default(autoincrement())
+  subject_id    Int
+  department_id Int
+  Subject       Subject    @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  department    Department @relation(fields: [department_id], references: [id], onDelete: Cascade)
+
+  @@unique([subject_id, department_id])
 }
 
 // Nouveau modèle pour les versions de cours
@@ -382,10 +395,10 @@ model CourseVersion {
 
 // Nouveau modèle pour les équivalences de cours
 model CourseEquivalence {
-  id                Int      @id @default(autoincrement())
-  source_course_id  Int
-  target_course_id  Int
-  equivalence_type  String   @db.VarChar(20) // 'full' ou 'partial'
+  id               Int      @id @default(autoincrement())
+  source_course_id Int
+  target_course_id Int
+  equivalence_type String   @db.VarChar(20) // 'full' ou 'partial'
   notes            String?
   created_at       DateTime @default(now())
   sourceCourse     Course   @relation("SourceCourse", fields: [source_course_id], references: [id])
@@ -394,42 +407,42 @@ model CourseEquivalence {
 
 // Nouveau modèle pour les groupes de cours
 model CourseGroup {
-  id          Int      @id @default(autoincrement())
+  id          Int                     @id @default(autoincrement())
   name        String
   description String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at  DateTime                @default(now())
+  updated_at  DateTime                @updatedAt
   courses     CourseGroupMembership[]
 }
 
 model CourseGroupMembership {
-  course_id      Int
-  group_id       Int
-  created_at     DateTime    @default(now())
-  course         Course      @relation(fields: [course_id], references: [id])
-  group          CourseGroup @relation(fields: [group_id], references: [id])
+  course_id  Int
+  group_id   Int
+  created_at DateTime    @default(now())
+  course     Course      @relation(fields: [course_id], references: [id])
+  group      CourseGroup @relation(fields: [group_id], references: [id])
 
   @@id([course_id, group_id])
 }
 
 // Nouveau modèle pour les contraintes d'inscription
 model EnrollmentConstraint {
-  id                          Int      @id @default(autoincrement())
-  course_id                   Int
-  min_grade                   Float?
-  min_credits                 Int?
-  max_students               Int?
-  prerequisites_validation_rule String? @db.VarChar(20) // 'all' ou 'any'
-  created_at                  DateTime @default(now())
-  updated_at                  DateTime @updatedAt
-  course                      Course   @relation(fields: [course_id], references: [id])
-  required_courses            RequiredCourse[]
+  id                            Int              @id @default(autoincrement())
+  course_id                     Int
+  min_grade                     Float?
+  min_credits                   Int?
+  max_students                  Int?
+  prerequisites_validation_rule String?          @db.VarChar(20) // 'all' ou 'any'
+  created_at                    DateTime         @default(now())
+  updated_at                    DateTime         @updatedAt
+  course                        Course           @relation(fields: [course_id], references: [id])
+  required_courses              RequiredCourse[]
 }
 
 model RequiredCourse {
   constraint_id Int
   course_id     Int
-  created_at    DateTime            @default(now())
+  created_at    DateTime             @default(now())
   constraint    EnrollmentConstraint @relation(fields: [constraint_id], references: [id])
 
   @@id([constraint_id, course_id])

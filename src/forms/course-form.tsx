@@ -18,7 +18,7 @@ import {
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
 import { courseSchema } from "../schemas/course.schema";
-import { Subject } from "../types/course";
+import { Subject } from "../types/subject";
 import { MultiSelect } from "../components/common/multi-select";
 
 interface CourseFormFieldsProps {
@@ -62,7 +62,7 @@ export const CourseFormFields: React.FC<CourseFormFieldsProps> = ({
 
          <FormField
             control={form.control}
-            name="department_id"
+            name="subject_id"
             render={({ field }) => (
                <FormItem>
                   <FormLabel>Matière</FormLabel>

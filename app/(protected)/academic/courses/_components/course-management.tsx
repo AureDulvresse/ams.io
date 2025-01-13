@@ -233,7 +233,7 @@ const CourseManagement = ({
 
       {/* Modal d'édition de cours */}
       {selectedCourse && (
-        <ModalForm
+        <SlideOverForm
           isOpen={isEditCourseModalOpen}
           onClose={() => {
             setIsEditCourseModalOpen(false);
@@ -254,7 +254,7 @@ const CourseManagement = ({
           successMessage="Cours modifié avec succès"
         >
           <CourseFormFields form={courseForm} subjects={[]} />
-        </ModalForm>
+        </SlideOverForm>
       )}
 
       {/* Modales pour les matières - similaires aux modales de cours */}
