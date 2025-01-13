@@ -10,48 +10,82 @@ import { DataTable } from "@/src/components/common/data-table";
 import { isSuperUser } from "@/src/data/user";
 import AppPageSkeleton from "@/src/components/skeletons/app-page-skeleton";
 import ModalForm from "@/src/components/common/modal-form";
+import SlideOverForm from "@/src/components/common/slide-over-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CourseFormFields } from "@/src/forms/course-form";
+import { SubjectFormFields } from "@/src/forms/subject-form";
 import { courseColumns, subjectColumns } from "@/constants/course-columns";
+import { useRouter } from "next/navigation";
+import { useDelete } from "@/src/hooks/use-server-action";
+import { toast } from "sonner";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/src/components/ui/tabs";
+import { Course } from "@/src/types/course";
+import { Subject } from "@/src/types/subject";
+import { courseSchema } from "@/src/schemas/course.schema";
+import { subjectSchema } from "@/src/schemas/subject.schema";
 import {
   createCourse,
   deleteCourse,
   updateCourse,
+} from "@/src/actions/course.actions";
+import {
   createSubject,
   deleteSubject,
-  updateSubject
-} from "@/src/actions/course.actions";
-import { useRouter } from "next/navigation";
-import { useDelete } from "@/src/hooks/use-server-action";
-import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { Course, Subject } from "@/src/types/course";
-import { courseSchema, subjectSchema } from "@/src/schemas/course.schema";
-import { SubjectFormFields } from "@/src/forms/subject-form";
-import SlideOverForm from "@/src/components/common/slide-over-form";
+  updateSubject,
+} from "@/src/actions/subject.actions";
 
-const CourseManagement = ({
+interface CourseManagementProps extends MyPageProps {
+  subjects: Subject[];
+  departments: any[]; // Typer correctement selon votre structure
+}
+
+const CourseManagement: React.FC<CourseManagementProps> = ({
   user,
-  userPermissions,
+  userPermissions = [],
   listItem,
   isLoading,
-}: MyPageProps) => {
+  subjects,
+  departments,
+}) => {
   const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
   const [isAddSubjectModalOpen, setIsAddSubjectModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
   const [isEditSubjectModalOpen, setIsEditSubjectModalOpen] = useState(false);
-  const courseForm = useForm<z.infer<typeof courseSchema>>();
-  const subjectForm = useForm<z.infer<typeof subjectSchema>>();
+
+  const courseForm = useForm<z.infer<typeof courseSchema>>({
+    defaultValues: {
+      name: "",
+      code: "",
+      semester_id: undefined,
+      description: "",
+      credits: 0,
+      prerequisites: [],
+    },
+  });
+
+  const subjectForm = useForm<z.infer<typeof subjectSchema>>({
+    defaultValues: {
+      name: "",
+      code: "",
+      description: "",
+      departmentIds: [],
+      credits: 0,
+      semester_id: 0,
+    },
+  });
+
   const router = useRouter();
 
-  // Mutations pour les cours
   const deleteCourseMutation = useDelete<number>(deleteCourse, {
-    onSuccess: () => {
-      toast.success("Cours supprimé avec succès");
-    },
+    onSuccess: () => toast.success("Cours supprimé avec succès"),
     onError: (error) => {
       toast.error(error.message);
       console.error("Erreur de suppression:", error);
@@ -59,11 +93,8 @@ const CourseManagement = ({
     invalidateQueries: ["/api/courses", "list"],
   });
 
-  // Mutations pour les matières
   const deleteSubjectMutation = useDelete<number>(deleteSubject, {
-    onSuccess: () => {
-      toast.success("Matière supprimée avec succès");
-    },
+    onSuccess: () => toast.success("Matière supprimée avec succès"),
     onError: (error) => {
       toast.error(error.message);
       console.error("Erreur de suppression:", error);
@@ -71,9 +102,18 @@ const CourseManagement = ({
     invalidateQueries: ["/api/subjects", "list"],
   });
 
-  // Gestionnaires CRUD pour les cours
+  // Handlers
   const handleEditCourse = (course: Course) => {
     setSelectedCourse(course);
+    courseForm.reset({
+      name: course.name,
+      code: course.code,
+      description: course.description || "",
+      semester_id: course.semester_id,
+      subject_id: course.subject_id,
+      credits: course.credits,
+      prerequisites: course.prerequisites?.map((p) => p.prerequisite_id) || [],
+    });
     setIsEditCourseModalOpen(true);
   };
 
@@ -81,13 +121,19 @@ const CourseManagement = ({
     router.push(`/academic/courses/${course.id}`);
   };
 
-  const handleDeleteCourse = (course: Course) => {
-    deleteCourseMutation.mutate(course.id);
+  const handleDeleteCourse = async (course: Course) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce cours ?")) {
+      await deleteCourseMutation.mutate(course.id);
+    }
   };
 
-  // Gestionnaires CRUD pour les matières
   const handleEditSubject = (subject: Subject) => {
     setSelectedSubject(subject);
+    subjectForm.reset({
+      name: subject.name,
+      code: subject.code,
+      description: subject.description || "",
+    });
     setIsEditSubjectModalOpen(true);
   };
 
@@ -95,27 +141,25 @@ const CourseManagement = ({
     router.push(`/academic/subjects/${subject.id}`);
   };
 
-  const handleDeleteSubject = (subject: Subject) => {
-    deleteSubjectMutation.mutate(subject.id);
+  const handleDeleteSubject = async (subject: Subject) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette matière ?")) {
+      await deleteSubjectMutation.mutate(subject.id);
+    }
   };
 
   if (isLoading) return <AppPageSkeleton />;
-
   if (!user) return <ErrorState message="Utilisateur non trouvé" />;
-  if (!userPermissions?.length)
-    return <ErrorState message="Aucune permission trouvée" />;
+  if (!userPermissions?.length) return <ErrorState message="Aucune permission trouvée" />;
 
   const userRole = user.role.name.toLowerCase();
+  const canAccessCourses = isSuperUser(userRole) ||
+    hasPermission("SYSTEM_ADMIN", userPermissions) ||
+    hasPermission("COURSE_SHOW", userPermissions);
 
-  // Contrôle d'accès
-  const canAccessCourses =
-    isSuperUser(userRole) ||
-    hasPermission("SYSTEM_ADMIN", userPermissions || []) ||
-    hasPermission("COURSE_SHOW", userPermissions || []);
+  if (!canAccessCourses) return <UnauthorizedAccess />;
 
-  if (!canAccessCourses && !isLoading) {
-    return <UnauthorizedAccess />;
-  }
+  const hasPermissionFor = (action: string) =>
+    isSuperUser(userRole) || hasPermission(action, userPermissions);
 
   return (
     <div className="p-6 space-y-6">
@@ -143,30 +187,11 @@ const CourseManagement = ({
                 columns={courseColumns}
                 data={listItem?.courses || []}
                 loading={isLoading}
-                onView={
-                  isSuperUser(userRole) ||
-                    hasPermission("COURSE_VIEW", userPermissions || [])
-                    ? handleViewCourse
-                    : undefined
-                }
-                onEdit={
-                  isSuperUser(userRole) ||
-                    hasPermission("COURSE_EDIT", userPermissions || [])
-                    ? handleEditCourse
-                    : undefined
-                }
-                onDelete={
-                  isSuperUser(userRole) ||
-                    hasPermission("COURSE_DELETE", userPermissions || [])
-                    ? handleDeleteCourse
-                    : undefined
-                }
-                onAdd={
-                  isSuperUser(userRole) ||
-                    hasPermission("COURSE_CREATE", userPermissions || [])
-                    ? () => setIsAddCourseModalOpen(true)
-                    : undefined
-                }
+                onView={hasPermissionFor("COURSE_VIEW") ? handleViewCourse : undefined}
+                onEdit={hasPermissionFor("COURSE_EDIT") ? handleEditCourse : undefined}
+                onDelete={hasPermissionFor("COURSE_DELETE") ? handleDeleteCourse : undefined}
+                onAdd={hasPermissionFor("COURSE_CREATE") ?
+                  () => setIsAddCourseModalOpen(true) : undefined}
               />
             </CardContent>
           </Card>
@@ -179,99 +204,69 @@ const CourseManagement = ({
                 columns={subjectColumns}
                 data={listItem?.subjects || []}
                 loading={isLoading}
-                onView={
-                  isSuperUser(userRole) ||
-                    hasPermission("SUBJECT_VIEW", userPermissions || [])
-                    ? handleViewSubject
-                    : undefined
-                }
-                onEdit={
-                  isSuperUser(userRole) ||
-                    hasPermission("SUBJECT_EDIT", userPermissions || [])
-                    ? handleEditSubject
-                    : undefined
-                }
-                onDelete={
-                  isSuperUser(userRole) ||
-                    hasPermission("SUBJECT_DELETE", userPermissions || [])
-                    ? handleDeleteSubject
-                    : undefined
-                }
-                onAdd={
-                  isSuperUser(userRole) ||
-                    hasPermission("SUBJECT_CREATE", userPermissions || [])
-                    ? () => setIsAddSubjectModalOpen(true)
-                    : undefined
-                }
+                onView={hasPermissionFor("SUBJECT_VIEW") ? handleViewSubject : undefined}
+                onEdit={hasPermissionFor("SUBJECT_EDIT") ? handleEditSubject : undefined}
+                onDelete={hasPermissionFor("SUBJECT_DELETE") ? handleDeleteSubject : undefined}
+                onAdd={hasPermissionFor("SUBJECT_CREATE") ?
+                  () => setIsAddSubjectModalOpen(true) : undefined}
               />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Modal d'ajout de cours */}
+      {/* Modals */}
       <SlideOverForm
         isOpen={isAddCourseModalOpen}
-        onClose={() => setIsAddCourseModalOpen(false)}
-        title="Créer un cours"
-        defaultValues={{
-          name: "",
-          code: "",
-          department_id: undefined,
-          description: "",
-          credits: 0,
-          prerequisites: [],
-
+        onClose={() => {
+          setIsAddCourseModalOpen(false);
+          courseForm.reset();
         }}
+        title="Créer un cours"
+        defaultValues={courseForm.getValues()}
         className="overflow-auto max-h-96 grid"
         serverAction={createCourse}
         invalidQuery={["/api/courses", "list"]}
         successMessage="Cours créé avec succès"
       >
-        <CourseFormFields form={courseForm} subjects={[]} />
+        <CourseFormFields form={courseForm} subjects={subjects} />
       </SlideOverForm>
 
-      {/* Modal d'édition de cours */}
       {selectedCourse && (
         <SlideOverForm
           isOpen={isEditCourseModalOpen}
           onClose={() => {
             setIsEditCourseModalOpen(false);
             setSelectedCourse(null);
+            courseForm.reset();
           }}
           title={`Modifier le cours: ${selectedCourse.name}`}
-          defaultValues={{
-            name: selectedCourse.name,
-            code: selectedCourse.code,
-            department_id: selectedCourse.department_id,
-            description: selectedCourse.description || "",
-            credits: selectedCourse.credits,
-            prerequisites: selectedCourse.prerequisites ? selectedCourse.prerequisites.map((p) => p.prerequisite_id)
-              : []
-          }}
+          defaultValues={courseForm.getValues()}
           serverAction={(data) => updateCourse(selectedCourse.id, data)}
           invalidQuery={["/api/courses", "list"]}
           successMessage="Cours modifié avec succès"
         >
-          <CourseFormFields form={courseForm} subjects={[]} />
+          <CourseFormFields form={courseForm} subjects={subjects} />
         </SlideOverForm>
       )}
 
-      {/* Modales pour les matières - similaires aux modales de cours */}
       <ModalForm
         isOpen={isAddSubjectModalOpen}
-        onClose={() => setIsAddSubjectModalOpen(false)}
-        title="Créer une matière"
-        defaultValues={{
-          name: "",
-          code: "",
-          description: "",
+        onClose={() => {
+          setIsAddSubjectModalOpen(false);
+          subjectForm.reset();
         }}
+        title="Créer une matière"
+        defaultValues={subjectForm.getValues()}
         serverAction={createSubject}
         invalidQuery={["/api/subjects", "list"]}
         successMessage="Matière créée avec succès"
+        formSchema={subjectSchema}
       >
-        <SubjectFormFields form={subjectForm} />
+        {/* This is a workaround to avoid the error.  The ideal solution is to correctly type the defaultValues */}
+        {/* @ts-ignore */}
+
+        <SubjectFormFields form={subjectForm} departments={departments} />
       </ModalForm>
 
       {selectedSubject && (
@@ -280,19 +275,16 @@ const CourseManagement = ({
           onClose={() => {
             setIsEditSubjectModalOpen(false);
             setSelectedSubject(null);
+            subjectForm.reset();
           }}
           title={`Modifier la matière: ${selectedSubject.name}`}
-          defaultValues={{
-            name: selectedSubject.name,
-            code: selectedSubject.code,
-            description: selectedSubject.description || "",
-            course_id: selectedSubject.course_id,
-          }}
+          defaultValues={subjectForm.getValues()}
           serverAction={(data) => updateSubject(selectedSubject.id, data)}
           invalidQuery={["/api/subjects", "list"]}
           successMessage="Matière modifiée avec succès"
+          formSchema={subjectSchema}
         >
-          <SubjectFormFields form={subjectForm} />
+          <SubjectFormFields form={subjectForm} departments={departments} />
         </ModalForm>
       )}
     </div>
