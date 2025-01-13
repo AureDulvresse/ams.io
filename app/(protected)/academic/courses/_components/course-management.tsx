@@ -39,10 +39,11 @@ import {
   deleteSubject,
   updateSubject,
 } from "@/src/actions/subject.actions";
+import { Department } from "@/src/types/department";
 
 interface CourseManagementProps extends MyPageProps {
   subjects: Subject[];
-  departments: any[]; // Typer correctement selon votre structure
+  departments: Department[];
 }
 
 const CourseManagement: React.FC<CourseManagementProps> = ({
