@@ -21,6 +21,7 @@ Le format suit les conventions de [Keep a Changelog](https://keepachangelog.com/
 - Refactorisation du système de gestion des rôles pour plus de flexibilité.
 - Mise à jour de la documentation d’installation dans le fichier README.md.
 - API And Course and Subject Updated
+- Mise à jour de la base de donnée
 
 ---
 
