@@ -64,9 +64,10 @@ const CourseManagement: React.FC<CourseManagementProps> = ({
     defaultValues: {
       name: "",
       code: "",
-      semester_id: undefined,
       description: "",
       credits: 0,
+      semester_id: undefined,
+      subject_id: undefined,
       prerequisites: [],
     },
   });
@@ -77,8 +78,6 @@ const CourseManagement: React.FC<CourseManagementProps> = ({
       code: "",
       description: "",
       departmentIds: [],
-      credits: 0,
-      semester_id: 0,
     },
   });
 
@@ -261,11 +260,7 @@ const CourseManagement: React.FC<CourseManagementProps> = ({
         serverAction={createSubject}
         invalidQuery={["/api/subjects", "list"]}
         successMessage="Matière créée avec succès"
-        formSchema={subjectSchema}
       >
-        {/* This is a workaround to avoid the error.  The ideal solution is to correctly type the defaultValues */}
-        {/* @ts-ignore */}
-
         <SubjectFormFields form={subjectForm} departments={departments} />
       </ModalForm>
 
@@ -282,7 +277,6 @@ const CourseManagement: React.FC<CourseManagementProps> = ({
           serverAction={(data) => updateSubject(selectedSubject.id, data)}
           invalidQuery={["/api/subjects", "list"]}
           successMessage="Matière modifiée avec succès"
-          formSchema={subjectSchema}
         >
           <SubjectFormFields form={subjectForm} departments={departments} />
         </ModalForm>
