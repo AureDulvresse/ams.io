@@ -17,10 +17,10 @@ export const courseSchema = z.object({
     .number()
     .min(0, "Le nombre de crédits ne peut pas être négatif")
     .max(100, "Le nombre de crédits ne peut pas dépasser 100"),
+  semester_id: z.number(),
   subject_id: z.number().positive("Veuillez sélectionner un département"),
   prerequisites: z.array(z.number()).optional(),
 });
-
 // Schémas de validation supplémentaires
 export const courseVersionSchema = z.object({
   version: z.string(),

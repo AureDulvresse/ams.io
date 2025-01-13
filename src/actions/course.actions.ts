@@ -3,82 +3,59 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/src/lib/prisma";
 import { z } from "zod";
-import {
-  courseEquivalenceSchema,
-  courseGroupSchema,
-  courseSchema,
-  courseVersionSchema,
-  enrollmentConstraintSchema,
-} from "../schemas/course.schema";
-import { PaginationParams } from "../types/custom-props";
+import { courseSchema } from "../schemas/course.schema";
 
-export interface SearchCoursesParams extends PaginationParams {
-  query?: string;
-  subject_id?: number;
-  status?: string;
-  creditRange?: { min?: number; max?: number };
-  level?: string;
-  hasPrerequisites?: boolean;
-  teacher_id?: number;
-  groupId?: number;
-}
-
-class ActionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ActionError";
-  }
-}
-
-// Validation helper
-async function validateDepartment(id: number) {
-  const department = await db.department.findUnique({
-    where: { id },
+// Helper functions
+async function getSubjectByCode(code: string) {
+  return await db.subject.findFirst({
+    where: { code },
   });
-
-  if (!department) {
-    throw new ActionError("Le département sélectionné n'existe pas");
-  }
-
-  return department;
 }
 
+async function getSubjectByName(name: string) {
+  return await db.subject.findFirst({
+    where: { name },
+  });
+}
+
+async function getCourseByCode(code: string) {
+  return await db.course.findFirst({
+    where: { code },
+  });
+}
+
+async function getCourseByName(name: string) {
+  return await db.course.findFirst({
+    where: { name },
+  });
+}
+
+// Course actions
 export async function createCourse(data: z.infer<typeof courseSchema>) {
   try {
     const validatedData = courseSchema.parse(data);
     const { prerequisites, ...courseData } = validatedData;
 
-    await validateDepartment(courseData.subject_id);
+    // Vérifier si le cours existe déjà
+    const existingCourseByCode = await getCourseByCode(courseData.code);
+    if (existingCourseByCode) {
+      return { success: false, error: "Un cours avec ce code existe déjà" };
+    }
 
-    const existingCourse = await db.course.findFirst({
-      where: {
-        OR: [{ code: courseData.code }, { name: courseData.name }],
-      },
+    const existingCourseByName = await getCourseByName(courseData.name);
+    if (existingCourseByName) {
+      return { success: false, error: "Un cours avec ce nom existe déjà" };
+    }
+
+    // Vérifier l'existence de la matière
+    const subject = await db.subject.findUnique({
+      where: { id: courseData.subject_id },
     });
 
-    if (existingCourse) {
-      if (existingCourse.code === courseData.code) {
-        throw new ActionError("Un cours avec ce code existe déjà");
-      }
-      throw new ActionError("Un cours avec ce nom existe déjà");
+    if (!subject) {
+      return { success: false, error: "La matière sélectionnée n'existe pas" };
     }
 
-    // Vérifier l'existence des prérequis
-    if (prerequisites?.length) {
-      const prerequisitesCourses = await db.course.findMany({
-        where: {
-          id: {
-            in: prerequisites,
-          },
-        },
-      });
-
-      if (prerequisitesCourses.length !== prerequisites.length) {
-        throw new ActionError("Certains cours prérequis n'existent pas");
-      }
-    }
-
-    // Utiliser une transaction
     const course = await db.$transaction(async (tx) => {
       const newCourse = await tx.course.create({
         data: {
@@ -96,7 +73,7 @@ export async function createCourse(data: z.infer<typeof courseSchema>) {
         });
       }
 
-      return tx.course.findUnique({
+      return await tx.course.findUnique({
         where: { id: newCourse.id },
         include: {
           prerequisites: {
@@ -104,7 +81,8 @@ export async function createCourse(data: z.infer<typeof courseSchema>) {
               prerequisite: true,
             },
           },
-          department: true,
+          subject: true,
+          semester: true,
         },
       });
     });
@@ -112,240 +90,131 @@ export async function createCourse(data: z.infer<typeof courseSchema>) {
     revalidatePath("/academic/courses");
     return { success: true, data: course };
   } catch (error) {
+    console.error("Erreur lors de la création du cours:", error);
     if (error instanceof z.ZodError) {
-      throw new ActionError("Données de formulaire invalides");
+      return { success: false, error: "Données de formulaire invalides" };
     }
-    if (error instanceof ActionError) {
-      throw error;
-    }
-    throw new ActionError("Erreur lors de la création du cours");
+    return { success: false, error: "Erreur lors de la création du cours" };
   }
 }
 
-// Valider les prérequis d'un étudiant pour un cours
-export async function validatePrerequisites(
-  studentId: number,
-  courseId: number
-): Promise<{
-  isValid: boolean;
-  missingPrerequisites?: Array<{ id: number; name: string; grade?: number }>;
-  message: string;
-}> {
+export async function updateCourse(
+  id: number,
+  data: z.infer<typeof courseSchema>
+) {
   try {
-    // Vérifier l'existence de l'étudiant
-    const student = await db.student.findUnique({
-      where: { id: studentId },
+    const validatedData = courseSchema.parse(data);
+    const { prerequisites, ...courseData } = validatedData;
+
+    const existingCourse = await db.course.findUnique({
+      where: { id },
     });
 
-    if (!student) {
-      throw new ActionError("Étudiant non trouvé");
+    if (!existingCourse) {
+      return {
+        success: false,
+        error: "Ce cours ne peut être modifié car il n'existe pas",
+      };
     }
 
-    const [course, studentGrades] = await Promise.all([
-      db.course.findUnique({
-        where: { id: courseId },
+    // Vérifier les doublons seulement si le nom ou le code a changé
+    if (existingCourse.code !== courseData.code) {
+      const duplicateCode = await getCourseByCode(courseData.code);
+      if (duplicateCode) {
+        return { success: false, error: "Un cours avec ce code existe déjà" };
+      }
+    }
+
+    if (existingCourse.name !== courseData.name) {
+      const duplicateName = await getCourseByName(courseData.name);
+      if (duplicateName) {
+        return { success: false, error: "Un cours avec ce nom existe déjà" };
+      }
+    }
+
+    const course = await db.$transaction(async (tx) => {
+      // Mettre à jour le cours
+      const updatedCourse = await tx.course.update({
+        where: { id },
+        data: {
+          ...courseData,
+          prerequisites: {
+            deleteMany: {}, // Supprime tous les prérequis existants
+            create: prerequisites?.map((prerequisiteId) => ({
+              prerequisite_id: prerequisiteId,
+            })),
+          },
+        },
         include: {
           prerequisites: {
             include: {
               prerequisite: true,
             },
           },
-          enrollmentConstraints: {
-            include: {
-              required_courses: true,
-            },
-          },
+          subject: true,
+          semester: true,
         },
-      }),
-      db.grade.findMany({
-        where: {
-          enrollment: {
-            student_id: studentId,
-          },
-        },
-        include: {
-          enrollment: {
-            include: {
-              class: true,
-            },
-          },
-        },
-      }),
-    ]);
+      });
 
-    if (!course) {
-      throw new ActionError("Cours non trouvé");
-    }
+      return updatedCourse;
+    });
 
-    const constraints = course.enrollmentConstraints?.[0];
-    const validationRule = constraints?.prerequisites_validation_rule || "all";
-    const minGrade = constraints?.min_grade || 0;
-
-    const prerequisites = course.prerequisites.map((p) => p.prerequisite);
-    const missingPrerequisites: Array<{
-      id: number;
-      name: string;
-      grade?: number;
-    }> = [];
-
-    let prerequisitesValid = validationRule === "any" ? false : true;
-
-    for (const prerequisite of prerequisites) {
-      const grade = studentGrades.find(
-        (g) => g.enrollment.class_id === prerequisite.id
-      );
-
-      if (!grade || grade.final_grade < minGrade) {
-        missingPrerequisites.push({
-          id: prerequisite.id,
-          name: prerequisite.name,
-          grade: grade?.final_grade,
-        });
-
-        if (validationRule === "all") {
-          prerequisitesValid = false;
-        }
-      } else if (validationRule === "any") {
-        prerequisitesValid = true;
-        break;
-      }
-    }
-
-    // Vérifier les cours requis additionnels
-    if (constraints?.required_courses.length) {
-      for (const requiredCourse of constraints.required_courses) {
-        const grade = studentGrades.find(
-          (g) => g.enrollment.class_id === requiredCourse.course_id
-        );
-
-        if (!grade || grade.final_grade < minGrade) {
-          const course = await db.course.findUnique({
-            where: { id: requiredCourse.course_id },
-          });
-
-          if (course) {
-            missingPrerequisites.push({
-              id: course.id,
-              name: course.name,
-              grade: grade?.final_grade,
-            });
-          }
-          prerequisitesValid = false;
-        }
-      }
-    }
-
-    return {
-      isValid: prerequisitesValid,
-      missingPrerequisites:
-        missingPrerequisites.length > 0 ? missingPrerequisites : undefined,
-      message: prerequisitesValid
-        ? "Tous les prérequis sont validés"
-        : "Certains prérequis ne sont pas validés",
-    };
+    revalidatePath("/academic/courses");
+    return { success: true, data: course };
   } catch (error) {
-    if (error instanceof ActionError) {
-      throw error;
+    console.error("Erreur lors de la mise à jour du cours:", error);
+    if (error instanceof z.ZodError) {
+      return { success: false, error: "Données de formulaire invalides" };
     }
-    throw new ActionError("Erreur lors de la validation des prérequis");
+    return { success: false, error: "Erreur lors de la mise à jour du cours" };
   }
 }
 
-// Recherche avancée de cours avec typage amélioré
-export async function searchCourses(params: SearchCoursesParams) {
+export async function deleteCourse(id: number) {
   try {
-    const {
-      query,
-      department_id,
-      status,
-      creditRange,
-      level,
-      hasPrerequisites,
-      teacher_id,
-      groupId,
-      page = 1,
-      limit = 10,
-    } = params;
-
-    const where: any = {};
-
-    if (query) {
-      where.OR = [
-        { name: { contains: query, mode: "insensitive" } },
-        { code: { contains: query, mode: "insensitive" } },
-        { description: { contains: query, mode: "insensitive" } },
-      ];
-    }
-
-    if (department_id) {
-      where.department_id = department_id;
-    }
-
-    if (status) {
-      where.status = status;
-    }
-
-    if (level) {
-      where.level = level;
-    }
-
-    if (creditRange) {
-      where.credits = {
-        ...(creditRange.min !== undefined && { gte: creditRange.min }),
-        ...(creditRange.max !== undefined && { lte: creditRange.max }),
-      };
-    }
-
-    if (hasPrerequisites !== undefined) {
-      where.prerequisites = {
-        [hasPrerequisites ? "some" : "none"]: {},
-      };
-    }
-
-    if (teacher_id) {
-      where.teachers = {
-        some: { teacher_id },
-      };
-    }
-
-    if (groupId) {
-      where.groups = {
-        some: { group_id: groupId },
-      };
-    }
-
-    const [courses, total] = await Promise.all([
-      db.course.findMany({
-        where,
-        include: {
-          department: true,
-          prerequisites: {
-            include: {
-              prerequisite: true,
-            },
-          },
-          teachers: true,
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { name: "asc" },
-      }),
-      db.course.count({ where }),
-    ]);
-
-    return {
-      success: true,
-      data: {
-        courses,
-        pagination: {
-          total,
-          pages: Math.ceil(total / limit),
-          current: page,
-          limit,
-        },
+    const existingCourse = await db.course.findUnique({
+      where: { id },
+      include: {
+        prerequisites: true,
+        classes: true,
       },
-    };
+    });
+
+    if (!existingCourse) {
+      return {
+        success: false,
+        error: "Ce cours n'existe pas",
+      };
+    }
+
+    // Vérifier si le cours est utilisé dans des classes
+    if (existingCourse.classes.length > 0) {
+      return {
+        success: false,
+        error:
+          "Ce cours ne peut pas être supprimé car il est associé à des classes",
+      };
+    }
+
+    // Supprimer les relations de prérequis
+    await db.coursePrerequisite.deleteMany({
+      where: {
+        OR: [{ course_id: id }, { prerequisite_id: id }],
+      },
+    });
+
+    const deletedCourse = await db.course.delete({
+      where: { id },
+    });
+
+    revalidatePath("/academic/courses");
+    return { success: true, data: deletedCourse };
   } catch (error) {
-    throw new ActionError("Erreur lors de la recherche des cours");
+    console.error("Erreur lors de la suppression du cours:", error);
+    return {
+      success: false,
+      error:
+        "Impossible de supprimer ce cours. Il est peut-être utilisé par d'autres éléments du système.",
+    };
   }
 }
