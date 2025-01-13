@@ -7,6 +7,85 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//==================== ÉNUMÉRATIONS ====================//
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum StudentStatus {
+  ACTIVE
+  GRADUATED
+  SUSPENDED
+  WITHDRAWN
+  TRANSFERRED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_MONEY
+  CREDIT_CARD
+  CHECK
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum DepartmentType {
+  ACADEMIC
+  ADMINISTRATIVE
+  SERVICE
+}
+
+enum StaffContractType {
+  PERMANENT
+  TEMPORARY
+  PART_TIME
+  VISITING
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+enum CourseStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+  DISCONTINUED
+}
+
+enum GradeStatus {
+  PASSED
+  FAILED
+  INCOMPLETE
+  WITHDRAWN
+}
+
 //==================== GESTION DES ACCÈS (Application uniquement) ====================//
 model Permission {
   id          Int              @id @default(autoincrement())
@@ -73,10 +152,12 @@ model User {
   role_id          Int
   emailVerified    DateTime?
   is_active        Boolean        @default(true)
+  status        UserStatus     @default(ACTIVE)
   last_login       DateTime?
   image            String?
   created_at       DateTime       @default(now())
   updated_at       DateTime       @updatedAt
+  deleted_at    DateTime?      @map("deleted_at") // Soft delete
   role             Role           @relation(fields: [role_id], references: [id])
   accounts         Account[]
   sessions         Session[]
@@ -142,16 +223,21 @@ model Task {
 
 //==================== STRUCTURE ACADÉMIQUE ====================//
 model AcademicYear {
-  id          Int                   @id @default(autoincrement())
-  year        String                @unique // ex: "2023-2024"
-  start_date  DateTime
-  end_date    DateTime
-  is_current  Boolean               @default(false)
-  created_at  DateTime              @default(now())
-  updated_at  DateTime              @updatedAt
+  id          Int       @id @default(autoincrement())
+  year        String    @unique // ex: "2023-2024"
+  start_date  DateTime  @map("start_date")
+  end_date    DateTime  @map("end_date")
+  is_current  Boolean   @default(false)
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+  deleted_at  DateTime? @map("deleted_at") // Soft delete
+  
+  // Relations
   semesters   Semester[]
-  fees        TuitionFeeStructure[]
   enrollments Enrollment[]
+  fees        TuitionFeeStructure[]
+
+  @@map("academic_years")
 }
 
 model Semester {
@@ -492,26 +578,68 @@ model Class {
 
 //==================== ÉTUDIANTS ====================//
 model Student {
-  id          Int                 @id @default(autoincrement())
-  matricule   String              @unique
-  first_name  String
-  last_name   String
-  dob         DateTime
-  pob         String // Place of birth
-  gender      String
-  address     String
-  phone       String
-  email       String              @unique
-  level_id    Int
-  status      String // active, graduated, suspended
-  picture     String?
-  created_at  DateTime            @default(now())
-  updated_at  DateTime            @updatedAt
+  id            Int           @id @default(autoincrement())
+  matricule     String        @unique
+  first_name    String
+  last_name     String
+  dob           DateTime
+  pob           String        // Place of birth
+  gender        Gender
+  nationality   String        // Ajout important
+  address       String
+  phone         String
+  email         String        @unique
+  level_id      Int
+  status        StudentStatus @default(ACTIVE)
+  avatar        String?
+  blood_group   String?       // Informations médicales importantes
+  emergency_contact String?   // Contact d'urgence
+  created_at    DateTime      @default(now()) @map("created_at")
+  updated_at    DateTime      @updatedAt @map("updated_at")
+  deleted_at    DateTime?     @map("deleted_at") // Soft delete
+
+  // Relations
   level       LevelStudy          @relation(fields: [level_id], references: [id])
   parents     ParentStudent[]
   enrollments Enrollment[]
   fees        TuitionPayment[]
   attendances StudentAttendance[]
+  documents   StudentDocument[]   // Nouveau - pour les documents des étudiants
+  health_records StudentHealthRecord[] // Nouveau - pour les dossiers médicaux
+
+  @@map("students")
+}
+
+// Nouveau modèle pour les documents des étudiants
+model StudentDocument {
+  id          Int      @id @default(autoincrement())
+  student_id  Int
+  type        String   // passport, birth_certificate, previous_diploma, etc.
+  file_url    String
+  is_verified Boolean  @default(false)
+  uploaded_at DateTime @default(now())
+  verified_at DateTime?
+  expires_at  DateTime?
+  
+  student     Student  @relation(fields: [student_id], references: [id])
+
+  @@map("student_documents")
+}
+
+// Nouveau modèle pour les dossiers médicaux
+model StudentHealthRecord {
+  id          Int      @id @default(autoincrement())
+  student_id  Int
+  condition   String?  // Conditions médicales
+  allergies   String?
+  medications String?
+  notes       String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  student     Student  @relation(fields: [student_id], references: [id])
+
+  @@map("student_health_records")
 }
 
 model ParentStudent {
