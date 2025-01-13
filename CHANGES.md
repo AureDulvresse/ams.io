@@ -5,11 +5,12 @@ Le format suit les conventions de [Keep a Changelog](https://keepachangelog.com/
 
 ---
 
-## [1.0.0] - 2025-01-07
+## [1.0.0] - 2025-01-13
 ### 🚀 Ajouté
 - Initialisation du projet AMS.
 - Gestion des utilisateurs avec rôles et permissions.
 - Dashboard personnalisé pour les administrateurs, enseignants, étudiants, et autres types d’utilisateurs.
+- API And Course and Subject Updated
 
 ### 🐛 Corrigé
 - Correction des erreurs de migration lors de l’installation initiale sur PostgreSQL.
@@ -19,6 +20,7 @@ Le format suit les conventions de [Keep a Changelog](https://keepachangelog.com/
 - Amélioration des performances des requêtes SQL pour la recherche dans la base de données.
 - Refactorisation du système de gestion des rôles pour plus de flexibilité.
 - Mise à jour de la documentation d’installation dans le fichier README.md.
+- API And Course and Subject Updated
 
 ---
 
