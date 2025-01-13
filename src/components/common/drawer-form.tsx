@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { useForm, FieldValues, DefaultValues, UseFormReturn } from 'react-hook-form';
-import { Loader2, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import {
-   Dialog,
-   DialogContent,
-   DialogHeader,
-   DialogTitle,
-   DialogFooter,
-} from '@/src/components/ui/dialog';
+   Drawer,
+   DrawerContent,
+   DrawerHeader,
+   DrawerTitle,
+   DrawerFooter,
+   DrawerClose,
+} from '@/src/components/ui/drawer';
 import { Button } from '@/src/components/ui/button';
 import { cn } from '@/src/lib/utils';
 import { toast } from 'sonner';
@@ -19,7 +20,7 @@ export type FormComponentProps<TFormData extends FieldValues> = {
    form: UseFormReturn<TFormData>;
 };
 
-export type ModalFormProps<TFormData extends FieldValues> = {
+export type DrawerFormProps<TFormData extends FieldValues> = {
    isOpen: boolean;
    onClose: () => void;
    title: string;
@@ -35,18 +36,18 @@ export type ModalFormProps<TFormData extends FieldValues> = {
    preventCloseOnSuccess?: boolean;
    resetOnClose?: boolean;
    onSuccessCallback?: (data: any) => void;
-   width?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+   side?: 'left' | 'right' | 'top' | 'bottom';
 };
 
-const ModalForm = <TFormData extends FieldValues>({
+const DrawerForm = <TFormData extends FieldValues>({
    isOpen,
    onClose,
    title,
    defaultValues,
    children,
-   submitText = "Save",
-   cancelText = "Cancel",
-   loadingText = "Loading...",
+   submitText = "Enregistrer",
+   cancelText = "Annuler",
+   loadingText = "Chargement...",
    successMessage = "Enregistrement effectué",
    serverAction,
    className,
@@ -54,13 +55,13 @@ const ModalForm = <TFormData extends FieldValues>({
    preventCloseOnSuccess = false,
    resetOnClose = true,
    onSuccessCallback,
-   width = 'lg',
-}: ModalFormProps<TFormData>): JSX.Element => {
+   side = 'bottom',
+}: DrawerFormProps<TFormData>): JSX.Element => {
    const form = useForm<TFormData>({
       defaultValues,
    });
 
-   // Reset form when modal closes
+   // Reset form when drawer closes
    useEffect(() => {
       if (!isOpen && resetOnClose) {
          form.reset(defaultValues);
@@ -109,68 +110,50 @@ const ModalForm = <TFormData extends FieldValues>({
       });
    };
 
-   const dialogSizeClass = {
-      sm: 'sm:max-w-sm',
-      md: 'sm:max-w-md',
-      lg: 'sm:max-w-lg',
-      xl: 'sm:max-w-xl',
-      '2xl': 'sm:max-w-2xl',
-   }[width];
-
    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-         <DialogContent className={cn(dialogSizeClass, className)}>
-            <DialogHeader>
-               <DialogTitle className="flex items-center justify-between">
-                  {title}
-                  {/* <Button
-                     type="button"
-                     variant="ghost"
-                     className="h-8 w-8 p-0"
-                     onClick={handleClose}
-                     disabled={form.formState.isSubmitting}
-                  >
-                     <X className="h-4 w-4" />
-                  </Button> */}
-               </DialogTitle>
-            </DialogHeader>
+      <Drawer open={isOpen} onOpenChange={handleClose} direction={side}>
+         <DrawerContent className={cn("max-h-[95vh]", className)}>
+            <DrawerHeader className="px-4 py-2">
+               <DrawerTitle>{title}</DrawerTitle>
+            </DrawerHeader>
 
             <Form {...form}>
-               <form
-                  onSubmit={form.handleSubmit(handleSubmit)}
-                  className="relative space-y-6"
-                  noValidate
-               >
-                  {enhanceChildrenWithForm(children)}
+               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 px-4" noValidate>
+                  <div className="overflow-y-auto">
+                     {enhanceChildrenWithForm(children)}
+                  </div>
 
-                  <DialogFooter className="gap-2 pt-4">
-                     <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleClose}
-                        disabled={form.formState.isSubmitting}
-                     >
-                        {cancelText}
-                     </Button>
-                     <Button
-                        type="submit"
-                        disabled={form.formState.isSubmitting || !form.formState.isDirty || mutation.isPending}
-                     >
-                        {form.formState.isSubmitting || mutation.isPending ? (
-                           <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              {loadingText}
-                           </>
-                        ) : (
-                           submitText
-                        )}
-                     </Button>
-                  </DialogFooter>
+                  <DrawerFooter className="px-4 py-4">
+                     <div className="flex justify-end gap-3">
+                        <DrawerClose asChild>
+                           <Button
+                              type="button"
+                              variant="outline"
+                              disabled={form.formState.isSubmitting}
+                           >
+                              {cancelText}
+                           </Button>
+                        </DrawerClose>
+                        <Button
+                           type="submit"
+                           disabled={form.formState.isSubmitting || !form.formState.isDirty || mutation.isPending}
+                        >
+                           {form.formState.isSubmitting || mutation.isPending ? (
+                              <>
+                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                 {loadingText}
+                              </>
+                           ) : (
+                              submitText
+                           )}
+                        </Button>
+                     </div>
+                  </DrawerFooter>
                </form>
             </Form>
-         </DialogContent>
-      </Dialog>
+         </DrawerContent>
+      </Drawer>
    );
 };
 
-export default ModalForm;
+export default DrawerForm;

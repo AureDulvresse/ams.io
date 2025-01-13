@@ -17,7 +17,7 @@ export type MyPageProps = {
   userPermissions: string[] | null;
   isLoading?: boolean;
   error?: Error | null;
-  listItem?: T[];
+  listItem?: T[] | any;
 };
 
 export type MySectionProps = {
@@ -30,4 +30,9 @@ export type MySectionProps = {
 export interface RoleManagementPageProps extends MyPageProps {
   listPermissions: Permission[] | null;
   listRoles: Role[] | null;
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
 }
