@@ -5,6 +5,13 @@ Le format suit les conventions de [Keep a Changelog](https://keepachangelog.com/
 
 ---
 
+
+## [1.0.0] - 2025-01-14
+### 🐛 Corrigé
+- Correction des erreurs liées à la base de donnée.
+
+---
+
 ## [1.0.0] - 2025-01-13
 ### 🚀 Ajouté
 - Initialisation du projet AMS.

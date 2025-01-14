@@ -30,7 +30,7 @@ export const {
     },
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user }) {
       const existingUser = await getUserById(
         typeof user.id == "string" ? user.id : ""
       );

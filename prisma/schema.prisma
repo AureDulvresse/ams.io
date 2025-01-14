@@ -96,8 +96,7 @@ model Permission {
   updated_at  DateTime         @updatedAt
   roles       RolePermission[]
 
-@@map("permissions")
-
+  @@map("permissions")
 }
 
 model Role {
@@ -156,14 +155,13 @@ model User {
   first_name       String
   last_name        String
   role_id          Int
-  emailVerified    DateTime?
-  is_active        Boolean        @default(true)
-  status        UserStatus     @default(ACTIVE)
+  email_verified   DateTime?
+  status           UserStatus     @default(ACTIVE)
   last_login       DateTime?
   image            String?
   created_at       DateTime       @default(now())
   updated_at       DateTime       @updatedAt
-  deleted_at    DateTime?      @map("deleted_at") // Soft delete
+  deleted_at       DateTime?      @map("deleted_at") // Soft delete
   role             Role           @relation(fields: [role_id], references: [id])
   accounts         Account[]
   sessions         Session[]
@@ -229,15 +227,15 @@ model Task {
 
 //==================== STRUCTURE ACADÉMIQUE ====================//
 model AcademicYear {
-  id          Int       @id @default(autoincrement())
-  year        String    @unique // ex: "2023-2024"
-  start_date  DateTime  @map("start_date")
-  end_date    DateTime  @map("end_date")
-  is_current  Boolean   @default(false)
-  created_at  DateTime  @default(now()) @map("created_at")
-  updated_at  DateTime  @updatedAt @map("updated_at")
-  deleted_at  DateTime? @map("deleted_at") // Soft delete
-  
+  id         Int       @id @default(autoincrement())
+  year       String    @unique // ex: "2023-2024"
+  start_date DateTime  @map("start_date")
+  end_date   DateTime  @map("end_date")
+  is_current Boolean   @default(false)
+  created_at DateTime  @default(now()) @map("created_at")
+  updated_at DateTime  @updatedAt @map("updated_at")
+  deleted_at DateTime? @map("deleted_at") // Soft delete
+
   // Relations
   semesters   Semester[]
   enrollments Enrollment[]
@@ -584,33 +582,33 @@ model Class {
 
 //==================== ÉTUDIANTS ====================//
 model Student {
-  id            Int           @id @default(autoincrement())
-  matricule     String        @unique
-  first_name    String
-  last_name     String
-  dob           DateTime
-  pob           String        // Place of birth
-  gender        Gender
-  nationality   String        // Ajout important
-  address       String
-  phone         String
-  email         String        @unique
-  level_id      Int
-  status        StudentStatus @default(ACTIVE)
-  avatar        String?
-  blood_group   String?       // Informations médicales importantes
-  emergency_contact String?   // Contact d'urgence
-  created_at    DateTime      @default(now()) @map("created_at")
-  updated_at    DateTime      @updatedAt @map("updated_at")
-  deleted_at    DateTime?     @map("deleted_at") // Soft delete
+  id                Int           @id @default(autoincrement())
+  matricule         String        @unique
+  first_name        String
+  last_name         String
+  dob               DateTime
+  pob               String // Place of birth
+  gender            Gender
+  nationality       String // Ajout important
+  address           String
+  phone             String
+  email             String        @unique
+  level_id          Int
+  status            StudentStatus @default(ACTIVE)
+  avatar            String?
+  blood_group       String? // Informations médicales importantes
+  emergency_contact String? // Contact d'urgence
+  created_at        DateTime      @default(now()) @map("created_at")
+  updated_at        DateTime      @updatedAt @map("updated_at")
+  deleted_at        DateTime?     @map("deleted_at") // Soft delete
 
   // Relations
-  level       LevelStudy          @relation(fields: [level_id], references: [id])
-  parents     ParentStudent[]
-  enrollments Enrollment[]
-  fees        TuitionPayment[]
-  attendances StudentAttendance[]
-  documents   StudentDocument[]   // Nouveau - pour les documents des étudiants
+  level          LevelStudy            @relation(fields: [level_id], references: [id])
+  parents        ParentStudent[]
+  enrollments    Enrollment[]
+  fees           TuitionPayment[]
+  attendances    StudentAttendance[]
+  documents      StudentDocument[] // Nouveau - pour les documents des étudiants
   health_records StudentHealthRecord[] // Nouveau - pour les dossiers médicaux
 
   @@map("students")
@@ -618,16 +616,16 @@ model Student {
 
 // Nouveau modèle pour les documents des étudiants
 model StudentDocument {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   student_id  Int
-  type        String   // passport, birth_certificate, previous_diploma, etc.
+  type        String // passport, birth_certificate, previous_diploma, etc.
   file_url    String
-  is_verified Boolean  @default(false)
-  uploaded_at DateTime @default(now())
+  is_verified Boolean   @default(false)
+  uploaded_at DateTime  @default(now())
   verified_at DateTime?
   expires_at  DateTime?
-  
-  student     Student  @relation(fields: [student_id], references: [id])
+
+  student Student @relation(fields: [student_id], references: [id])
 
   @@map("student_documents")
 }
@@ -636,14 +634,14 @@ model StudentDocument {
 model StudentHealthRecord {
   id          Int      @id @default(autoincrement())
   student_id  Int
-  condition   String?  // Conditions médicales
+  condition   String? // Conditions médicales
   allergies   String?
   medications String?
   notes       String?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  
-  student     Student  @relation(fields: [student_id], references: [id])
+
+  student Student @relation(fields: [student_id], references: [id])
 
   @@map("student_health_records")
 }

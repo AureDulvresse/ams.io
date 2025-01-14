@@ -41,10 +41,6 @@ export default async function RootLayout({
   // Fonction pour récupérer la session
   const session = await auth();
 
-  if (!session) {
-    window.location.reload();
-  }
-
   return (
     <html lang="fr">
       <body className={`${oswald.variable} ${inter.variable} ${fredoka.variable} antialiased`}>

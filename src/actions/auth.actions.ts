@@ -33,7 +33,7 @@ export const login = async (credentials: z.infer<typeof signInSchema>) => {
   if (!existingUser || !existingUser.email || !existingUser.password)
     return { error: "Ce compte n'existe pas" };
 
-  if (!existingUser.emailVerified) {
+  if (!existingUser.email_verified) {
     const verificationToken = await generateVerificationToken(
       existingUser.email
     );
