@@ -6,14 +6,19 @@ import { UserStatus } from "@prisma/client";
 // Type étendu pour l'utilisateur dans la session
 export type ExtendUser = DefaultSession["user"] & {
   id: string;
+  role: Role;
   first_name: string;
   last_name: string;
-  role: Role;
-  status: UserStatus;
   email: string;
+  status: UserStatus;
   emailVerified?: Date;
   last_login?: Date;
 };
+
+export interface UserIdentity {
+  first_name: string;
+  last_name: string;
+}
 
 // Déclaration de module pour étendre NextAuth
 declare module "next-auth" {
@@ -28,12 +33,8 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
-    role?: Role;
-    identity?: {
-      first_name: string;
-      last_name: string;
-    };
-    email: string;
+    role: Role;
+    identity?: UserIdentity;
     emailVerified?: Date;
     last_login?: Date;
   }

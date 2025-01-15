@@ -55,6 +55,7 @@
     "emoji-picker-react": "^4.12.0",
     "fullcalendar": "^6.1.15",
     "input-otp": "^1.4.1",
+    "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",

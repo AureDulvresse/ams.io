@@ -1,12 +1,52 @@
-import NextAuth from "next-auth";
+import NextAuth, { Session } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./src/lib/prisma";
 import authConfig from "@/auth.config";
 import { getUserById } from "./src/data/user";
 import { Role } from "./src/types/role";
-import { ExtendUser } from "./src/types/next-auth";
 import { UserStatus } from "@prisma/client";
+import { JWT } from "next-auth/jwt";
+// Constants
+const COOKIE_SECURE = process.env.NODE_ENV === "production";
+const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+const SESSION_MAX_AGE = 24 * 60 * 60; // 24 hours
+const SESSION_UPDATE_AGE = 12 * 60 * 60; // 12 hours
+const BASE_PATH = "/dashboard";
 
+// Cookie configuration
+const cookieConfig = {
+  sessionToken: {
+    name: `__Secure-next-auth.session-token`,
+    options: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: BASE_PATH,
+      secure: COOKIE_SECURE,
+      domain: COOKIE_DOMAIN,
+      maxAge: SESSION_MAX_AGE,
+    },
+  },
+  callbackUrl: {
+    name: `__Secure-next-auth.callback-url`,
+    options: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: BASE_PATH,
+      secure: COOKIE_SECURE,
+    },
+  },
+  csrfToken: {
+    name: `__Host-next-auth.csrf-token`,
+    options: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: BASE_PATH,
+      secure: COOKIE_SECURE,
+    },
+  },
+};
+
+// NextAuth configuration
 export const {
   handlers: { GET, POST },
   auth,
@@ -14,123 +54,149 @@ export const {
   signOut,
 } = NextAuth({
   adapter: PrismaAdapter(db),
+  
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 24 heures
-    updateAge: 12 * 60 * 60, // 12 heures
+    maxAge: SESSION_MAX_AGE,
+    updateAge: SESSION_UPDATE_AGE,
   },
+  
   pages: {
     signIn: "/login",
     error: "/error",
+    signOut: "/logout",
   },
+  
   events: {
     async linkAccount({ user }) {
-      await db.user.update({
-        where: { id: user.id },
-        data: {
-          emailVerified: new Date(),
-          last_login: new Date(),
-        },
-      });
+      try {
+        await db.user.update({
+          where: { id: user.id },
+          data: {
+            emailVerified: new Date(),
+            last_login: new Date(),
+          },
+        });
+      } catch (error) {
+        console.error("Error updating user during account linking:", error);
+      }
     },
   },
+  
   callbacks: {
-    async signIn({ user }) {
-      const existingUser = await getUserById(
-        typeof user.id === "string" ? user.id : ""
-      );
+    async signIn({ user, account }) {
+      try {
+        if (!user) {
+          console.warn("Sign-in attempt without user data");
+          return false;
+        }
 
-      if (!existingUser?.emailVerified) {
+        const existingUser = await getUserById(
+          typeof user.id === "string" ? user.id : ""
+        );
+
+        if (existingUser?.emailVerified != null) {
+          console.warn("Sign-in attempt for already verified email");
+          return false;
+        }
+
+        // Update last login
+        await db.user.update({
+          where: { id: user.id },
+          data: { last_login: new Date() },
+        });
+
+        return true;
+      } catch (error) {
+        console.error("Error during sign-in callback:", error);
         return false;
       }
-
-      // Mettre à jour last_login
-      await db.user.update({
-        where: { id: user.id },
-        data: { last_login: new Date() },
-      });
-
-      return true;
     },
 
-    async session({ token, session }) {
-      if (token.sub && session.user && token.email) {
-        session.user = {
-          ...session.user,
-          id: token.sub,
-          role: token.role as Role,
-          first_name: token.identity?.first_name || "",
-          last_name: token.identity?.last_name || "",
-          email: token.email,
-          status: UserStatus.ACTIVE,
-          emailVerified: token.emailVerified || new Date(),
-          last_login: token.last_login,
-        };
+    session: async ({ token, session }): Promise<Session> => {
+      try {
+        if (token.sub && session.user && token.email) {
+          session.user = {
+            ...session.user,
+            id: token.sub,
+            role: (token as JWT).role as Role,
+            first_name: (token as JWT).identity?.first_name || "",
+            last_name: (token as JWT).identity?.last_name || "",
+            email: token.email,
+            status: UserStatus.ACTIVE,
+            emailVerified: (token as JWT).emailVerified || new Date(),
+            last_login: (token as JWT).last_login,
+          };
+        }
+        return session as Session;
+      } catch (error) {
+        console.error("Error during session callback:", error);
+        return session as Session;
       }
-      return session;
     },
 
-    async jwt({ token }) {
-      if (!token.sub) return token;
+    jwt: async ({ token }): Promise<JWT> => {
+      try {
+        if (!token.sub) return token;
 
-      // Éviter les appels DB répétés en vérifiant si les données sont déjà présentes
-      if (token.role && token.identity) return token;
+        // Avoid repeated DB calls by checking if data is already present
+        if (token.role && token.identity) return token as JWT;
 
-      const user = await getUserById(token.sub);
-      if (!user) return token;
+        const user = await getUserById(token.sub);
+        if (!user) return token;
 
-      // Stocker seulement les données essentielles dans le token
-      token.role = user.role;
-      token.identity = {
-        first_name: user.first_name,
-        last_name: user.last_name,
-      };
-      token.email = user.email;
-      token.emailVerified = user.emailVerified || undefined;
-      token.last_login = user.last_login || undefined;
+        // Store only essential data in the token
+        const extendedToken: JWT = {
+          ...token,
+          role: user.role,
+          identity: {
+            first_name: user.first_name,
+            last_name: user.last_name,
+          },
+          email: user.email,
+          emailVerified: user.emailVerified || undefined,
+          last_login: user.last_login || undefined,
+        };
 
-      // Nettoyer les données non essentielles
-      delete token.name;
-      delete token.picture;
+        // Clean non-essential data
+        delete extendedToken.name;
+        delete extendedToken.picture;
 
-      return token;
-    },
-  },
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NEXT_PUBLIC_DOMAIN,
-        maxAge: 24 * 60 * 60,
-      },
-    },
-    callbackUrl: {
-      name: `__Secure-next-auth.callback-url`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-    csrfToken: {
-      name: `__Host-next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
+        return extendedToken;
+      } catch (error) {
+        console.error("Error during JWT callback:", error);
+        return token;
+      }
     },
   },
+  
+  cookies: cookieConfig,
+  
   ...authConfig,
 });
 
+/**
+ * Checks if the current request is authenticated
+ * @param request - The incoming request object
+ * @returns The session object if authenticated, null otherwise
+ */
 export async function isAuthenticated(request: Request) {
-  const session = await auth();
-  return session || null;
+  try {
+    const session = await auth();
+    return session;
+  } catch (error) {
+    console.error("Error checking authentication:", error);
+    return null;
+  }
+}
+
+// Type guard for session
+export function isValidSession(session: any): session is Session {
+  return (
+    session &&
+    typeof session === "object" &&
+    "user" in session &&
+    typeof session.user === "object" &&
+    "id" in session.user
+  );
 }
