@@ -613,8 +613,8 @@ async function main() {
       create: {
         email: "dominique.makaya@example.com",
         password: await hashPassword("User123!"),
-        first_name: "Pierre",
-        last_name: "Dubois",
+        first_name: "Dominique",
+        last_name: "MAKAYA",
         role_id: 4,
         status: UserStatus.ACTIVE,
         emailVerified: new Date(),
