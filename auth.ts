@@ -1,10 +1,52 @@
-import NextAuth from "next-auth";
+import NextAuth, { Session } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./src/lib/prisma";
 import authConfig from "@/auth.config";
 import { getUserById } from "./src/data/user";
 import { Role } from "./src/types/role";
+import { UserStatus } from "@prisma/client";
+import { JWT } from "next-auth/jwt";
+// Constants
+const COOKIE_SECURE = process.env.NODE_ENV === "production";
+const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
+const SESSION_MAX_AGE = 24 * 60 * 60; // 24 hours
+const SESSION_UPDATE_AGE = 12 * 60 * 60; // 12 hours
+const BASE_PATH = "/dashboard";
 
+// Cookie configuration
+const cookieConfig = {
+  sessionToken: {
+    name: `__Secure-next-auth.session-token`,
+    options: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: BASE_PATH,
+      secure: COOKIE_SECURE,
+      domain: COOKIE_DOMAIN,
+      maxAge: SESSION_MAX_AGE,
+    },
+  },
+  callbackUrl: {
+    name: `__Secure-next-auth.callback-url`,
+    options: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: BASE_PATH,
+      secure: COOKIE_SECURE,
+    },
+  },
+  csrfToken: {
+    name: `__Host-next-auth.csrf-token`,
+    options: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: BASE_PATH,
+      secure: COOKIE_SECURE,
+    },
+  },
+};
+
+// NextAuth configuration
 export const {
   handlers: { GET, POST },
   auth,
@@ -12,74 +54,149 @@ export const {
   signOut,
 } = NextAuth({
   adapter: PrismaAdapter(db),
+  
   session: {
     strategy: "jwt",
+    maxAge: SESSION_MAX_AGE,
+    updateAge: SESSION_UPDATE_AGE,
   },
+  
   pages: {
     signIn: "/login",
     error: "/error",
+    signOut: "/logout",
   },
+  
   events: {
     async linkAccount({ user }) {
-      await db.user.update({
-        where: { id: user.id },
-        data: {
-          email_verified: new Date(),
-        },
-      });
+      try {
+        await db.user.update({
+          where: { id: user.id },
+          data: {
+            emailVerified: new Date(),
+            last_login: new Date(),
+          },
+        });
+      } catch (error) {
+        console.error("Error updating user during account linking:", error);
+      }
     },
   },
+  
   callbacks: {
-    async signIn({ user }) {
-      const existingUser = await getUserById(
-        typeof user.id == "string" ? user.id : ""
-      );
+    async signIn({ user, account }) {
+      try {
+        if (!user) {
+          console.warn("Sign-in attempt without user data");
+          return false;
+        }
 
-      if (!existingUser || !existingUser.email_verified) {
+        const existingUser = await getUserById(
+          typeof user.id === "string" ? user.id : ""
+        );
+
+        if (existingUser?.emailVerified != null) {
+          console.warn("Sign-in attempt for already verified email");
+          return false;
+        }
+
+        // Update last login
+        await db.user.update({
+          where: { id: user.id },
+          data: { last_login: new Date() },
+        });
+
+        return true;
+      } catch (error) {
+        console.error("Error during sign-in callback:", error);
         return false;
       }
-
-      return true;
     },
-    async session({ token, session }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
 
-      if (token.role && session.user) {
-        session.user.role = token.role as Role;
+    session: async ({ token, session }): Promise<Session> => {
+      try {
+        if (token.sub && session.user && token.email) {
+          session.user = {
+            ...session.user,
+            id: token.sub,
+            role: (token as JWT).role as Role,
+            first_name: (token as JWT).identity?.first_name || "",
+            last_name: (token as JWT).identity?.last_name || "",
+            email: token.email,
+            status: UserStatus.ACTIVE,
+            emailVerified: (token as JWT).emailVerified || new Date(),
+            last_login: (token as JWT).last_login,
+          };
+        }
+        return session as Session;
+      } catch (error) {
+        console.error("Error during session callback:", error);
+        return session as Session;
       }
-
-      if (token.identity && session.user) {
-        session.user.first_name = token.identity.first_name as string;
-        session.user.last_name = token.identity.last_name as string;
-      }
-
-      return session;
     },
-    async jwt({ token }) {
-      if (!token.sub) return token;
 
-      const existingUser = await getUserById(token.sub);
+    jwt: async ({ token }): Promise<JWT> => {
+      try {
+        if (!token.sub) return token;
 
-      if (!existingUser) return token;
+        // Avoid repeated DB calls by checking if data is already present
+        if (token.role && token.identity) return token as JWT;
 
-      token.role = existingUser.role;
-      token.identity = {
-        first_name: existingUser.first_name,
-        last_name: existingUser.last_name,
-      };
+        const user = await getUserById(token.sub);
+        if (!user) return token;
 
-      return token;
+        // Store only essential data in the token
+        const extendedToken: JWT = {
+          ...token,
+          role: user.role,
+          identity: {
+            first_name: user.first_name,
+            last_name: user.last_name,
+          },
+          email: user.email,
+          emailVerified: user.emailVerified || undefined,
+          last_login: user.last_login || undefined,
+        };
+
+        // Clean non-essential data
+        delete extendedToken.name;
+        delete extendedToken.picture;
+
+        return extendedToken;
+      } catch (error) {
+        console.error("Error during JWT callback:", error);
+        return token;
+      }
     },
   },
+  
+  cookies: cookieConfig,
+  
   ...authConfig,
 });
 
+/**
+ * Checks if the current request is authenticated
+ * @param request - The incoming request object
+ * @returns The session object if authenticated, null otherwise
+ */
 export async function isAuthenticated(request: Request) {
-  const session = await auth();
-  if (!session) {
+  try {
+    const session = await auth();
+    return session;
+  } catch (error) {
+    console.error("Error checking authentication:", error);
     return null;
   }
-  return session;
+}
+
+// Type guard for session
+export function isValidSession(session: any): session is Session {
+  return (
+    session &&
+    typeof session === "object" &&
+    "user" in session &&
+    typeof session.user === "object" &&
+    "id" in session.user
+  );
 }

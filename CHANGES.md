@@ -6,9 +6,12 @@ Le format suit les conventions de [Keep a Changelog](https://keepachangelog.com/
 ---
 
 
-## [1.0.0] - 2025-01-14
+## [1.0.0] - 2025-01-15
 ### 🐛 Corrigé
 - Correction des erreurs liées à la base de donnée.
+
+### 🛠️ Modifié
+- Rollback de la base de donnée.
 
 ---
 

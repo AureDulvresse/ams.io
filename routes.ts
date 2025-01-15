@@ -24,7 +24,7 @@ export const createRedirectUrl = (
 // Configuration des routes
 export const publicRoutes = ["/"];
 export const authRoutes = ["/login"];
-export const privateRoutes = ["/dashboard"];
+export const privateRoutes = ["/dashboard", "/academic/departments", "academic/courses", "/users", "/users/roles"];
 export const apiAuthPrefix = "/api/auth";
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard";
 
@@ -39,7 +39,7 @@ import {
   Library,
   Building2,
   Settings,
-  HelpCircle
+  HelpCircle,
 } from "lucide-react";
 
 export const appRoute = {

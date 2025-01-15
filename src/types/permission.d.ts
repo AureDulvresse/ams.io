@@ -10,7 +10,7 @@ export type Permission = {
 
 // Modèle RolePermission
 export type RolePermission = {
-  role_id: number;
-  permission_id: number;
+  roleId: number;
+  permissionId: number;
   permission: Permission;
 };
