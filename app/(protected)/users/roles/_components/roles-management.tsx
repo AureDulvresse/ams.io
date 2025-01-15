@@ -190,7 +190,7 @@ const RoleManagement = ({
             name: selectedRole.name,
             description: selectedRole.description || "",
             permissionIds: selectedRole.permissions
-              ? selectedRole.permissions.map((p) => p.permission_id)
+              ? selectedRole.permissions.map((p) => p.permissionId)
               : [],
           }}
           serverAction={(data) => updateRole(selectedRole.id, data)}
