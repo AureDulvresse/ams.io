@@ -140,6 +140,7 @@ export default {
           const { password: _, ...safeUserData } = user;
 
           return safeUserData;
+          
         } catch (error) {
           // Handle different types of errors
           if (error instanceof ZodError) {
