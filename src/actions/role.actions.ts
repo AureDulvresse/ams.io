@@ -27,7 +27,7 @@ export async function createRole(data: {
       description: data.description,
       permissions: {
         create: data.permissionIds.map((permissionId) => ({
-          permission_id: permissionId,
+          permissionId: permissionId,
         })),
       },
     },
@@ -64,7 +64,7 @@ export async function updateRole(
       permissions: {
         deleteMany: {}, // Supprime toutes les permissions existantes
         create: data.permissionIds.map((permissionId) => ({
-          permission_id: permissionId,
+          permissionId: permissionId,
         })),
       },
     },
@@ -88,7 +88,7 @@ export async function deleteRole(id: number) {
     // Vérifier si le rôle est utilisé par des utilisateurs
     const usersWithRole = await db.user.findMany({
       where: {
-        role_id: existingRole.id,
+        roleId: existingRole.id,
       },
     });
 
@@ -103,7 +103,7 @@ export async function deleteRole(id: number) {
     // Supprimer d'abord les relations dans la table de liaison role_permissions
     await db.rolePermission.deleteMany({
       where: {
-        role_id: id,
+        roleId: id,
       },
     });
 

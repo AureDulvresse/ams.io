@@ -1,11 +1,10 @@
+import { db } from "@/src/lib/prisma";
 import { hashPassword } from "../src/lib/hasher";
-import { PrismaClient, UserStatus } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { UserStatus } from "@prisma/client";
 
 async function main() {
   // Seed roles
-  const roles = await prisma.role.createMany({
+  const roles = await db.role.createMany({
     data: [
       {
         name: "Super Admin",
@@ -69,7 +68,7 @@ async function main() {
   });
 
   // Seed permissions
-  await prisma.permission.createMany({
+  await db.permission.createMany({
     data: [
       {
         name: "Accès au tableau de bord",
@@ -526,19 +525,19 @@ async function main() {
   });
 
   // Assign permissions to roles
-  const superAdminRole = await prisma.role.findFirst({
+  const superAdminRole = await db.role.findFirst({
     where: { name: "Super Admin" },
   });
 
   // Assign permissions to Super Admin
-  const allPermissions = await prisma.permission.findMany();
+  const allPermissions = await db.permission.findMany();
 
   // Batch permission assignments
   const batchSize = 50;
   for (let i = 0; i < allPermissions.length; i += batchSize) {
     const batch = allPermissions.slice(i, i + batchSize);
-    await prisma.rolePermission.createMany({
-      data: batch.map((permission) => ({
+    await db.rolePermission.createMany({
+      data: batch.map((permission: { id: any; }) => ({
         roleId: superAdminRole?.id || 1,
         permissionId: permission.id,
       })),
@@ -552,7 +551,7 @@ async function main() {
   // Then create users
   const users = await Promise.all([
     // Super Admin
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "adentrepreneur02@gmail.com" },
       update: {},
       create: {
@@ -567,7 +566,7 @@ async function main() {
     }),
 
     // Admin
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "admin@example.com" },
       update: {},
       create: {
@@ -582,7 +581,7 @@ async function main() {
     }),
 
     // Regular User 1
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "marie.martin@example.com" },
       update: {},
       create: {
@@ -597,7 +596,7 @@ async function main() {
     }),
 
     // Regular User 2
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "pierre.dubois@example.com" },
       update: {},
       create: {
@@ -610,7 +609,7 @@ async function main() {
       },
     }),
 
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "dominique.makaya@example.com" },
       update: {},
       create: {
@@ -624,7 +623,7 @@ async function main() {
       },
     }),
 
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "alexandra.li@example.com" },
       update: {},
       create: {
@@ -638,7 +637,7 @@ async function main() {
       },
     }),
 
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "dieuviel.mavoungou@example.com" },
       update: {},
       create: {
@@ -653,7 +652,7 @@ async function main() {
     }),
 
     // Inactive User
-    prisma.user.upsert({
+    db.user.upsert({
       where: { email: "sophie.moreau@example.com" },
       update: {},
       create: {
@@ -676,5 +675,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });
