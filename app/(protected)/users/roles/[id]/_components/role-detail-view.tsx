@@ -110,7 +110,7 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
                      </TableHeader>
                      <TableBody>
                         {role.permissions?.map((perm) => (
-                           <TableRow key={perm.permission_id}>
+                           <TableRow key={perm.permissionId}>
                               <TableCell>{perm.permission.name}</TableCell>
                               <TableCell>{perm.permission.description}</TableCell>
                            </TableRow>
@@ -133,7 +133,7 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
                      </TableHeader>
                      <TableBody>
                         {role.permissions?.map((perm) => (
-                           <TableRow key={perm.permission_id}>
+                           <TableRow key={perm.permissionId}>
                               <TableCell>{perm.permission.name}</TableCell>
                               <TableCell>{perm.permission.description}</TableCell>
                            </TableRow>
@@ -151,7 +151,7 @@ export default function RoleDetailView({ role }: RoleDetailViewProps) {
             defaultValues={{
                name: role.name,
                description: role.description || "",
-               permissionIds: role.permissions.map((p) => p.permission_id),
+               permissionIds: role.permissions.map((p) => p.permissionId),
             }}
             serverAction={(data) => updateRole(role.id, data)}
             invalidQuery={["/api/roles", "list", `role-${role.id}`]}
