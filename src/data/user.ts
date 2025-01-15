@@ -6,9 +6,12 @@ export const getUserByEmail = async (email: string) => {
       where: { email },
       include: {
         role: {
-          select: {
-            id: true,
-            name: true,
+          include: {
+            permissions: {
+              include: {
+                permission: true, // Inclut les détails des permissions
+              },
+            },
           },
         },
       },
@@ -53,6 +56,5 @@ export const getUserById = async (id: string) => {
   }
 };
 
-
 export const isSuperUser = (userRole: string) =>
-  userRole.toLowerCase() == "superuser";
+  userRole.toLowerCase() == "Super Admin";
