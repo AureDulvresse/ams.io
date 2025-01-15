@@ -546,6 +546,9 @@ async function main() {
     });
   }
 
+  const admin_password = await hashPassword("SuperAdmin123!");
+  const other_user_password = await hashPassword("User123!")
+
   // Then create users
   const users = await Promise.all([
     // Super Admin
@@ -554,7 +557,7 @@ async function main() {
       update: {},
       create: {
         email: "adentrepreneur02@gmail.com",
-        password: await hashPassword("SuperAdmin123!"),
+        password: admin_password,
         first_name: "Super",
         last_name: "Admin",
         roleId: superAdminRole?.id || 1,
@@ -569,7 +572,7 @@ async function main() {
       update: {},
       create: {
         email: "admin@example.com",
-        password: await hashPassword("Admin123!"),
+        password: other_user_password,
         first_name: "Jean",
         last_name: "Dupont",
         roleId: 2,
@@ -584,7 +587,7 @@ async function main() {
       update: {},
       create: {
         email: "marie.martin@example.com",
-        password: await hashPassword("User123!"),
+        password: other_user_password,
         first_name: "Marie",
         last_name: "Martin",
         roleId: 3,
@@ -599,7 +602,7 @@ async function main() {
       update: {},
       create: {
         email: "pierre.dubois@example.com",
-        password: await hashPassword("User123!"),
+        password: other_user_password,
         first_name: "Pierre",
         last_name: "Dubois",
         roleId: 4,
@@ -612,7 +615,7 @@ async function main() {
       update: {},
       create: {
         email: "dominique.makaya@example.com",
-        password: await hashPassword("User123!"),
+        password: other_user_password,
         first_name: "Dominique",
         last_name: "MAKAYA",
         roleId: 4,
@@ -626,7 +629,7 @@ async function main() {
       update: {},
       create: {
         email: "alexandra.li@example.com",
-        password: await hashPassword("User123!"),
+        password: other_user_password,
         first_name: "Alexandra",
         last_name: "LI",
         roleId: 5,
@@ -640,7 +643,7 @@ async function main() {
       update: {},
       create: {
         email: "dieuviel.mavoungou@example.com",
-        password: await hashPassword("User123!"),
+        password: other_user_password,
         first_name: "Dieuviel",
         last_name: "MAVOUNGOU",
         roleId: 6,
@@ -655,7 +658,7 @@ async function main() {
       update: {},
       create: {
         email: "sophie.moreau@example.com",
-        password: await hashPassword("User123!"),
+        password: other_user_password,
         first_name: "Sophie",
         last_name: "Moreau",
         roleId: 5,

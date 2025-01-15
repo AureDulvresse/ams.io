@@ -6,6 +6,7 @@ import { getUserById } from "./src/data/user";
 import { Role } from "./src/types/role";
 import { UserStatus } from "@prisma/client";
 import { JWT } from "next-auth/jwt";
+
 // Constants
 const COOKIE_SECURE = process.env.NODE_ENV === "production";
 const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
