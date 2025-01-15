@@ -559,7 +559,7 @@ async function main() {
         last_name: "Admin",
         role_id: superAdminRole?.id || 1,
         status: UserStatus.ACTIVE,
-        email_verified: new Date(),
+        emailVerified: new Date(),
       },
     }),
 
@@ -574,7 +574,7 @@ async function main() {
         last_name: "Dupont",
         role_id: 2,
         status: UserStatus.ACTIVE,
-        email_verified: new Date(),
+        emailVerified: new Date(),
       },
     }),
 
@@ -589,7 +589,7 @@ async function main() {
         last_name: "Martin",
         role_id: 3,
         status: UserStatus.ACTIVE,
-        email_verified: new Date(),
+        emailVerified: new Date(),
       },
     }),
 
@@ -617,7 +617,7 @@ async function main() {
         last_name: "Dubois",
         role_id: 4,
         status: UserStatus.ACTIVE,
-        email_verified: new Date(),
+        emailVerified: new Date(),
       },
     }),
 
@@ -631,7 +631,7 @@ async function main() {
         last_name: "LI",
         role_id: 5,
         status: UserStatus.ACTIVE,
-        email_verified: new Date(),
+        emailVerified: new Date(),
       },
     }),
 
@@ -645,7 +645,7 @@ async function main() {
         last_name: "MAVOUNGOU",
         role_id: 6,
         status: UserStatus.ACTIVE,
-        email_verified: new Date(),
+        emailVerified: new Date(),
       },
     }),
 

@@ -155,7 +155,7 @@ model User {
   first_name       String
   last_name        String
   role_id          Int
-  email_verified   DateTime?
+  emailVerified   DateTime?
   status           UserStatus     @default(ACTIVE)
   last_login       DateTime?
   image            String?
