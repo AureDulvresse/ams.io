@@ -6,46 +6,11 @@ import { getUserById } from "./src/data/user";
 import { Role } from "./src/types/role";
 import { UserStatus } from "@prisma/client";
 import { JWT } from "next-auth/jwt";
+import { cookieConfig } from "./cookies.config";
 
 // Constants
-const COOKIE_SECURE = process.env.NODE_ENV === "production";
-const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
 const SESSION_MAX_AGE = 24 * 60 * 60; // 24 hours
 const SESSION_UPDATE_AGE = 12 * 60 * 60; // 12 hours
-const BASE_PATH = "/dashboard";
-
-// Cookie configuration
-const cookieConfig = {
-  sessionToken: {
-    name: `__Secure-next-auth.session-token`,
-    options: {
-      httpOnly: true,
-      sameSite: "lax" as const,
-      path: BASE_PATH,
-      secure: COOKIE_SECURE,
-      domain: COOKIE_DOMAIN,
-      maxAge: SESSION_MAX_AGE,
-    },
-  },
-  callbackUrl: {
-    name: `__Secure-next-auth.callback-url`,
-    options: {
-      httpOnly: true,
-      sameSite: "lax" as const,
-      path: BASE_PATH,
-      secure: COOKIE_SECURE,
-    },
-  },
-  csrfToken: {
-    name: `__Host-next-auth.csrf-token`,
-    options: {
-      httpOnly: true,
-      sameSite: "lax" as const,
-      path: BASE_PATH,
-      secure: COOKIE_SECURE,
-    },
-  },
-};
 
 // NextAuth configuration
 export const {
