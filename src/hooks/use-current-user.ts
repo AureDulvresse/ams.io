@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { ExtendUser } from "../types/next-auth";
+import { redirect } from "next/navigation";
 
 interface UseCurrentUserReturn {
   user: ExtendUser | null;

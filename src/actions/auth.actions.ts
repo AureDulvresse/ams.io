@@ -68,13 +68,11 @@ export async function login(
       };
     }
 
-    console.log("test");
-
     // Attempt sign in
     await signIn("credentials", {
       email,
       password,
-      // redirectTo: "/"
+      redirect: false,
     });
 
     logger.info("Successful login", { email });
