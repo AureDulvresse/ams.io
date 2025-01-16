@@ -13,43 +13,43 @@ const dashboardSections: MySectionProps[] = [
       id: 'admin',
       component: <AdminDashboard />,
       permission: 'ADMIN_DASHBOARD_SHOW',
-      roleNames: ['admin', 'superuser']
+      roleNames: ['Admin', 'Super Admin']
    },
    {
       id: 'director',
       component: <DirectorDashboard />,
       permission: 'MANAGER_DASHBOARD_SHOW',
-      roleNames: ['directeur', 'manager', 'superuser']
+      roleNames: ['Directeur', 'manager', 'Super Admin']
    },
    {
       id: 'finance',
       component: <FinanceDashboard />,
       permission: 'FINANCE_DASHBOARD_SHOW',
-      roleNames: ['comptable', 'superuser']
+      roleNames: ['Comptable', 'Finance Manager', 'Super Admin']
    },
    {
       id: 'student',
       component: <StudentDashboard />,
       permission: 'STUDENT_DASHBOARD_SHOW',
-      roleNames: ['student', 'superuser']
+      roleNames: ['Student', 'Super Admin']
    },
    {
       id: 'hr',
       component: <HRDashboard />,
       permission: 'HR_DASHBOARD_SHOW',
-      roleNames: ['hr', 'superuser']
+      roleNames: ['HR Manager', 'Super Admin']
    },
    {
       id: 'teacher',
       component: <TeacherDashboard />,
       permission: 'TEACHER_DASHBOARD_SHOW',
-      roleNames: ['teacher', 'superuser']
+      roleNames: ['Teacher', 'Super Admin']
    },
    {
       id: 'library',
       component: <LibraryDashboard />,
       permission: 'LIBRARY_DASHBOARD_SHOW',
-      roleNames: ['library', 'superuser']
+      roleNames: ['Library', 'Super Admin']
    }
 ];
 
