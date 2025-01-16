@@ -29,23 +29,13 @@ import {
 import { SidebarMenuButton, useSidebar } from "@/src/components/ui/sidebar";
 import { logout } from "@/src/actions/auth.actions";
 import { toast } from "sonner";
-import { User } from "next-auth";
-import { Role } from "@/src/types/role";
 import { useRouter } from "next/navigation";
+import { ExtendUser } from "@/src/types/next-auth";
 
 export const NavUser = ({
    user,
 }: {
-   user:
-   | (User & {
-      id: string;
-      first_name: string;
-      last_name: string;
-      role: Role;
-      is_active: boolean;
-      emailVerified?: Date;
-      last_login?: Date;
-   })
+   user: ExtendUser
    | undefined;
 }) => {
    const navigate = useRouter();

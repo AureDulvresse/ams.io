@@ -46,7 +46,7 @@ export async function login(
     }
 
     // Handle unverified email
-    if (!existingUser.emailVerified) {
+    if (existingUser.emailVerified === null) {
       const verificationToken = await generateVerificationToken(
         existingUser.email
       );
@@ -72,7 +72,7 @@ export async function login(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirect: false,
     });
 
     logger.info("Successful login", { email });

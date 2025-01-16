@@ -1,4 +1,4 @@
-import { db } from "@/src/lib/prisma";
+import { db } from "../src/lib/prisma";
 import { hashPassword } from "../src/lib/hasher";
 import { UserStatus } from "@prisma/client";
 

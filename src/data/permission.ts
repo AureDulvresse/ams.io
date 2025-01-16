@@ -18,7 +18,7 @@ export const getUserPermissionsById = async (id: string) => {
     // Récupérer les permissions liées au rôle de l'utilisateur
     const permissions = await db.rolePermission.findMany({
       where: {
-        role_id: user.role_id, // Utilise directement l'ID du rôle
+        roleId: user.roleId, // Utilise directement l'ID du rôle
       },
       include: {
         permission: {
