@@ -47,7 +47,7 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // // 5. Rediriger vers la connexion si non authentifié
+  // 5. Rediriger vers la connexion si non authentifié
   // if (!isLoggedIn) {
   //   return NextResponse.redirect(
   //     createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)

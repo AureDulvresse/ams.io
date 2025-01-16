@@ -20,19 +20,18 @@ export const {
   signOut,
 } = NextAuth({
   adapter: PrismaAdapter(db),
-  
+
   session: {
     strategy: "jwt",
     maxAge: SESSION_MAX_AGE,
     updateAge: SESSION_UPDATE_AGE,
   },
-  
+
   pages: {
     signIn: "/login",
-    error: "/error",
-    signOut: "/logout",
+    error: "/auth/error",
   },
-  
+
   events: {
     async linkAccount({ user }) {
       try {
@@ -48,7 +47,7 @@ export const {
       }
     },
   },
-  
+
   callbacks: {
     async signIn({ user, account }) {
       try {
@@ -61,7 +60,7 @@ export const {
           typeof user.id === "string" ? user.id : ""
         );
 
-        if (existingUser?.emailVerified != null) {
+        if (existingUser?.emailVerified === null) {
           console.warn("Sign-in attempt for already verified email");
           return false;
         }
@@ -135,9 +134,9 @@ export const {
       }
     },
   },
-  
+
   cookies: cookieConfig,
-  
+
   ...authConfig,
 });
 

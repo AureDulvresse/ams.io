@@ -46,15 +46,6 @@ const LoginPage = () => {
             <div className="absolute inset-0" style={{ clipPath: "url(#wave-clip)" }}>
                {/* Gradient overlay */}
                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/95 to-violet-600/95 mix-blend-multiply" />
-
-               {/* Background image */}
-               <Image
-                  src="/images/school-background.jpg"
-                  alt="Login visual"
-                  width={500}
-                  height={500}
-                  className="h-full w-full object-cover"
-               />
             </div>
          </div>
       </div>

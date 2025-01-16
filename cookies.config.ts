@@ -1,6 +1,7 @@
+import { DEFAULT_LOGIN_REDIRECT } from "./routes";
+
 const COOKIE_SECURE = process.env.NODE_ENV === "production";
 const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN;
-const BASE_PATH = "/dashboard";
 const SESSION_MAX_AGE = 24 * 60 * 60; // 24 hours
 
 
@@ -11,7 +12,7 @@ export const cookieConfig = {
     options: {
       httpOnly: true,
       sameSite: "lax" as const,
-      path: BASE_PATH,
+      path: DEFAULT_LOGIN_REDIRECT,
       secure: COOKIE_SECURE,
       domain: COOKIE_DOMAIN,
       maxAge: SESSION_MAX_AGE,
@@ -22,7 +23,7 @@ export const cookieConfig = {
     options: {
       httpOnly: true,
       sameSite: "lax" as const,
-      path: BASE_PATH,
+      path: DEFAULT_LOGIN_REDIRECT,
       secure: COOKIE_SECURE,
     },
   },
@@ -31,7 +32,7 @@ export const cookieConfig = {
     options: {
       httpOnly: true,
       sameSite: "lax" as const,
-      path: BASE_PATH,
+      path: DEFAULT_LOGIN_REDIRECT,
       secure: COOKIE_SECURE,
     },
   },

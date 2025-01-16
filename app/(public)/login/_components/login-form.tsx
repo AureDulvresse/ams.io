@@ -46,10 +46,9 @@ const LoginForm = () => {
         return;
       }
 
-      toast.success(result?.success);
+      toast.success(result?.success || "Connexion réussie");
       form.reset();
-      console.log(result);
-      // router.push('/dashboard')
+      router.push('/')
     } catch (err: any) {
       toast.error(err.message);
     } finally {

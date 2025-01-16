@@ -46,7 +46,7 @@ export async function login(
     }
 
     // Handle unverified email
-    if (!existingUser.emailVerified) {
+    if (existingUser.emailVerified === null) {
       const verificationToken = await generateVerificationToken(
         existingUser.email
       );
@@ -68,11 +68,13 @@ export async function login(
       };
     }
 
+    console.log("test");
+
     // Attempt sign in
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      // redirectTo: "/"
     });
 
     logger.info("Successful login", { email });
