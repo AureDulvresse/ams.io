@@ -1,74 +1,136 @@
 import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
-import { signInSchema } from "./src/schemas/auth.schema";
-import { getUserByEmail } from "./src/data/user";
-import { validatePassword } from "./src/lib/hasher";
-import { ZodError } from "zod";
+import { signInSchema } from "@/src/schemas/auth.schema";
+import { getUserByEmail } from "@/src/data/user";
+import { validatePassword } from "@/src/lib/hasher";
+import { ErrorHandler } from "@/src/lib/error-handler";
+import { logger } from "@/src/lib/logger";
+import { RateLimiter } from "@/src/lib/rate-limit";
+import { createAuditLog } from "@/src/lib/audit";
+import { ExtendUser } from "./src/types/next-auth";
 
-// Types for better type safety
+// Types
 interface AuthCredentials {
   email: string;
   password: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-interface AuthError {
-  type: "credentials" | "validation" | "server";
-  message: string;
+interface SafeUser extends Omit<ExtendUser, "password"> {}
+
+// Constants
+const AUTH_CONSTANTS = {
+  RATE_LIMIT: {
+    MAX_ATTEMPTS: 5,
+    WINDOW_MS: 5 * 60 * 1000, // 5 minutes
+    BLOCK_DURATION: 30 * 60 * 1000, // 30 minutes
+  },
+  MESSAGES: {
+    ERRORS: {
+      INVALID_CREDENTIALS: "Les identifiants fournis sont invalides",
+      RATE_LIMIT_EXCEEDED: "Trop de tentatives. Veuillez patienter 30 minutes",
+      EMAIL_NOT_VERIFIED: "Veuillez vérifier votre adresse email",
+      ACCOUNT_DISABLED: "Ce compte est désactivé",
+      ACCOUNT_LOCKED: "Ce compte est temporairement verrouillé",
+      VALIDATION_ERROR: "Les données fournies sont invalides",
+      SERVER_ERROR: "Une erreur inattendue est survenue",
+      MISSING_CREDENTIALS: "Email et mot de passe requis",
+    },
+  },
+} as const;
+
+class AuthenticationService {
+  private rateLimiter: RateLimiter;
+  private errorHandler: ErrorHandler;
+
+  constructor() {
+    this.rateLimiter = new RateLimiter(AUTH_CONSTANTS.RATE_LIMIT);
+    this.errorHandler = new ErrorHandler();
+  }
+
+  async validateCredentials(
+    credentials: AuthCredentials
+  ): Promise<AuthCredentials> {
+    try {
+      return await signInSchema.parseAsync(credentials);
+    } catch (error) {
+      throw this.errorHandler.handle(error, "VALIDATION");
+    }
+  }
+
+  async verifyUser(email: string, password: string): Promise<User> {
+    try {
+      const user = await getUserByEmail(email);
+
+      if (!user || !user.password) {
+        logger.warn("Tentative de connexion échouée: utilisateur non trouvé", {
+          email,
+        });
+        throw new Error(AUTH_CONSTANTS.MESSAGES.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      const isPasswordValid = await validatePassword(password, user.password);
+      if (!isPasswordValid) {
+        logger.warn("Tentative de connexion échouée: mot de passe invalide", {
+          email,
+        });
+        throw new Error(AUTH_CONSTANTS.MESSAGES.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      return user;
+    } catch (error) {
+      throw this.errorHandler.handle(error, "AUTHENTICATION");
+    }
+  }
+
+  async checkUserStatus(user: User): Promise<void> {
+    try {
+      if (!user.emailVerified) {
+        throw new Error(AUTH_CONSTANTS.MESSAGES.ERRORS.EMAIL_NOT_VERIFIED);
+      }
+
+      if (user.status !== "ACTIVE") {
+        throw new Error(AUTH_CONSTANTS.MESSAGES.ERRORS.ACCOUNT_DISABLED);
+      }
+    } catch (error) {
+      throw this.errorHandler.handle(error, "AUTHENTICATION");
+    }
+  }
+
+  sanitizeUser(user: User): SafeUser {
+    const { password, ...safeUserData } = user;
+    return safeUserData as SafeUser;
+  }
+
+  async createLoginAuditLog(
+    success: boolean,
+    userId: string | null,
+    credentials: Partial<AuthCredentials>,
+    error?: Error
+  ): Promise<void> {
+    try {
+      await createAuditLog({
+        action: success ? "LOGIN_SUCCESS" : "LOGIN_FAILURE",
+        userId: userId || undefined,
+        metadata: {
+          email: credentials.email,
+          error: error?.message,
+          ip: credentials.ip,
+          userAgent: credentials.userAgent,
+        },
+      });
+    } catch (error) {
+      logger.error("Erreur lors de la création du log d'audit", { error });
+    }
+  }
 }
 
-// Constants for error messages
-const AUTH_ERRORS = {
-  INVALID_CREDENTIALS: "Identifiants invalides",
-  USER_NOT_FOUND: "Utilisateur non trouvé",
-  VALIDATION_ERROR: "Données d'authentification invalides",
-  SERVER_ERROR: "Erreur serveur lors de l'authentification",
-} as const;
+const authService = new AuthenticationService();
 
-// Rate limiting configuration
-const RATE_LIMIT = {
-  MAX_ATTEMPTS: 5,
-  WINDOW_MS: 5 * 60 * 1000, // 5 minutes
-} as const;
-
-// In-memory store for rate limiting (consider using Redis in production)
-const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
-
-/**
- * Rate limiting utility
- */
-const rateLimit = (email: string): boolean => {
-  const now = Date.now();
-  const attempts = loginAttempts.get(email);
-
-  if (!attempts) {
-    loginAttempts.set(email, { count: 1, lastAttempt: now });
-    return false;
-  }
-
-  if (now - attempts.lastAttempt > RATE_LIMIT.WINDOW_MS) {
-    loginAttempts.set(email, { count: 1, lastAttempt: now });
-    return false;
-  }
-
-  if (attempts.count >= RATE_LIMIT.MAX_ATTEMPTS) {
-    return true;
-  }
-
-  loginAttempts.set(email, {
-    count: attempts.count + 1,
-    lastAttempt: now,
-  });
-
-  return false;
-};
-
-/**
- * Enhanced NextAuth configuration with security features and proper error handling
- */
 export default {
   providers: [
     Credentials({
-      // Define the required credentials
       credentials: {
         email: {
           label: "Email",
@@ -81,80 +143,50 @@ export default {
         },
       },
 
-      authorize: async (credentials): Promise<any> => {
+      authorize: async (credentials): Promise<SafeUser | null> => {
+        if (!credentials?.email || !credentials?.password) {
+          logger.warn("Tentative de connexion avec des identifiants manquants");
+          throw new Error(AUTH_CONSTANTS.MESSAGES.ERRORS.MISSING_CREDENTIALS);
+        }
+
         try {
-          // Type check and validate credentials
-          if (!credentials?.email || !credentials?.password) {
-            console.warn("Missing credentials");
-            return null;
-          }
+          const { email, password, ...metadata } =
+            credentials as AuthCredentials;
 
-          const { email, password } = credentials as AuthCredentials;
+          // Vérification du rate limiting
+          await authService.rateLimiter.checkRateLimit(email);
 
-          // Check rate limiting
-          if (rateLimit(email)) {
-            console.warn(`Rate limit exceeded for email: ${email}`);
-            throw new Error(
-              "Trop de tentatives de connexion. Veuillez réessayer plus tard."
-            );
-          }
-
-          // Validate input format
-          const validatedData = await signInSchema.parseAsync({
+          // Validation des données
+          const validatedData = await authService.validateCredentials({
             email,
             password,
           });
 
-          // Get user from database
-          const user = await getUserByEmail(validatedData.email);
-
-          if (!user || !user.password) {
-            console.warn(`Failed login attempt for email: ${email}`);
-            return null;
-          }
-
-          // Verify password using constant-time comparison
-          const isPasswordValid = await validatePassword(
-            validatedData.password,
-            user.password
+          // Vérification de l'utilisateur
+          const user = await authService.verifyUser(
+            validatedData.email,
+            validatedData.password
           );
 
-          if (!isPasswordValid) {
-            console.warn(`Invalid password for email: ${email}`);
-            return null;
-          }
+          // Vérification du statut
+          await authService.checkUserStatus(user);
 
-          // Check if email is verified
-          if (!user.emailVerified) {
-            throw new Error(
-              "Veuillez vérifier votre email avant de vous connecter"
-            );
-          }
+          // Création du log d'audit
+          await authService.createLoginAuditLog(true, user.id, {
+            email,
+            ...metadata,
+          });
 
-          // Check if user is active
-          if (user.status !== "ACTIVE") {
-            throw new Error("Votre compte est désactivé");
-          }
-
-          // Return user data without sensitive information
-          const { password: _, ...safeUserData } = user;
-
-          return safeUserData;
-          
+          // Retour des données sécurisées
+          return authService.sanitizeUser(user);
         } catch (error) {
-          // Handle different types of errors
-          if (error instanceof ZodError) {
-            console.error("Validation error:", error.errors);
-            throw new Error(AUTH_ERRORS.VALIDATION_ERROR);
-          }
-
-          if (error instanceof Error) {
-            console.error("Authentication error:", error.message);
-            throw error;
-          }
-
-          console.error("Unexpected error during authentication:", error);
-          throw new Error(AUTH_ERRORS.SERVER_ERROR);
+          await authService.createLoginAuditLog(
+            false,
+            null,
+            credentials as AuthCredentials,
+            error as Error
+          );
+          throw error;
         }
       },
     }),

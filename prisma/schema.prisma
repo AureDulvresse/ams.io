@@ -775,7 +775,7 @@ model SystemSettings {
 
 model AuditLog {
   id          Int      @id @default(autoincrement())
-  user_id     Int? // Peut être null pour les actions système
+  user_id     String? // Peut être null pour les actions système
   action      String // create, update, delete
   entity_type String // nom de la table affectée
   entity_id   Int // ID de l'enregistrement affecté

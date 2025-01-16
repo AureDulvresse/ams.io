@@ -69,11 +69,17 @@ export async function login(
     }
 
     // Attempt sign in
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
+      redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
+
+    if (result?.error) {
+      logger.error("Échec de la connexion", { email, error: result.error });
+      return { error: "Identifiants incorrects" };
+    }
 
     logger.info("Successful login", { email });
     return { success: "Connexion réussie" };
@@ -87,6 +93,12 @@ export async function login(
       switch (error.type) {
         case "CredentialsSignin":
           return { error: "Identifiants incorrects" };
+        case "AccessDenied":
+          return { error: "Accès refusé" };
+        case "CallbackRouteError":
+          return { error: "Erreur de route de rappel" };
+        case "InvalidCallbackUrl":
+          return { error: "URL de rappel invalide" };
         default:
           return {
             error: "Une erreur est survenue lors de l'authentification",
