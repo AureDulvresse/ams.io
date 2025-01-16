@@ -2,23 +2,10 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Permission } from "../types/permission";
-import { Role } from "../types/role";
-import { User } from "next-auth";
-
-// Types
-interface ExtendedUser extends User {
-  id: string;
-  first_name: string;
-  last_name: string;
-  role: Role;
-  is_active: boolean;
-  emailVerified?: Date;
-  last_login?: Date;
-}
+import { ExtendUser } from "../types/next-auth";
 
 interface UseCurrentUserReturn {
-  user: ExtendedUser | null;
+  user: ExtendUser | null;
   userRole: string | null;
   permissions: string[];
   isLoading: boolean;
@@ -34,7 +21,7 @@ export const useCurrentUser = (): UseCurrentUserReturn => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const user = session?.user as ExtendedUser | null;
+  const user = session?.user as ExtendUser | null;
   const userRole = user?.role?.name ?? null;
 
   useEffect(() => {
