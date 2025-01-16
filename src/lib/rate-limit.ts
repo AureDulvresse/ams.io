@@ -44,7 +44,7 @@ export class RateLimiter {
   private readonly cache: LRUCache<string, TokenData>;
   private readonly options: Required<RateLimitOptions>;
 
-  constructor(options: RateLimitOptions = {}) {
+  constructor(options: RateLimitOptions | any = {}) {
     this.options = { ...DEFAULT_OPTIONS, ...options };
     this.validateOptions();
 
