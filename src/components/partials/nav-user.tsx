@@ -29,8 +29,6 @@ import {
 import { SidebarMenuButton, useSidebar } from "@/src/components/ui/sidebar";
 import { logout } from "@/src/actions/auth.actions";
 import { toast } from "sonner";
-import { User } from "next-auth";
-import { Role } from "@/src/types/role";
 import { useRouter } from "next/navigation";
 import { ExtendUser } from "@/src/types/next-auth";
 
