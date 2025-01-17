@@ -1,9 +1,11 @@
 import { isAuthenticated } from "@/auth";
 import { NextResponse } from "next/server";
-import { limiter } from "@/src/lib/rate-limit";
 import { validateCsrfToken } from "@/src/lib/csrf";
 import { createRole } from "@/src/actions/role.actions";
 import { getRoles } from "@/src/data/role";
+import { RateLimiter } from "@/src/lib/rate-limit";
+
+const limiter = new RateLimiter();
 
 export async function GET(request: Request) {
   try {
@@ -15,7 +17,7 @@ export async function GET(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(10, "ROLES_API_CACHE");
+      await limiter.checkRateLimit("ROLES_API_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(10, "ROLES_CREATE_CACHE");
+      await limiter.checkRateLimit("ROLES_CREATE_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },

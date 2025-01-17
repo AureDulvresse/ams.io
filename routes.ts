@@ -26,7 +26,7 @@ export const publicRoutes = ["/"];
 export const authRoutes = ["/login", "/login?from=%2Fdashboard"];
 export const privateRoutes = ["/dashboard", "/academic/departments", "academic/courses", "/users", "/users/roles"];
 export const apiAuthPrefix = "/api/auth";
-export const DEFAULT_LOGIN_REDIRECT = "/dashboard";
+export const DEFAULT_LOGIN_REDIRECT = "http://localhost:3000/dashboard";
 
 // App Routes for AMS
 import {

@@ -48,8 +48,6 @@ const LoginForm = () => {
 
       toast.success(result?.success);
       form.reset();
-      
-      router.push("/dashboard");
     } catch (err: any) {
       toast.error(err.message);
     } finally {

@@ -3,10 +3,12 @@ import {
   getPermissions,
   getUserPermissionsById,
 } from "@/src/data/permission";
-import { limiter } from "@/src/lib/rate-limit";
 import { validateCsrfToken } from "@/src/lib/csrf";
 import { isAuthenticated } from "@/auth";
 import { createPermission } from "@/src/actions/permission.actions";
+import { RateLimiter } from "@/src/lib/rate-limit";
+
+const limiter = new RateLimiter();
 
 export async function GET(request: Request) {
   try {
@@ -22,7 +24,7 @@ export async function GET(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(50, "PERMISSIONS_API_CACHE");
+      await limiter.checkRateLimit("PERMISSIONS_API_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
@@ -69,7 +71,7 @@ export async function POST(request: Request) {
 
     // Rate limiting
     try {
-      await limiter.check(5, "PERMISSIONS_CREATE_CACHE");
+      await limiter.checkRateLimit("PERMISSIONS_CREATE_CACHE");
     } catch {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
