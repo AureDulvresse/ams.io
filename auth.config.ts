@@ -4,6 +4,7 @@ import { signInSchema } from "./src/schemas/auth.schema";
 import { getUserByEmail } from "./src/data/user";
 import { validatePassword } from "./src/lib/hasher";
 import { ZodError } from "zod";
+import { UserStatus } from "@prisma/client";
 
 // Types for better type safety
 interface AuthCredentials {
@@ -12,63 +13,86 @@ interface AuthCredentials {
 }
 
 interface AuthError {
-  type: "credentials" | "validation" | "server";
+  type: "credentials" | "validation" | "server" | "status" | "rate_limit";
   message: string;
+  code?: string;
 }
 
-// Constants for error messages
+// Constants étendues
 const AUTH_ERRORS = {
   INVALID_CREDENTIALS: "Identifiants invalides",
   USER_NOT_FOUND: "Utilisateur non trouvé",
   VALIDATION_ERROR: "Données d'authentification invalides",
   SERVER_ERROR: "Erreur serveur lors de l'authentification",
+  RATE_LIMIT_EXCEEDED:
+    "Trop de tentatives de connexion. Veuillez réessayer dans {minutes} minutes",
+  EMAIL_NOT_VERIFIED: "Veuillez vérifier votre email avant de vous connecter",
+  ACCOUNT_INACTIVE: "Votre compte est désactivé",
 } as const;
 
-// Rate limiting configuration
+// Configuration du rate limiting avec plus d'options
 const RATE_LIMIT = {
   MAX_ATTEMPTS: 5,
-  WINDOW_MS: 5 * 60 * 1000, // 5 minutes
+  WINDOW_MS: 5 * 60 * 1000,
+  LOCKOUT_MS: 30 * 60 * 1000, // 30 minutes de blocage
 } as const;
 
-// In-memory store for rate limiting (consider using Redis in production)
-const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
+// Amélioration de la gestion du rate limiting
+class RateLimiter {
+  private static attempts = new Map<string, { 
+    count: number; 
+    lastAttempt: number;
+    lockedUntil?: number;
+  }>();
 
-/**
- * Rate limiting utility
- */
-const rateLimit = (email: string): boolean => {
-  const now = Date.now();
-  const attempts = loginAttempts.get(email);
+  static isRateLimited(email: string): { limited: boolean; minutesLeft?: number } {
+    const now = Date.now();
+    const attempts = this.attempts.get(email);
 
-  if (!attempts) {
-    loginAttempts.set(email, { count: 1, lastAttempt: now });
-    return false;
+    if (!attempts) {
+      this.attempts.set(email, { count: 1, lastAttempt: now });
+      return { limited: false };
+    }
+
+    // Vérifier si l'utilisateur est bloqué
+    if (attempts.lockedUntil && now < attempts.lockedUntil) {
+      const minutesLeft = Math.ceil((attempts.lockedUntil - now) / (60 * 1000));
+      return { limited: true, minutesLeft };
+    }
+
+    // Réinitialiser si la fenêtre de temps est dépassée
+    if (now - attempts.lastAttempt > RATE_LIMIT.WINDOW_MS) {
+      this.attempts.set(email, { count: 1, lastAttempt: now });
+      return { limited: false };
+    }
+
+    // Bloquer si trop de tentatives
+    if (attempts.count >= RATE_LIMIT.MAX_ATTEMPTS) {
+      const lockedUntil = now + RATE_LIMIT.LOCKOUT_MS;
+      this.attempts.set(email, {
+        ...attempts,
+        lockedUntil,
+      });
+      return { limited: true, minutesLeft: RATE_LIMIT.LOCKOUT_MS / (60 * 1000) };
+    }
+
+    // Incrémenter le compteur
+    this.attempts.set(email, {
+      count: attempts.count + 1,
+      lastAttempt: now,
+    });
+
+    return { limited: false };
   }
 
-  if (now - attempts.lastAttempt > RATE_LIMIT.WINDOW_MS) {
-    loginAttempts.set(email, { count: 1, lastAttempt: now });
-    return false;
+  static reset(email: string): void {
+    this.attempts.delete(email);
   }
+}
 
-  if (attempts.count >= RATE_LIMIT.MAX_ATTEMPTS) {
-    return true;
-  }
-
-  loginAttempts.set(email, {
-    count: attempts.count + 1,
-    lastAttempt: now,
-  });
-
-  return false;
-};
-
-/**
- * Enhanced NextAuth configuration with security features and proper error handling
- */
 export default {
   providers: [
     Credentials({
-      // Define the required credentials
       credentials: {
         email: {
           label: "Email",
@@ -83,80 +107,68 @@ export default {
 
       authorize: async (credentials): Promise<any> => {
         try {
-
-          let user = null;
-          // Type check and validate credentials
           if (!credentials?.email || !credentials?.password) {
-            console.warn("Missing credentials");
-            return null;
+            throw new Error(AUTH_ERRORS.INVALID_CREDENTIALS);
           }
 
           const { email, password } = credentials as AuthCredentials;
 
-          // Check rate limiting
-          if (rateLimit(email)) {
-            console.warn(`Rate limit exceeded for email: ${email}`);
+          // Vérification du rate limiting améliorée
+          const rateLimitStatus = RateLimiter.isRateLimited(email);
+          if (rateLimitStatus.limited) {
             throw new Error(
-              "Trop de tentatives de connexion. Veuillez réessayer plus tard."
+              AUTH_ERRORS.RATE_LIMIT_EXCEEDED.replace(
+                "{minutes}",
+                String(rateLimitStatus.minutesLeft)
+              )
             );
           }
 
-          // Validate input format
-          const validatedData = await signInSchema.parseAsync({
-            email,
-            password,
-          });
-
-          // Get user from database
-          user = await getUserByEmail(validatedData.email);
+          // Validation et récupération de l'utilisateur
+          const validatedData = await signInSchema.parseAsync({ email, password });
+          const user = await getUserByEmail(validatedData.email);
 
           if (!user || !user.password) {
-            console.warn(`Failed login attempt for email: ${email}`);
-            return null;
+            throw new Error(AUTH_ERRORS.USER_NOT_FOUND);
           }
 
-          // Verify password using constant-time comparison
+          // Vérification du mot de passe
           const isPasswordValid = await validatePassword(
             validatedData.password,
             user.password
           );
 
           if (!isPasswordValid) {
-            console.warn(`Invalid password for email: ${email}`);
-            return null;
+            throw new Error(AUTH_ERRORS.INVALID_CREDENTIALS);
           }
 
-          // Check if email is verified
+          // Vérifications du statut
           if (!user.emailVerified) {
-            throw new Error(
-              "Veuillez vérifier votre email avant de vous connecter"
-            );
+            throw new Error(AUTH_ERRORS.EMAIL_NOT_VERIFIED);
           }
 
-          // Check if user is active
-          if (user.status !== "ACTIVE") {
-            throw new Error("Votre compte est désactivé");
+          if (user.status !== UserStatus.ACTIVE) {
+            throw new Error(AUTH_ERRORS.ACCOUNT_INACTIVE);
           }
 
-          // Return user data without sensitive information
+          // Réinitialiser le rate limiting en cas de succès
+          RateLimiter.reset(email);
+
+          // Retourner les données sans informations sensibles
           const { password: _, ...safeUserData } = user;
-
           return safeUserData;
-          
+
         } catch (error) {
-          // Handle different types of errors
           if (error instanceof ZodError) {
-            console.error("Validation error:", error.errors);
             throw new Error(AUTH_ERRORS.VALIDATION_ERROR);
           }
 
           if (error instanceof Error) {
-            console.error("Authentication error:", error.message);
-            throw error;
+            throw new Error(error.message);
           }
 
-          console.error("Unexpected error during authentication:", error);
-          throw new Error(AUTH_ERRORS.SERVER_ERROR);
+          console.error(error);
+          throw error;
         }
       },
     }),
