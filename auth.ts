@@ -1,18 +1,36 @@
-import NextAuth, { Session } from "next-auth";
+import NextAuth, { Session, DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./src/lib/prisma";
 import authConfig from "@/auth.config";
 import { getUserById } from "./src/data/user";
 import { Role } from "./src/types/role";
 import { UserStatus } from "@prisma/client";
+import { ExtendUser } from "./src/types/next-auth";
 import { JWT } from "next-auth/jwt";
-import { cookieConfig } from "./cookies.config";
 
-// Constants
-const SESSION_MAX_AGE = 24 * 60 * 60; // 24 hours
-const SESSION_UPDATE_AGE = 12 * 60 * 60; // 12 hours
+// Constantes
+const AUTH_CONSTANTS = {
+  SESSION: {
+    MAX_AGE: 24 * 60 * 60, // 24 hours
+    UPDATE_AGE: 12 * 60 * 60, // 12 hours
+  },
+  ERRORS: {
+    SIGN_IN_NO_USER: "Sign-in attempt without user data",
+    ALREADY_VERIFIED: "Sign-in attempt for already verified email",
+    SESSION_ERROR: "Error during session callback",
+    JWT_ERROR: "Error during JWT callback",
+    AUTH_CHECK_ERROR: "Error checking authentication",
+  },
+} as const;
 
-// NextAuth configuration
+// Class pour la gestion des erreurs d'authentification
+class AuthError extends Error {
+  constructor(message: string, public code: string, public details?: any) {
+    super(message);
+    this.name = "AuthError";
+  }
+}
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -23,8 +41,8 @@ export const {
 
   session: {
     strategy: "jwt",
-    maxAge: SESSION_MAX_AGE,
-    updateAge: SESSION_UPDATE_AGE,
+    maxAge: AUTH_CONSTANTS.SESSION.MAX_AGE,
+    updateAge: AUTH_CONSTANTS.SESSION.UPDATE_AGE,
   },
 
   pages: {
@@ -43,37 +61,57 @@ export const {
           },
         });
       } catch (error) {
-        console.error("Error updating user during account linking:", error);
+        throw new AuthError(
+          "Failed to update user during account linking",
+          "LINK_ACCOUNT_ERROR",
+          error
+        );
       }
     },
   },
 
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }): Promise<boolean> {
       try {
         if (!user) {
-          console.warn("Sign-in attempt without user data");
-          return false;
+          throw new AuthError(
+            AUTH_CONSTANTS.ERRORS.SIGN_IN_NO_USER,
+            "SIGN_IN_NO_USER"
+          );
         }
 
         const existingUser = await getUserById(
           typeof user.id === "string" ? user.id : ""
         );
 
-        if (existingUser?.emailVerified === null) {
-          console.warn("Sign-in attempt for already verified email");
+        if (!existingUser) {
           return false;
         }
 
-        // Update last login
+        if (existingUser.emailVerified == null) {
+          throw new AuthError(
+            AUTH_CONSTANTS.ERRORS.ALREADY_VERIFIED,
+            "EMAIL_ALREADY_VERIFIED"
+          );
+        }
+
         await db.user.update({
           where: { id: user.id },
-          data: { last_login: new Date() },
+          data: {
+            last_login: new Date(),
+            logins: {
+              create: {
+                login_time: new Date(),
+                ip_address: account?.ip_address || "unknown",
+                device: account?.user_agent || "unknown",
+              },
+            },
+          },
         });
 
         return true;
       } catch (error) {
-        console.error("Error during sign-in callback:", error);
+        console.error(error);
         return false;
       }
     },
@@ -95,22 +133,22 @@ export const {
         }
         return session as Session;
       } catch (error) {
-        console.error("Error during session callback:", error);
-        return session as Session;
+        throw new AuthError(
+          AUTH_CONSTANTS.ERRORS.SESSION_ERROR,
+          "SESSION_CALLBACK_ERROR",
+          error
+        );
       }
     },
 
     jwt: async ({ token }): Promise<JWT> => {
       try {
         if (!token.sub) return token;
-
-        // Avoid repeated DB calls by checking if data is already present
         if (token.role && token.identity) return token as JWT;
 
         const user = await getUserById(token.sub);
         if (!user) return token;
 
-        // Store only essential data in the token
         const extendedToken: JWT = {
           ...token,
           role: user.role,
@@ -123,45 +161,49 @@ export const {
           last_login: user.last_login || undefined,
         };
 
-        // Clean non-essential data
         delete extendedToken.name;
         delete extendedToken.picture;
 
         return extendedToken;
       } catch (error) {
-        console.error("Error during JWT callback:", error);
-        return token;
+        throw new AuthError(
+          AUTH_CONSTANTS.ERRORS.JWT_ERROR,
+          "JWT_CALLBACK_ERROR",
+          error
+        );
       }
     },
   },
 
-  cookies: cookieConfig,
-
   ...authConfig,
 });
 
-/**
- * Checks if the current request is authenticated
- * @param request - The incoming request object
- * @returns The session object if authenticated, null otherwise
- */
-export async function isAuthenticated(request: Request) {
+// Fonction améliorée pour vérifier l'authentification
+export async function isAuthenticated(
+  request: Request
+): Promise<Session | null> {
   try {
     const session = await auth();
-    return session;
+    if (!isValidSession(session)) return null;
+    return session as Session;
   } catch (error) {
-    console.error("Error checking authentication:", error);
-    return null;
+    throw new AuthError(
+      AUTH_CONSTANTS.ERRORS.AUTH_CHECK_ERROR,
+      "AUTH_CHECK_ERROR",
+      error
+    );
   }
 }
 
-// Type guard for session
+// Type guard amélioré
 export function isValidSession(session: any): session is Session {
   return (
     session &&
     typeof session === "object" &&
     "user" in session &&
     typeof session.user === "object" &&
-    "id" in session.user
+    "id" in session.user &&
+    "role" in session.user &&
+    "email" in session.user
   );
 }

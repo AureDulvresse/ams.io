@@ -3,7 +3,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESENT_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const linkForConfirmation = `http://localhost:3000/auth/new-verification/${token}`;
+  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
 
   try {
     await resend.emails.send({
@@ -85,7 +85,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
                 <p>
                   Merci d'avoir créé un compte sur AMS. Veuillez confirmer votre adresse e-mail pour activer votre compte et accéder à toutes nos fonctionnalités.
                 </p>
-                <a href="${linkForConfirmation}" class="button">Activer mon compte</a>
+                <a href="${verificationUrl}" class="button">Activer mon compte</a>
                 <p>
                   Si vous n'avez pas créé ce compte, vous pouvez ignorer cet e-mail.
                 </p>

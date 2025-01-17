@@ -197,8 +197,8 @@ model Login {
   id         Int      @id @default(autoincrement())
   user_id    String
   login_time DateTime @default(now())
-  ip_address String
-  device     String?
+  ip_address Json
+  device     Json?
   location   String?
   user       User     @relation(fields: [user_id], references: [id])
 }
