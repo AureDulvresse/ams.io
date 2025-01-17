@@ -17,9 +17,7 @@ export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
-  console.log(isLoggedIn);
-
-  // Vérification du type de route
+  // Vérification du type de route actuelle
   const routeType = {
     isApiAuth: nextUrl.pathname.startsWith(apiAuthPrefix),
     isPublic: matchesRoute(nextUrl.pathname, publicRoutes),
@@ -32,16 +30,27 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // 2. Rediriger les utilisateurs connectés depuis les pages d'authentification
-  if (routeType.isAuth && isLoggedIn) {
-    return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+  // 2. Gérer les routes d'authentification (login, etc.)
+  if (routeType.isAuth) {
+    // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
+    if (isLoggedIn) {
+      // Récupérer le paramètre 'from' s'il existe
+      const from = nextUrl.searchParams.get("from");
+      const redirectUrl = from || DEFAULT_LOGIN_REDIRECT;
+      return Response.redirect(new URL(redirectUrl, nextUrl));
+    }
+    return NextResponse.next();
   }
 
-  // 3. Protéger les routes privées et rediriger vers la connexion si nécessaire
-  if (!isLoggedIn && routeType.isPrivate) {
-    return NextResponse.redirect(
-      createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)
-    );
+  // 3. Gérer les routes privées
+  if (routeType.isPrivate) {
+    // Si non connecté, rediriger vers la page de login
+    if (!isLoggedIn) {
+      return Response.redirect(
+        createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)
+      );
+    }
+    return NextResponse.next();
   }
 
   // 4. Autoriser l'accès aux routes publiques
@@ -49,19 +58,10 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // 5. Rediriger vers la connexion si non authentifié
-  // if (!isLoggedIn) {
-  //   return NextResponse.redirect(
-  //     createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)
-  //   );
-  // }
-
+  // 5. Par défaut, autoriser l'accès
   return NextResponse.next();
 });
 
-/**
- * Configuration des routes à intercepter par le middleware
- */
 export const config = {
   matcher: [
     /*
