@@ -14,10 +14,11 @@ import {
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
+  // Extract necessary information from the request
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
-  // Vérification du type de route actuelle
+  // Define route types using a more concise object structure
   const routeType = {
     isApiAuth: nextUrl.pathname.startsWith(apiAuthPrefix),
     isPublic: matchesRoute(nextUrl.pathname, publicRoutes),
@@ -25,50 +26,42 @@ export default auth((req) => {
     isPrivate: matchesRoute(nextUrl.pathname, privateRoutes),
   };
 
-  // 1. Autoriser toutes les requêtes API d'authentification
+  // Early return for API authentication routes
   if (routeType.isApiAuth) {
     return NextResponse.next();
   }
 
-  // 2. Gérer les routes d'authentification (login, etc.)
+  // Handle authentication routes (login, register, etc.)
   if (routeType.isAuth) {
-    // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
     if (isLoggedIn) {
-      // Récupérer le paramètre 'from' s'il existe
-      const from = nextUrl.searchParams.get("from");
-      const redirectUrl = from || DEFAULT_LOGIN_REDIRECT;
+      const callbackUrl = nextUrl.searchParams.get("callbackUrl");
+      const redirectUrl = callbackUrl || DEFAULT_LOGIN_REDIRECT;
       return Response.redirect(new URL(redirectUrl, nextUrl));
     }
     return NextResponse.next();
   }
 
-  // 3. Gérer les routes privées
+  // Handle protected routes
   if (routeType.isPrivate) {
-    // Si non connecté, rediriger vers la page de login
     if (!isLoggedIn) {
-      return Response.redirect(
-        createRedirectUrl("/login", nextUrl.toString(), nextUrl.pathname)
+      const redirectUrl = createRedirectUrl(
+        "/auth/login",
+        nextUrl.toString(),
+        nextUrl.pathname
       );
+      return Response.redirect(redirectUrl);
     }
     return NextResponse.next();
   }
 
-  // 4. Autoriser l'accès aux routes publiques
-  if (routeType.isPublic) {
-    return NextResponse.next();
-  }
-
-  // 5. Par défaut, autoriser l'accès
+  // Handle public routes and default case
   return NextResponse.next();
 });
 
+// Matcher configuration for Next.js
 export const config = {
   matcher: [
-    /*
-     * Correspond à toutes les routes sauf :
-     * 1. Les fichiers statiques (images, etc.)
-     * 2. Les routes API internes de Next.js
-     */
+    // Match all paths except Next.js static files and API routes
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
