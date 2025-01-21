@@ -7,6 +7,7 @@ import { Role } from "./src/types/role";
 import { UserStatus } from "@prisma/client";
 import { ExtendUser } from "./src/types/next-auth";
 import { JWT } from "next-auth/jwt";
+import { cookieConfig } from "./cookies.config";
 
 // Constantes
 const AUTH_CONSTANTS = {
@@ -38,6 +39,8 @@ export const {
   signOut,
 } = NextAuth({
   adapter: PrismaAdapter(db),
+
+  ...authConfig,
 
   session: {
     strategy: "jwt",
@@ -175,7 +178,7 @@ export const {
     },
   },
 
-  ...authConfig,
+  ...cookieConfig,
 });
 
 // Fonction améliorée pour vérifier l'authentification

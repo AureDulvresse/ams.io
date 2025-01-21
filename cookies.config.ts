@@ -12,7 +12,7 @@ export const cookieConfig = {
     options: {
       httpOnly: true,
       sameSite: "lax" as const,
-      path: "/",
+      path: DEFAULT_LOGIN_REDIRECT,
       secure: COOKIE_SECURE,
       maxAge:SESSION_MAX_AGE,
       domain: COOKIE_DOMAIN,
@@ -22,7 +22,7 @@ export const cookieConfig = {
     name: `__Secure-next-auth.callback-url`,
     options: {
       sameSite: "lax" as const,
-      path: "/",
+      path: DEFAULT_LOGIN_REDIRECT,
       secure: COOKIE_SECURE,
     },
   },
@@ -31,7 +31,7 @@ export const cookieConfig = {
     options: {
       httpOnly: true,
       sameSite: "lax" as const,
-      path: "/",
+      path: DEFAULT_LOGIN_REDIRECT,
       secure: COOKIE_SECURE,
     },
   },
