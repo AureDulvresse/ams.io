@@ -5,7 +5,6 @@ import authConfig from "@/auth.config";
 import { getUserById } from "./src/data/user";
 import { Role } from "./src/types/role";
 import { UserStatus } from "@prisma/client";
-import { ExtendUser } from "./src/types/next-auth";
 import { JWT } from "next-auth/jwt";
 import { cookieConfig } from "./cookies.config";
 
@@ -49,7 +48,7 @@ export const {
   },
 
   pages: {
-    signIn: "/login",
+    signIn: "/auth/login",
     error: "/auth/error",
   },
 

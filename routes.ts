@@ -23,7 +23,7 @@ export const createRedirectUrl = (
 
 // Configuration des routes
 export const publicRoutes = ["/"];
-export const authRoutes = ["/login", "/login?from=%2Fdashboard"];
+export const authRoutes = ["/auth/login", "/auth/login?from=%2Fdashboard"];
 export const privateRoutes = ["/dashboard", "/academic/departments", "academic/courses", "/users", "/users/roles"];
 export const apiAuthPrefix = "/api/auth";
 export const DEFAULT_LOGIN_REDIRECT = "http://localhost:3000/dashboard";
